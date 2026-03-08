@@ -24,7 +24,7 @@ export const GeneratorPage = () => {
     setLoading(true);
     
     try {
-      const res = await fetch('http://localhost:8000/api/generate', {
+      const res = await fetch('http://localhost:8001/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
