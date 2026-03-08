@@ -13,7 +13,8 @@ export const GeneratorPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [profilePic, setProfilePic] = useState(null);
+  const [profilePic, setProfilePic] = useState(null); // Background Cover
+  const [avatarUrl, setAvatarUrl] = useState(null); // Profile Avatar
   const [isFlipped, setIsFlipped] = useState(false);
 
   // Customization States
@@ -57,6 +58,12 @@ export const GeneratorPage = () => {
   const handleImageUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
       setProfilePic(URL.createObjectURL(e.target.files[0]));
+    }
+  };
+
+  const handleAvatarUpload = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatarUrl(URL.createObjectURL(e.target.files[0]));
     }
   };
 
@@ -134,20 +141,39 @@ export const GeneratorPage = () => {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Identity Photo (Optional)</label>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-light/5 border border-light/10 overflow-hidden flex items-center justify-center shrink-0">
-                     {profilePic ? (
-                       <img src={profilePic} alt="Upload preview" className="w-full h-full object-cover" />
-                     ) : (
-                       <Upload className="w-6 h-6 text-light/20" />
-                     )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Profile Avatar (Optional)</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-light/5 border border-light/10 overflow-hidden flex items-center justify-center shrink-0">
+                       {avatarUrl ? (
+                         <img src={avatarUrl} alt="Avatar preview" className="w-full h-full object-cover" />
+                       ) : (
+                         <Upload className="w-6 h-6 text-light/20" />
+                       )}
+                    </div>
+                    <label className="cursor-pointer bg-light/5 hover:bg-light/10 text-light text-xs font-mono py-2.5 px-4 rounded-xl transition-all border border-light/10 hover:border-primary">
+                      Upload
+                      <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                    </label>
                   </div>
-                  <label className="cursor-pointer bg-light/5 hover:bg-light/10 text-light text-xs font-mono py-2.5 px-4 rounded-xl transition-all border border-light/10 hover:border-primary">
-                    Upload Picture
-                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                  </label>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Background Cover</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-light/5 border border-light/10 overflow-hidden flex items-center justify-center shrink-0">
+                       {profilePic ? (
+                         <img src={profilePic} alt="Cover preview" className="w-full h-full object-cover" />
+                       ) : (
+                         <Upload className="w-6 h-6 text-light/20" />
+                       )}
+                    </div>
+                    <label className="cursor-pointer bg-light/5 hover:bg-light/10 text-light text-xs font-mono py-2.5 px-4 rounded-xl transition-all border border-light/10 hover:border-primary">
+                      Upload
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -328,6 +354,16 @@ export const GeneratorPage = () => {
                       <div className="flex justify-center pt-2">
                         <img src="/LOGO.png" alt="EduCard Logo" className={`w-12 h-12 drop-shadow-lg ${themes[cardTheme].text === 'text-dark' ? 'invert' : ''}`} />
                       </div>
+
+                      {/* Profile Avatar */}
+                      {avatarUrl && (
+                        <div className="mt-8 mb-auto">
+                          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-[4px] border-white/20 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-md mx-auto relative group">
+                             <div className="absolute inset-0 bg-black/10"></div>
+                             <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover relative z-10" />
+                          </div>
+                        </div>
+                      )}
 
                       {/* Full Screen Name */}
                       <div className="w-full flex-1 flex flex-col justify-center pb-12">
