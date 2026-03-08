@@ -42,6 +42,7 @@ export const Navbar = () => {
         >
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
+              <img src="/LOGO.png" alt="EduCard Logo" className="w-8 h-8 object-contain" />
               <span className={`font-sans font-bold text-xl tracking-tighter ${scrolled ? 'text-dark' : 'text-light'}`}>
                 EduCard.
               </span>

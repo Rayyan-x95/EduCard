@@ -36,6 +36,7 @@ export const Footer = () => {
           {/* Brand col */}
           <div className="md:col-span-2 space-y-6">
             <Link to="/" className="flex items-center gap-3 group w-fit">
+              <img src="/LOGO.png" alt="EduCard Logo" className="w-10 h-10 object-contain" />
               <span className="font-sans font-bold text-4xl tracking-tighter text-light group-hover:text-primary transition-colors">
                 EduCard.
               </span>
