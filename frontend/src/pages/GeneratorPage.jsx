@@ -1,17 +1,35 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Loader2, QrCode, Download, Link as LinkIcon, Phone, Mail, GraduationCap, Upload, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toPng } from 'html-to-image';
+import QRCode from 'qrcode';
 
 export const GeneratorPage = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    university: '',
-    major: '',
-    email: '',
-    phone: '',
-    portfolio: ''
+  // Load initial state from localStorage if available
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem('educard_draft');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+         console.error('Failed to parse saved draft', e);
+      }
+    }
+    return {
+      name: '',
+      university: '',
+      major: '',
+      email: '',
+      phone: '',
+      portfolio: ''
+    };
   });
+
+  // Save to localStorage when form data changes
+  useEffect(() => {
+    localStorage.setItem('educard_draft', JSON.stringify(formData));
+  }, [formData]);
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [profilePic, setProfilePic] = useState(null); // Background Cover
@@ -19,11 +37,14 @@ export const GeneratorPage = () => {
   const [isFlipped, setIsFlipped] = useState(false);
   const frontCardRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
+  const backCardRef = useRef(null);
 
   // Customization States
   const [nameFont, setNameFont] = useState('font-sans');
   const [nameColor, setNameColor] = useState('#ffffff');
   const [nameSize, setNameSize] = useState(1);
+  const [nameWeight, setNameWeight] = useState(700);
+  const [avatarRoundness, setAvatarRoundness] = useState(50);
   const [cardTheme, setCardTheme] = useState('dark-glass');
 
   const themes = {
@@ -74,34 +95,38 @@ export const GeneratorPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const generateVCard = (data) => {
+    return `BEGIN:VCARD
+VERSION:3.0
+FN:${data.name || ''}
+ORG:${data.university || ''}
+TITLE:${data.major || ''}
+EMAIL:${data.email || ''}
+TEL:${data.phone || ''}
+URL:${data.portfolio || ''}
+END:VCARD`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
-    // The backend expects firstName and lastName
-    const nameParts = formData.name ? formData.name.trim().split(/\s+/) : [];
-    const firstName = nameParts.length > 0 ? nameParts[0] : '';
-    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-
-    const payload = {
-      ...formData,
-      firstName,
-      lastName
-    };
-    
     try {
-      const res = await fetch('http://localhost:8001/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      const vCardText = generateVCard(formData);
+      const qrDataUrl = await QRCode.toDataURL(vCardText, {
+        width: 400,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
       });
-      if (!res.ok) throw new Error('API Error');
-      const data = await res.json();
-      setResult(data.qr_code);
+      
+      setResult(qrDataUrl);
       setIsFlipped(true);
     } catch (err) {
       console.error(err);
-      alert('Node connection failed. Ensure backend API is active at port 8000.');
+      alert('Failed to generate QR code locally.');
     } finally {
       setLoading(false);
     }
@@ -112,7 +137,7 @@ export const GeneratorPage = () => {
     const link = document.createElement('a');
     link.href = result;
     const sanitizedName = formData.name ? formData.name.replace(/\s+/g, '_') : 'Student';
-    link.download = `EduCard_QR_${sanitizedName}.png`;
+    link.download = `EduCard_${sanitizedName}.png`;
     link.click();
   };
 
@@ -120,7 +145,6 @@ export const GeneratorPage = () => {
     if (!frontCardRef.current) return;
     try {
       setIsExporting(true);
-      // Wait a tick for react to re-render without "Tap to flip" text
       await new Promise(resolve => setTimeout(resolve, 100)); 
       
       const dataUrl = await toPng(frontCardRef.current, {
@@ -136,6 +160,31 @@ export const GeneratorPage = () => {
       link.click();
     } catch (err) {
       console.error('Failed to export card:', err);
+      alert('Could not export the ID card image at this time.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const exportBackCard = async () => {
+    if (!backCardRef.current) return;
+    try {
+      setIsExporting(true);
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+      
+      const dataUrl = await toPng(backCardRef.current, {
+        cacheBust: true,
+        style: { transform: 'none' }, // Ensure 3D transforms don't ruin perspective
+        pixelRatio: 2 // High Resolution
+      });
+      
+      const link = document.createElement('a');
+      const sanitizedName = formData.name ? formData.name.replace(/\s+/g, '_') : 'Student';
+      link.download = `EduCard_Back_${sanitizedName}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to export back card:', err);
       alert('Could not export the ID card image at this time.');
     } finally {
       setIsExporting(false);
@@ -219,33 +268,33 @@ export const GeneratorPage = () => {
 
               <div className="space-y-2">
                 <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Full Name *</label>
-                <input required name="name" value={formData.name} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="Mohammed Rayyan" />
+                <input required name="name" value={formData.name} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.name.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="Joe Smith" />
               </div>
 
               <div className="space-y-2">
                 <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">University / Institution *</label>
-                <input required name="university" value={formData.university} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="Stanford University" />
+                <input required name="university" value={formData.university} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.university.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="Stanford University" />
               </div>
 
               <div className="space-y-2">
                 <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Major / Prefix *</label>
-                <input required name="major" value={formData.major} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="B.S. Computer Science" />
+                <input required name="major" value={formData.major} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.major.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="B.S. Computer Science" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Email Node *</label>
-                  <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="jdoe@edu.org" />
+                  <input required type="email" name="email" value={formData.email} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.email.includes('@') ? 'border-primary/50 focus:border-primary focus:bg-light/10' : formData.email.length > 0 ? 'border-red-400 focus:border-red-500' : 'border-light/10 focus:border-light/30'}`} placeholder="jdoe@edu.org" />
                 </div>
                 <div className="space-y-2">
                   <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Phone Vector</label>
-                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="+1 (555) 000-0000" />
+                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.phone.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="+1 (555) 000-0000" />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Portfolio / Network URL</label>
-                <input type="url" name="portfolio" value={formData.portfolio} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="https://github.com/jdoe" />
+                <input type="url" name="portfolio" value={formData.portfolio} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.portfolio.includes('http') ? 'border-primary/50 focus:border-primary focus:bg-light/10' : formData.portfolio.length > 0 ? 'border-red-400 focus:border-red-500' : 'border-light/10 focus:border-light/30'}`} placeholder="https://github.com/jdoe" />
               </div>
 
               {/* Customization Options */}
@@ -289,13 +338,13 @@ export const GeneratorPage = () => {
                   </div>
                   
                   {/* Name Size Selection */}
-                  <div className="space-y-2 sm:col-span-2 mt-4 sm:mt-0">
+                  <div className="space-y-2 mt-4 sm:mt-0">
                     <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1 flex justify-between">
-                      <span>Name Size Multiplier</span>
+                      <span>Width</span>
                       <span className="text-primary">{nameSize}x</span>
                     </label>
                     <div className="flex items-center gap-4 h-[52px] bg-light/5 border border-light/10 rounded-xl px-4">
-                      <span className="text-light/30 font-mono text-xs">0.5x</span>
+                      <span className="text-light/30 font-mono text-xs">0.5</span>
                       <input 
                         type="range" 
                         min="0.5" 
@@ -303,9 +352,60 @@ export const GeneratorPage = () => {
                         step="0.05" 
                         value={nameSize} 
                         onChange={(e) => setNameSize(Number(e.target.value))}
-                        className="w-full h-1 bg-light/20 rounded-lg appearance-none cursor-pointer accent-primary"
+                        className="w-full h-1.5 bg-light/20 rounded-lg appearance-none cursor-pointer accent-primary"
+                        style={{
+                           background: `linear-gradient(to right, var(--primary) ${((nameSize - 0.5) / 1.5) * 100}%, rgba(255,255,255,0.2) ${((nameSize - 0.5) / 1.5) * 100}%)`
+                        }}
                       />
-                      <span className="text-light/30 font-mono text-xs">2.0x</span>
+                      <span className="text-light/30 font-mono text-xs">2.0</span>
+                    </div>
+                  </div>
+
+                  {/* Name Weight Selection */}
+                  <div className="space-y-2 mt-4 sm:mt-0">
+                    <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1 flex justify-between">
+                      <span>Weight</span>
+                      <span className="text-primary">{nameWeight}</span>
+                    </label>
+                    <div className="flex items-center gap-4 h-[52px] bg-light/5 border border-light/10 rounded-xl px-4">
+                      <span className="text-light/30 font-mono text-xs">100</span>
+                      <input 
+                        type="range" 
+                        min="100" 
+                        max="900" 
+                        step="100" 
+                        value={nameWeight} 
+                        onChange={(e) => setNameWeight(Number(e.target.value))}
+                        className="w-full h-1.5 bg-light/20 rounded-lg appearance-none cursor-pointer accent-primary"
+                        style={{
+                           background: `linear-gradient(to right, var(--primary) ${((nameWeight - 100) / 800) * 100}%, rgba(255,255,255,0.2) ${((nameWeight - 100) / 800) * 100}%)`
+                        }}
+                      />
+                      <span className="text-light/30 font-mono text-xs">900</span>
+                    </div>
+                  </div>
+
+                  {/* Avatar Roundness Selection */}
+                  <div className="space-y-2 mt-4 sm:mt-0 sm:col-span-2">
+                    <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1 flex justify-between">
+                      <span>Roundness</span>
+                      <span className="text-primary">{avatarRoundness}%</span>
+                    </label>
+                    <div className="flex items-center gap-4 h-[52px] bg-light/5 border border-light/10 rounded-xl px-4">
+                      <span className="text-light/30 font-mono text-xs">0%</span>
+                      <input 
+                        type="range" 
+                        min="0" 
+                        max="50" 
+                        step="1" 
+                        value={avatarRoundness} 
+                        onChange={(e) => setAvatarRoundness(Number(e.target.value))}
+                        className="w-full h-1.5 bg-light/20 rounded-lg appearance-none cursor-pointer accent-primary"
+                        style={{
+                           background: `linear-gradient(to right, var(--primary) ${(avatarRoundness / 50) * 100}%, rgba(255,255,255,0.2) ${(avatarRoundness / 50) * 100}%)`
+                        }}
+                      />
+                      <span className="text-light/30 font-mono text-xs">50%</span>
                     </div>
                   </div>
                 </div>
@@ -401,7 +501,10 @@ export const GeneratorPage = () => {
                       {/* Profile Avatar */}
                       {avatarUrl && (
                         <div className="mt-8 mb-auto">
-                          <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-[4px] border-white/20 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-md mx-auto relative group">
+                          <div 
+                             className="w-32 h-32 sm:w-40 sm:h-40 border-[4px] border-white/20 overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-md mx-auto relative group transition-all"
+                             style={{ borderRadius: `${avatarRoundness}%` }}
+                          >
                              <div className="absolute inset-0 bg-black/10"></div>
                              <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover relative z-10" />
                           </div>
@@ -411,10 +514,11 @@ export const GeneratorPage = () => {
                       {/* Full Screen Name */}
                       <div className="w-full flex-1 flex flex-col justify-center pb-12">
                          <h2 
-                            className={`font-bold tracking-tighter leading-[1.1] uppercase break-words px-2 ${nameFont} ${formData.name ? '' : 'opacity-30'}`}
+                            className={`tracking-tighter leading-[1.1] uppercase break-words px-2 ${nameFont} ${formData.name ? '' : 'opacity-30'}`}
                             style={{ 
                               color: nameColor,
                               fontSize: `clamp(${2.5 * nameSize}rem, ${12 * nameSize}cqw, ${4.5 * nameSize}rem)`,
+                              fontWeight: nameWeight,
                               textShadow: cardTheme === 'light-glass' ? '0 4px 20px rgba(0,0,0,0.1)' : '0 4px 30px rgba(0,0,0,0.5)'
                             }}
                           >
@@ -431,10 +535,26 @@ export const GeneratorPage = () => {
                           </h2>
                       </div>
                       
-                      {/* Front Face QR Code (Only visible when generated) */}
-                      {result && (
+                      {/* Front Face QR Code (Only visible when exporting) */}
+                      {result && isExporting && (
                         <div className="absolute bottom-6 right-6 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/20 shadow-xl z-20">
                           <img src={result} alt="QR Code" className="w-full h-full object-contain" />
+                        </div>
+                      )}
+
+                      {/* Holographic Authentication Seal (Only visible when exporting) */}
+                      {isExporting && (
+                        <div className="absolute bottom-6 left-6 w-16 h-16 sm:w-20 sm:h-20 rounded-full z-20 flex items-center justify-center overflow-hidden border-[1px] border-white/60 shadow-[0_4px_15px_rgba(0,0,0,0.3),inset_0_0_15px_rgba(255,255,255,0.8)] before:absolute before:inset-0 before:bg-[conic-gradient(from_0deg,#ff0080,#ff8c00,#40e0d0,#00ff00,#ff0080)] before:opacity-70 after:absolute after:inset-0 after:bg-[linear-gradient(135deg,rgba(255,255,255,0.9)_0%,transparent_30%,transparent_70%,rgba(255,255,255,0.9)_100%)]">
+                          <img src="/LOGO.png" alt="Authentic Seal" className="w-8 h-8 sm:w-10 sm:h-10 relative z-10 invert drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] opacity-90" />
+                          {/* Inner Dashed Ring */}
+                          <div className="absolute inset-0 rounded-full border border-dashed border-white/60 m-1.5 object-cover z-10"></div>
+                          {/* Small Seal Text */}
+                          <svg className="absolute inset-0 w-full h-full animate-[spin_15s_linear_infinite] z-10 opacity-70" viewBox="0 0 100 100">
+                            <path id="curve" d="M 50,50 m -35,0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent" />
+                            <text className="font-mono text-[8.5px] font-bold fill-white" style={{ letterSpacing: '2px' }}>
+                              <textPath href="#curve" startOffset="0%">• VERIFIED MATRIX NODE</textPath>
+                            </text>
+                          </svg>
                         </div>
                       )}
 
@@ -448,7 +568,10 @@ export const GeneratorPage = () => {
                   </div>
 
                   {/* BACK FACE */}
-                  <div className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                  <div 
+                    ref={backCardRef}
+                    className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]"
+                  >
                     {/* Card Background / Texture */}
                     <div className="absolute inset-0 bg-gradient-to-tl from-[#1a1c29] to-[#0f1016] border border-light/10 shadow-[inner_0_0_80px_rgba(0,0,0,0.8)] z-0"></div>
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3 z-0 pointer-events-none"></div>
@@ -539,21 +662,31 @@ export const GeneratorPage = () => {
               </div>
 
               {/* Download Action Area */}
-              <div className={`mt-8 flex flex-col sm:flex-row justify-center gap-4 transition-all duration-500 ${result ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none absolute w-full'}`}>
+              <div className={`mt-8 flex flex-col justify-center gap-4 transition-all duration-500 ${result ? 'opacity-100 translate-y-0 relative' : 'opacity-0 translate-y-4 pointer-events-none absolute'}`}>
+                 <div className="flex flex-col sm:flex-row gap-4">
+                   <button 
+                    onClick={downloadQR} 
+                    className="flex-1 flex items-center justify-center gap-2 bg-light/10 text-light border border-light/20 font-mono text-xs font-bold px-6 py-4 rounded-xl hover:bg-light/20 transition-all"
+                  >
+                    <Download className="w-4 h-4" />
+                    QR Code
+                  </button>
+                   <button 
+                    onClick={exportFrontCard} 
+                    disabled={isExporting}
+                    className="flex-[2] flex items-center justify-center gap-2 bg-primary text-light font-mono text-xs font-bold px-8 py-4 rounded-xl hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    Export Front
+                  </button>
+                 </div>
                  <button 
-                  onClick={downloadQR} 
-                  className="flex items-center justify-center gap-2 bg-light/10 text-light border border-light/20 font-mono text-xs sm:text-sm font-bold px-6 py-4 rounded-xl hover:bg-light/20 transition-all"
-                >
-                  <Download className="w-4 h-4" />
-                  QR Data
-                </button>
-                 <button 
-                  onClick={exportFrontCard} 
+                  onClick={exportBackCard} 
                   disabled={isExporting}
-                  className="flex flex-1 items-center justify-center gap-2 bg-primary text-light font-mono text-xs sm:text-sm font-bold px-8 py-4 rounded-xl hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 bg-dark/50 border border-primary/30 text-primary font-mono text-xs font-bold px-8 py-4 rounded-xl hover:bg-primary/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  {isExporting ? 'Exporting...' : 'Export Front Card (PNG)'}
+                  Export Back (With Details)
                 </button>
               </div>
 
