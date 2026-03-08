@@ -155,74 +155,80 @@ export const GeneratorPage = () => {
               </div>
 
               {/* The "Card" */}
-              <div className="relative w-full max-w-lg mx-auto aspect-[1.6/1] rounded-[2rem] overflow-hidden group shadow-2xl transition-transform duration-500 hover:rotate-1">
+              <div className="relative w-full max-w-sm mx-auto aspect-[1/1.586] rounded-[2rem] overflow-hidden group shadow-2xl transition-transform duration-500 hover:rotate-1 lg:ml-auto">
                 {/* Card Background / Texture */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#1a1c29] to-[#0f1016] border border-light/10 shadow-[inset_0_0_80px_rgba(0,0,0,0.8)] z-0"></div>
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[80px] rounded-full translate-x-1/3 -translate-y-1/3 z-0 pointer-events-none"></div>
 
                 {/* Card Content */}
-                <div className="relative z-10 p-8 h-full flex flex-col justify-between">
-                  {/* Top Row: Name & Uni */}
-                  <div>
-                    <div className="flex justify-between items-start mb-2">
-                      <h2 className={`font-sans font-bold text-3xl tracking-tight leading-none ${formData.firstName || formData.lastName ? 'text-light' : 'text-light/20'}`}>
+                <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col justify-between">
+                  {/* Top Section: Header & Name */}
+                  <div className="space-y-4">
+                    {/* Logo at Top */}
+                    <div className="flex justify-center mb-2">
+                      <img src="/LOGO.png" alt="EduCard Logo" className="w-12 h-12 opacity-80" />
+                    </div>
+
+                    {/* Name */}
+                    <div className="text-center">
+                      <h2 className={`font-sans font-bold text-3xl sm:text-4xl tracking-tight leading-none mb-3 ${formData.firstName || formData.lastName ? 'text-light' : 'text-light/20'}`}>
                         {formData.firstName || 'Student'} <br />
                         {formData.lastName || 'Name'}
                       </h2>
-                      <img src="/LOGO.png" alt="EduCard Logo" className="w-8 h-8 opacity-50 grayscale" />
+                      
+                      {/* Education */}
+                      <div className="flex flex-col items-center justify-center gap-1.5 text-light/70">
+                        <p className={`font-mono text-xs uppercase tracking-wider flex items-center gap-2 ${formData.university ? 'text-light/90' : 'text-light/40'}`}>
+                          <GraduationCap className="w-4 h-4 text-primary" />
+                          {formData.university || 'University Name'}
+                        </p>
+                        <p className={`font-mono text-[10px] uppercase tracking-widest ${formData.major ? 'text-primary' : 'text-primary/40'}`}>
+                          {formData.major || 'Degree / Major'}
+                        </p>
+                      </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2 mt-4 text-light/70">
-                      <GraduationCap className="w-4 h-4 text-primary" />
-                      <p className={`font-mono text-xs uppercase tracking-wider ${formData.university ? 'text-light/90' : 'text-light/40'}`}>
-                        {formData.university || 'University Name'}
-                      </p>
-                    </div>
-                    
-                    <p className={`font-mono text-[10px] pl-6 mt-1 uppercase tracking-widest ${formData.major ? 'text-primary' : 'text-primary/40'}`}>
-                      {formData.major || 'Degree / Major'}
-                    </p>
                   </div>
 
-                  {/* Bottom Row: Contact & QR */}
-                  <div className="flex justify-between items-end gap-4 mt-8">
-                    {/* Contact details */}
-                    <div className="space-y-3 flex-1 overflow-hidden min-w-0">
-                      <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.email ? 'opacity-100' : 'opacity-30'}`}>
-                        <div className="w-6 h-6 rounded-full bg-light/5 border border-light/10 flex items-center justify-center shrink-0">
-                          <Mail className="w-3 h-3 text-light/70" />
-                        </div>
-                        <span className="truncate">{formData.email || 'email@domain.edu'}</span>
-                      </div>
-                      
-                      <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.phone ? 'opacity-100' : 'opacity-30'}`}>
-                        <div className="w-6 h-6 rounded-full bg-light/5 border border-light/10 flex items-center justify-center shrink-0">
-                          <Phone className="w-3 h-3 text-light/70" />
-                        </div>
-                        <span className="truncate">{formData.phone || '+1 (000) 000-0000'}</span>
-                      </div>
-
-                      <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.portfolio ? 'opacity-100' : 'opacity-30'}`}>
-                        <div className="w-6 h-6 rounded-full bg-light/5 border border-light/10 flex items-center justify-center shrink-0">
-                          <LinkIcon className="w-3 h-3 text-light/70" />
-                        </div>
-                        <span className="truncate block max-w-[150px]">{formData.portfolio ? formData.portfolio.replace(/^https?:\/\//, '') : 'portfolio.link'}</span>
-                      </div>
-                    </div>
-
-                    {/* QR Code Area */}
-                    <div className="shrink-0 relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-white/5 border border-light/10 flex items-center justify-center overflow-hidden backdrop-blur-sm">
+                  {/* Middle Section: QR Code */}
+                  <div className="flex justify-center my-4 relative">
+                    {/* decorative background glow for qr */}
+                    <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full scale-110"></div>
+                    <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-2xl bg-white/5 border border-light/10 flex items-center justify-center overflow-hidden backdrop-blur-md shadow-2xl">
                       {result ? (
-                        <div className="absolute inset-0 w-full h-full bg-white p-2 animate-in zoom-in duration-300">
+                        <div className="absolute inset-0 w-full h-full bg-white p-3 animate-in zoom-in duration-300">
                            {/* API returns QR code on white bg. We preserve it for scanning. */}
                           <img src={result} alt="vCard QR" className="w-full h-full object-contain" />
                         </div>
                       ) : (
                         <div className="text-center p-2">
-                          <QrCode className="w-8 h-8 text-light/20 mx-auto mb-2" strokeWidth={1} />
-                          <div className="text-[8px] font-mono text-light/30 uppercase tracking-widest leading-tight">Awaiting Build</div>
+                          <QrCode className="w-10 h-10 text-light/20 mx-auto mb-3" strokeWidth={1} />
+                          <div className="text-[10px] font-mono text-light/30 uppercase tracking-widest leading-tight">Awaiting Build</div>
                         </div>
                       )}
+                    </div>
+                  </div>
+
+                  {/* Bottom Section: Contact details */}
+                  <div className="space-y-3 w-full bg-light/5 rounded-xl p-4 sm:p-5 border border-light/10 shadow-inner">
+                    <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.email ? 'opacity-100' : 'opacity-30'}`}>
+                      <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
+                        <Mail className="w-3 h-3 text-primary" />
+                      </div>
+                      <span className="truncate text-light/90">{formData.email || 'email@domain.edu'}</span>
+                    </div>
+                    
+                    <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.phone ? 'opacity-100' : 'opacity-30'}`}>
+                      <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
+                        <Phone className="w-3 h-3 text-primary" />
+                      </div>
+                      <span className="truncate text-light/90">{formData.phone || '+1 (000) 000-0000'}</span>
+                    </div>
+
+                    <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.portfolio ? 'opacity-100' : 'opacity-30'}`}>
+                      <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
+                        <LinkIcon className="w-3 h-3 text-primary" />
+                      </div>
+                      <span className="truncate block max-w-[200px] text-light/90">{formData.portfolio ? formData.portfolio.replace(/^https?:\/\//, '') : 'portfolio.link'}</span>
                     </div>
                   </div>
                 </div>
