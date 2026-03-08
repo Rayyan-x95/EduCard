@@ -17,6 +17,38 @@ export const GeneratorPage = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
 
+  // Customization States
+  const [nameFont, setNameFont] = useState('font-sans');
+  const [nameColor, setNameColor] = useState('#ffffff');
+  const [cardTheme, setCardTheme] = useState('dark-glass');
+
+  const themes = {
+    'dark-glass': {
+      bg: 'bg-gradient-to-br from-[#1a1c29] to-[#0f1016]',
+      overlay: 'bg-black/40 backdrop-blur-[2px]',
+      text: 'text-light',
+      inner: 'bg-light/5 border-light/10 shadow-[inner_0_0_80px_rgba(0,0,0,0.8)]'
+    },
+    'light-glass': {
+      bg: 'bg-gradient-to-br from-white to-gray-200',
+      overlay: 'bg-white/30 backdrop-blur-[2px]',
+      text: 'text-dark',
+      inner: 'bg-dark/5 border-dark/10 shadow-[inner_0_0_80px_rgba(255,255,255,0.8)]'
+    },
+    'primary-tint': {
+      bg: 'bg-gradient-to-br from-primary to-blue-900',
+      overlay: 'bg-primary/40 backdrop-blur-[2px] mix-blend-multiply',
+      text: 'text-white',
+      inner: 'bg-white/10 border-white/20'
+    }
+  };
+
+  const fonts = [
+    { value: 'font-sans', label: 'Modern Sans' },
+    { value: 'font-serif', label: 'Elegant Serif' },
+    { value: 'font-mono', label: 'Technical Mono' },
+  ];
+
   const handleImageUpload = (e) => {
     if (e.target.files && e.target.files[0]) {
       setProfilePic(URL.createObjectURL(e.target.files[0]));
@@ -150,6 +182,65 @@ export const GeneratorPage = () => {
                 <input type="url" name="portfolio" value={formData.portfolio} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="https://github.com/jdoe" />
               </div>
 
+              {/* Customization Options */}
+              <div className="pt-8 mt-8 border-t border-light/10 space-y-6">
+                <h3 className="font-mono text-xs uppercase tracking-widest text-primary/80 mb-4">Card Styling</h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Font Style Selection */}
+                  <div className="space-y-2">
+                    <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Name Font Style</label>
+                    <select 
+                      value={nameFont} 
+                      onChange={(e) => setNameFont(e.target.value)}
+                      className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all text-light appearance-none"
+                    >
+                      {fonts.map(font => (
+                        <option key={font.value} value={font.value} className="bg-dark text-light">{font.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Name Color Selection */}
+                  <div className="space-y-2">
+                    <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Name Color</label>
+                    <div className="flex gap-3 h-[52px]">
+                      <div className="w-12 h-full rounded-xl border border-light/10 overflow-hidden shrink-0">
+                        <input 
+                          type="color" 
+                          value={nameColor} 
+                          onChange={(e) => setNameColor(e.target.value)}
+                          className="w-16 h-16 -ml-2 -mt-2 cursor-pointer"
+                        />
+                      </div>
+                      <input 
+                        type="text" 
+                        value={nameColor} 
+                        onChange={(e) => setNameColor(e.target.value)}
+                        className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3 font-mono text-sm focus:border-primary focus:bg-light/10 focus:outline-none transition-all text-light uppercase"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Theme Selection */}
+                <div className="space-y-2">
+                  <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Card Theme</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {Object.keys(themes).map((themeKey) => (
+                      <button
+                        key={themeKey}
+                        type="button"
+                        onClick={() => setCardTheme(themeKey)}
+                        className={`py-3 rounded-xl border font-mono text-xs transition-all ${cardTheme === themeKey ? 'bg-primary/20 border-primary text-primary' : 'bg-light/5 border-light/10 text-light/50 hover:border-light/30'}`}
+                      >
+                        {themeKey.replace('-', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               <div className="pt-6">
                 <button 
                   type="submit" 
@@ -194,89 +285,47 @@ export const GeneratorPage = () => {
                   
                   {/* FRONT FACE */}
                   <div className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden [backface-visibility:hidden]">
-                    {/* Card Background / Texture */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#1a1c29] to-[#0f1016] border border-light/10 shadow-[inset_0_0_80px_rgba(0,0,0,0.8)] z-0"></div>
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[80px] rounded-full translate-x-1/3 -translate-y-1/3 z-0 pointer-events-none"></div>
+                    {/* Background Picture or Fallback Theme */}
+                    {profilePic ? (
+                      <div className="absolute inset-0 z-0">
+                        <img src={profilePic} alt="Background" className="w-full h-full object-cover" />
+                        <div className={`absolute inset-0 ${themes[cardTheme].overlay}`}></div>
+                      </div>
+                    ) : (
+                      <div className={`absolute inset-0 z-0 ${themes[cardTheme].bg} border border-light/10`}>
+                        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_20%,transparent_100%)] opacity-20"></div>
+                      </div>
+                    )}
+                    
+                    {/* Inner Shadow / Frame */}
+                    <div className={`absolute inset-0 z-0 pointer-events-none rounded-[2rem] ${themes[cardTheme].inner}`}></div>
 
                     {/* Card Content - Front */}
-                    <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col justify-between">
-                      {/* Top Section: Header & Name */}
-                      <div className="space-y-4">
-                        {/* Logo at Top */}
-                        <div className="flex justify-center mb-2">
-                          <img src="/LOGO.png" alt="EduCard Logo" className="w-12 h-12 opacity-80" />
-                        </div>
-
-                        {/* Name */}
-                        <div className="text-center">
-                          <h2 className={`font-sans font-bold text-3xl sm:text-4xl tracking-tight leading-none mb-3 ${formData.firstName || formData.lastName ? 'text-light' : 'text-light/20'}`}>
-                            {formData.firstName || 'Student'} <br />
-                            {formData.lastName || 'Name'}
-                          </h2>
-                          
-                          {/* Education */}
-                          <div className="flex flex-col items-center justify-center gap-1.5 text-light/70">
-                            {formData.university && (
-                              <p className="font-mono text-xs uppercase tracking-wider flex items-center gap-2 text-light/90">
-                                <GraduationCap className="w-4 h-4 text-primary" />
-                                {formData.university}
-                              </p>
-                            )}
-                            {formData.major && (
-                              <p className="font-mono text-[10px] uppercase tracking-widest text-primary">
-                                {formData.major}
-                              </p>
-                            )}
-                          </div>
-                        </div>
+                    <div className={`relative z-10 p-6 sm:p-8 h-full flex flex-col items-center justify-between text-center ${themes[cardTheme].text}`}>
+                      
+                      {/* Logo at Top */}
+                      <div className="flex justify-center pt-2">
+                        <img src="/LOGO.png" alt="EduCard Logo" className={`w-12 h-12 drop-shadow-lg ${themes[cardTheme].text === 'text-dark' ? 'invert' : ''}`} />
                       </div>
 
-                      {/* Middle Section: Profile Picture */}
-                      {profilePic ? (
-                        <div className="flex justify-center my-4 relative">
-                          <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full scale-110"></div>
-                          <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-light/5 border border-light/10 flex items-center justify-center overflow-hidden backdrop-blur-md shadow-2xl">
-                              <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
-                          </div>
-                        </div>
-                      ) : (
-                         <div className="flex-1"></div> /* Spacer when no image */
-                      )}
-
-                      {/* Bottom Section: Contact details */}
-                      <div className="space-y-3 w-full bg-light/5 rounded-xl p-4 sm:p-5 border border-light/10 shadow-inner">
-                        {(!formData.email && !formData.phone && !formData.portfolio) ? (
-                            <div className="text-center text-light/30 font-mono text-xs italic">Awaiting Contact Vectors...</div>
-                        ) : (
-                          <>
-                            {formData.email && (
-                              <div className="flex items-center gap-3 text-xs font-mono transition-opacity opacity-100">
-                                <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
-                                  <Mail className="w-3 h-3 text-primary" />
-                                </div>
-                                <span className="truncate text-light/90">{formData.email}</span>
-                              </div>
-                            )}
-                            
-                            {formData.phone && (
-                              <div className="flex items-center gap-3 text-xs font-mono transition-opacity opacity-100">
-                                <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
-                                  <Phone className="w-3 h-3 text-primary" />
-                                </div>
-                                <span className="truncate text-light/90">{formData.phone}</span>
-                              </div>
-                            )}
-
-                            {formData.portfolio && (
-                              <div className="flex items-center gap-3 text-xs font-mono transition-opacity opacity-100">
-                                <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
-                                  <LinkIcon className="w-3 h-3 text-primary" />
-                                </div>
-                                <span className="truncate block max-w-[200px] text-light/90">{formData.portfolio.replace(/^https?:\/\//, '')}</span>
-                              </div>
-                            )}
-                          </>
-                        )}
+                      {/* Full Screen Name */}
+                      <div className="w-full flex-1 flex flex-col justify-center pb-12">
+                         <h2 
+                            className={`font-bold tracking-tighter leading-[1.1] uppercase break-words px-2 ${nameFont} ${formData.firstName || formData.lastName ? '' : 'opacity-30'}`}
+                            style={{ 
+                              color: nameColor,
+                              fontSize: 'clamp(2.5rem, 12cqw, 4.5rem)',
+                              textShadow: cardTheme === 'light-glass' ? '0 4px 20px rgba(0,0,0,0.1)' : '0 4px 30px rgba(0,0,0,0.5)'
+                            }}
+                          >
+                            {formData.firstName || 'FIRST'} <br />
+                            {formData.lastName || 'LAST'}
+                          </h2>
+                      </div>
+                      
+                      {/* Small Call to action indicating flip */}
+                      <div className="absolute bottom-6 opacity-30 text-[10px] font-mono tracking-widest uppercase">
+                        Tap to flip
                       </div>
                     </div>
                   </div>
@@ -285,34 +334,87 @@ export const GeneratorPage = () => {
                   <div className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]">
                     {/* Card Background / Texture */}
                     <div className="absolute inset-0 bg-gradient-to-tl from-[#1a1c29] to-[#0f1016] border border-light/10 shadow-[inner_0_0_80px_rgba(0,0,0,0.8)] z-0"></div>
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/20 blur-[80px] rounded-full -translate-x-1/3 translate-y-1/3 z-0 pointer-events-none"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3 z-0 pointer-events-none"></div>
 
                     {/* Card Content - Back */}
-                    <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col justify-center items-center">
-                      <div className="text-center mb-8">
-                        <img src="/LOGO.png" alt="EduCard Logo" className="w-16 h-16 opacity-80 mx-auto mb-4" />
-                        <h3 className="font-sans font-bold text-2xl tracking-tighter text-light mb-1">EduCard.</h3>
-                        <p className="font-mono text-[10px] tracking-widest uppercase text-light/30">Identity Matrix</p>
+                    <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col">
+                      
+                      {/* Top section: Identity Vectors */}
+                      <div className="flex-1 space-y-4">
+                         {/* Name again smaller for reference */}
+                         <div>
+                            <h3 className={`font-sans font-bold text-2xl tracking-tight text-light mb-1 ${formData.firstName || formData.lastName ? '' : 'opacity-40'}`}>
+                              {formData.firstName || 'Student'} {formData.lastName || 'Name'}
+                            </h3>
+                            {/* Education */}
+                            <div className="flex flex-col gap-1 text-light/70">
+                              {formData.university && (
+                                <p className="font-mono text-xs uppercase tracking-wider flex items-center gap-2 text-light/90">
+                                  <GraduationCap className="w-3 h-3 text-primary" />
+                                  {formData.university}
+                                </p>
+                              )}
+                              {formData.major && (
+                                <p className="font-mono text-[10px] uppercase tracking-widest text-primary">
+                                  {formData.major}
+                                </p>
+                              )}
+                            </div>
+                         </div>
+                         
+                         {/* Contact Details Grid */}
+                         <div className="pt-4 border-t border-light/10 space-y-3">
+                           {(!formData.email && !formData.phone && !formData.portfolio) ? (
+                               <div className="text-light/30 font-mono text-xs italic">Awaiting Contact Vectors...</div>
+                           ) : (
+                             <>
+                               {formData.email && (
+                                 <div className="flex items-center gap-3 text-[10px] sm:text-xs font-mono text-light/90">
+                                   <div className="w-5 h-5 rounded bg-light/5 border border-light/10 flex items-center justify-center shrink-0 text-primary"><Mail className="w-3 h-3" /></div>
+                                   <span className="truncate">{formData.email}</span>
+                                 </div>
+                               )}
+                               
+                               {formData.phone && (
+                                 <div className="flex items-center gap-3 text-[10px] sm:text-xs font-mono text-light/90">
+                                   <div className="w-5 h-5 rounded bg-light/5 border border-light/10 flex items-center justify-center shrink-0 text-primary"><Phone className="w-3 h-3" /></div>
+                                   <span className="truncate">{formData.phone}</span>
+                                 </div>
+                               )}
+
+                               {formData.portfolio && (
+                                 <div className="flex items-center gap-3 text-[10px] sm:text-xs font-mono text-light/90">
+                                   <div className="w-5 h-5 rounded bg-light/5 border border-light/10 flex items-center justify-center shrink-0 text-primary"><LinkIcon className="w-3 h-3" /></div>
+                                   <span className="truncate">{formData.portfolio.replace(/^https?:\/\//, '')}</span>
+                                 </div>
+                               )}
+                             </>
+                           )}
+                         </div>
                       </div>
 
-                      <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-2xl bg-white/5 border border-light/10 flex items-center justify-center overflow-hidden backdrop-blur-md shadow-2xl relative">
-                        {/* Inner glowing element for back side matrix */}
-                        <div className="absolute inset-0 bg-primary/10 blur-xl rounded-full scale-125"></div>
-                        {result ? (
-                          <div className="absolute inset-0 w-full h-full bg-white p-3 sm:p-4 z-10 animate-in zoom-in duration-300">
-                            <img src={result} alt="vCard QR" className="w-full h-full object-contain" />
-                          </div>
-                        ) : (
-                          <div className="text-center p-4 z-10">
-                            <QrCode className="w-12 h-12 text-light/20 mx-auto mb-3" strokeWidth={1} />
-                            <div className="text-[10px] font-mono text-light/30 uppercase tracking-widest leading-tight">Awaiting Build</div>
-                          </div>
-                        )}
+                      {/* Bottom section: Matrix Logo and QR Code side by side */}
+                      <div className="mt-auto pt-6 border-t border-light/10 flex items-end justify-between gap-4">
+                        <div className="pb-1">
+                          <img src="/LOGO.png" alt="EduCard Logo" className="w-8 h-8 opacity-80 mb-2" />
+                          <h3 className="font-sans font-bold text-lg tracking-tighter text-light leading-none">EduCard.</h3>
+                          <p className="font-mono text-[8px] tracking-widest uppercase text-primary mt-1">Verified Node</p>
+                        </div>
+
+                        <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-xl bg-white/5 border border-light/10 flex items-center justify-center overflow-hidden shrink-0">
+                          {result ? (
+                            <div className="absolute inset-0 w-full h-full bg-white p-2 z-10">
+                              <img src={result} alt="vCard QR" className="w-full h-full object-contain" />
+                            </div>
+                          ) : (
+                            <div className="text-center p-2 z-10">
+                              <QrCode className="w-6 h-6 text-light/20 mx-auto mb-1" strokeWidth={1} />
+                              <div className="text-[8px] font-mono text-light/30 uppercase tracking-widest leading-tight">Awaiting<br/>Build</div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       
-                      <p className="font-mono text-[10px] uppercase tracking-widest text-light/30 mt-10 text-center px-4 leading-relaxed">
-                        Scan matrix to import verified identity parameters to local node.
-                      </p>
                     </div>
                   </div>
 
