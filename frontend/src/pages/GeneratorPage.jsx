@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom';
 
 export const GeneratorPage = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     university: '',
     major: '',
     email: '',
@@ -20,6 +19,7 @@ export const GeneratorPage = () => {
   // Customization States
   const [nameFont, setNameFont] = useState('font-sans');
   const [nameColor, setNameColor] = useState('#ffffff');
+  const [nameSize, setNameSize] = useState(1);
   const [cardTheme, setCardTheme] = useState('dark-glass');
 
   const themes = {
@@ -47,6 +47,11 @@ export const GeneratorPage = () => {
     { value: 'font-sans', label: 'Modern Sans' },
     { value: 'font-serif', label: 'Elegant Serif' },
     { value: 'font-mono', label: 'Technical Mono' },
+    { value: 'font-drama', label: 'Display Signature' },
+    { value: 'font-[Impact,sans-serif]', label: 'Impact Bold' },
+    { value: 'font-[Georgia,serif]', label: 'Classic Georgia' },
+    { value: 'font-[Courier_New,monospace]', label: 'Typewriter' },
+    { value: 'font-["Times_New_Roman",Times,serif]', label: 'Traditional Times' },
   ];
 
   const handleImageUpload = (e) => {
@@ -85,7 +90,8 @@ export const GeneratorPage = () => {
     if (!result) return;
     const link = document.createElement('a');
     link.href = result;
-    link.download = `EduCard_${formData.firstName}_${formData.lastName}.png`;
+    const sanitizedName = formData.name ? formData.name.replace(/\s+/g, '_') : 'Student';
+    link.download = `EduCard_${sanitizedName}.png`;
     link.click();
   };
 
@@ -145,15 +151,9 @@ export const GeneratorPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">First Name *</label>
-                  <input required name="firstName" value={formData.firstName} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="John" />
-                </div>
-                <div className="space-y-2">
-                  <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Last Name *</label>
-                  <input required name="lastName" value={formData.lastName} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="Doe" />
-                </div>
+              <div className="space-y-2">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Full Name *</label>
+                <input required name="name" value={formData.name} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3.5 font-sans text-base focus:border-primary focus:bg-light/10 focus:outline-none transition-all placeholder:text-light/20" placeholder="Mohammed Rayyan" />
               </div>
 
               <div className="space-y-2">
@@ -219,6 +219,27 @@ export const GeneratorPage = () => {
                         onChange={(e) => setNameColor(e.target.value)}
                         className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3 font-mono text-sm focus:border-primary focus:bg-light/10 focus:outline-none transition-all text-light uppercase"
                       />
+                    </div>
+                  </div>
+                  
+                  {/* Name Size Selection */}
+                  <div className="space-y-2 sm:col-span-2 mt-4 sm:mt-0">
+                    <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1 flex justify-between">
+                      <span>Name Size Multiplier</span>
+                      <span className="text-primary">{nameSize}x</span>
+                    </label>
+                    <div className="flex items-center gap-4 h-[52px] bg-light/5 border border-light/10 rounded-xl px-4">
+                      <span className="text-light/30 font-mono text-xs">0.5x</span>
+                      <input 
+                        type="range" 
+                        min="0.5" 
+                        max="2.0" 
+                        step="0.05" 
+                        value={nameSize} 
+                        onChange={(e) => setNameSize(Number(e.target.value))}
+                        className="w-full h-1 bg-light/20 rounded-lg appearance-none cursor-pointer accent-primary"
+                      />
+                      <span className="text-light/30 font-mono text-xs">2.0x</span>
                     </div>
                   </div>
                 </div>
@@ -311,15 +332,23 @@ export const GeneratorPage = () => {
                       {/* Full Screen Name */}
                       <div className="w-full flex-1 flex flex-col justify-center pb-12">
                          <h2 
-                            className={`font-bold tracking-tighter leading-[1.1] uppercase break-words px-2 ${nameFont} ${formData.firstName || formData.lastName ? '' : 'opacity-30'}`}
+                            className={`font-bold tracking-tighter leading-[1.1] uppercase break-words px-2 ${nameFont} ${formData.name ? '' : 'opacity-30'}`}
                             style={{ 
                               color: nameColor,
-                              fontSize: 'clamp(2.5rem, 12cqw, 4.5rem)',
+                              fontSize: `clamp(${2.5 * nameSize}rem, ${12 * nameSize}cqw, ${4.5 * nameSize}rem)`,
                               textShadow: cardTheme === 'light-glass' ? '0 4px 20px rgba(0,0,0,0.1)' : '0 4px 30px rgba(0,0,0,0.5)'
                             }}
                           >
-                            {formData.firstName || 'FIRST'} <br />
-                            {formData.lastName || 'LAST'}
+                            {formData.name ? (
+                              formData.name.split(' ').map((word, i) => (
+                                <React.Fragment key={i}>
+                                  {word}
+                                  {i !== formData.name.split(' ').length - 1 && <br />}
+                                </React.Fragment>
+                              ))
+                            ) : (
+                              <>STUDENT<br />NAME</>
+                            )}
                           </h2>
                       </div>
                       
@@ -343,8 +372,8 @@ export const GeneratorPage = () => {
                       <div className="flex-1 space-y-4">
                          {/* Name again smaller for reference */}
                          <div>
-                            <h3 className={`font-sans font-bold text-2xl tracking-tight text-light mb-1 ${formData.firstName || formData.lastName ? '' : 'opacity-40'}`}>
-                              {formData.firstName || 'Student'} {formData.lastName || 'Name'}
+                            <h3 className={`font-sans font-bold text-2xl tracking-tight text-light mb-1 ${formData.name ? '' : 'opacity-40'}`}>
+                              {formData.name || 'Student Name'}
                             </h3>
                             {/* Education */}
                             <div className="flex flex-col gap-1 text-light/70">
