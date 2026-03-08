@@ -1,12 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Loader2, QrCode, Download, Link as LinkIcon, Phone, Mail, GraduationCap, Upload, RefreshCw } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { ArrowLeft, Loader2, QrCode, Download, Link as LinkIcon, Phone, Mail, GraduationCap, Upload, RefreshCw, Trash2, Share2, Linkedin, Twitter, Github, Printer, Wand2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { toPng } from 'html-to-image';
 import QRCode from 'qrcode';
+import jsPDF from 'jspdf';
 
 export const GeneratorPage = () => {
+  const [searchParams] = useSearchParams();
+
   // Load initial state from localStorage if available
   const [formData, setFormData] = useState(() => {
+    // 1. Check URL for shareable data
+    const dataParam = searchParams.get('data');
+    if (dataParam) {
+      try {
+        return JSON.parse(atob(dataParam));
+      } catch (e) {
+         console.error('Failed to parse shareable link', e);
+      }
+    }
+
+    // 2. Fallback to local storage
     const saved = localStorage.getItem('educard_draft');
     if (saved) {
       try {
@@ -21,7 +35,11 @@ export const GeneratorPage = () => {
       major: '',
       email: '',
       phone: '',
-      portfolio: ''
+      portfolio: '',
+      linkedin: '',
+      twitter: '',
+      github: '',
+      bio: ''
     };
   });
 
@@ -39,12 +57,48 @@ export const GeneratorPage = () => {
   const [isExporting, setIsExporting] = useState(false);
   const backCardRef = useRef(null);
 
+  // 3D Parallax State
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const handleMouseMove = useCallback((e) => {
+    if (!frontCardRef.current || isExporting) return;
+    const rect = frontCardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    // Max rotation 12 degrees
+    const rotateX = ((y - centerY) / centerY) * -12;
+    const rotateY = ((x - centerX) / centerX) * 12;
+    setTilt({ x: rotateX, y: rotateY });
+  }, [isExporting]);
+
+  const handleMouseLeave = useCallback(() => {
+    setTilt({ x: 0, y: 0 });
+  }, []);
+
+  // Image Upload States
+  const onSelectFile = (e, type) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        const result = reader.result?.toString() || '';
+        if (type === 'avatar') {
+          setAvatarUrl(result);
+        } else {
+          setProfilePic(result);
+        }
+      });
+      reader.readAsDataURL(e.target.files[0]);
+      e.target.value = ''; // reset input
+    }
+  };
+
   // Customization States
   const [nameFont, setNameFont] = useState('font-sans');
   const [nameColor, setNameColor] = useState('#ffffff');
   const [nameSize, setNameSize] = useState(1);
   const [nameWeight, setNameWeight] = useState(700);
-  const [avatarRoundness, setAvatarRoundness] = useState(50);
+  const [avatarRoundness, setAvatarRoundness] = useState(25);
   const [cardTheme, setCardTheme] = useState('dark-glass');
 
   const themes = {
@@ -79,18 +133,6 @@ export const GeneratorPage = () => {
     { value: 'font-["Times_New_Roman",Times,serif]', label: 'Traditional Times' },
   ];
 
-  const handleImageUpload = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setProfilePic(URL.createObjectURL(e.target.files[0]));
-    }
-  };
-
-  const handleAvatarUpload = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setAvatarUrl(URL.createObjectURL(e.target.files[0]));
-    }
-  };
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -109,6 +151,14 @@ END:VCARD`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!avatarUrl) {
+      alert('Please upload a Profile Avatar before generating the card.');
+      return;
+    }
+    if (!formData.phone) {
+      alert('Please provide a Phone number before generating the card.');
+      return;
+    }
     setLoading(true);
     
     try {
@@ -191,6 +241,72 @@ END:VCARD`;
     }
   };
 
+  const exportPDF = async () => {
+    if (!frontCardRef.current || !backCardRef.current) return;
+    try {
+      setIsExporting(true);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const frontDataUrl = await toPng(frontCardRef.current, { cacheBust: true, style: { transform: 'none' }, pixelRatio: 2 });
+      const backDataUrl = await toPng(backCardRef.current, { cacheBust: true, style: { transform: 'none' }, pixelRatio: 2 });
+      
+      // Create A4 PDF (210 x 297 mm)
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Card standard size is approx 54mm x 86mm, but let's make it 63mm x 100mm to match our visual aspect ratio (1 : 1.586)
+      const cardW = 63;
+      const cardH = 100;
+      const marginX = (210 - (cardW * 2 + 10)) / 2; // Center horizontally
+      
+      pdf.setFontSize(16);
+      pdf.text('EduCard - Print Layout', 105, 20, { align: 'center' });
+      pdf.setFontSize(10);
+      pdf.text('Cut along the edges and fold in the middle.', 105, 26, { align: 'center' });
+      
+      // Front Card
+      pdf.addImage(frontDataUrl, 'PNG', marginX, 40, cardW, cardH);
+      
+      // Back Card
+      pdf.addImage(backDataUrl, 'PNG', marginX + cardW + 10, 40, cardW, cardH);
+      
+      // Draw fold dashed line between them
+      pdf.setLineDash([2, 2], 0);
+      pdf.line(marginX + cardW + 5, 35, marginX + cardW + 5, 40 + cardH + 5);
+      
+      const sanitizedName = formData.name ? formData.name.replace(/\s+/g, '_') : 'Student';
+      pdf.save(`EduCard_Print_${sanitizedName}.pdf`);
+    } catch (err) {
+      console.error('Failed to export PDF:', err);
+      alert('Could not generate PDF at this time.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const generateShareableLink = () => {
+    const encoded = btoa(JSON.stringify(formData));
+    const url = `${window.location.origin}/generate?data=${encoded}`;
+    navigator.clipboard.writeText(url);
+    alert('Shareable link copied to clipboard!');
+  };
+
+  const clearCanvas = () => {
+    if(window.confirm('Wipe canvas and start fresh? All local data will be lost.')) {
+      localStorage.removeItem('educard_draft');
+      setFormData({
+        name: '', university: '', major: '', email: '', phone: '', portfolio: '', bio: '', linkedin: '', twitter: '', github: ''
+      });
+      setProfilePic(null);
+      setAvatarUrl(null);
+      setResult(null);
+      setIsFlipped(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-dark text-light p-6 font-sans selection:bg-primary/30">
       {/* Background elements */}
@@ -218,7 +334,7 @@ END:VCARD`;
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 relative items-start">
+        <main className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 relative items-start">
           
           {/* Form Side (Left) */}
           <div className="lg:col-span-6 xl:col-span-5 pb-20">
@@ -232,9 +348,9 @@ END:VCARD`;
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Profile Avatar (Optional)</label>
+                  <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Profile Avatar *</label>
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-light/5 border border-light/10 overflow-hidden flex items-center justify-center shrink-0">
+                    <div className="w-16 h-16 rounded-2xl bg-light/5 border border-light/10 overflow-hidden flex items-center justify-center shrink-0">
                        {avatarUrl ? (
                          <img src={avatarUrl} alt="Avatar preview" className="w-full h-full object-cover" />
                        ) : (
@@ -243,7 +359,7 @@ END:VCARD`;
                     </div>
                     <label className="cursor-pointer bg-light/5 hover:bg-light/10 text-light text-xs font-mono py-2.5 px-4 rounded-xl transition-all border border-light/10 hover:border-primary">
                       Upload
-                      <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                      <input type="file" accept="image/*" onChange={(e) => onSelectFile(e, 'avatar')} className="hidden" />
                     </label>
                   </div>
                 </div>
@@ -260,41 +376,61 @@ END:VCARD`;
                     </div>
                     <label className="cursor-pointer bg-light/5 hover:bg-light/10 text-light text-xs font-mono py-2.5 px-4 rounded-xl transition-all border border-light/10 hover:border-primary">
                       Upload
-                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                      <input type="file" accept="image/*" onChange={(e) => onSelectFile(e, 'background')} className="hidden" />
                     </label>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Full Name *</label>
-                <input required name="name" value={formData.name} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.name.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="Joe Smith" />
+                <label htmlFor="input-name" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Full Name *</label>
+                <input id="input-name" required name="name" value={formData.name} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.name.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="Joe Smith" />
               </div>
 
               <div className="space-y-2">
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">University / Institution *</label>
-                <input required name="university" value={formData.university} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.university.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="Stanford University" />
+                <label htmlFor="input-university" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">University / Institution *</label>
+                <input id="input-university" required name="university" value={formData.university} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.university.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="Stanford University" />
               </div>
 
               <div className="space-y-2">
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Major / Prefix *</label>
-                <input required name="major" value={formData.major} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.major.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="B.S. Computer Science" />
+                <label htmlFor="input-major" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Major / Prefix *</label>
+                <input id="input-major" required name="major" value={formData.major} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.major.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="B.S. Computer Science" />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Email Node *</label>
-                  <input required type="email" name="email" value={formData.email} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.email.includes('@') ? 'border-primary/50 focus:border-primary focus:bg-light/10' : formData.email.length > 0 ? 'border-red-400 focus:border-red-500' : 'border-light/10 focus:border-light/30'}`} placeholder="jdoe@edu.org" />
+                  <label htmlFor="input-email" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Email Node *</label>
+                  <input id="input-email" required type="email" name="email" value={formData.email} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.email.includes('@') ? 'border-primary/50 focus:border-primary focus:bg-light/10' : formData.email.length > 0 ? 'border-red-400 focus:border-red-500' : 'border-light/10 focus:border-light/30'}`} placeholder="jdoe@edu.org" />
                 </div>
                 <div className="space-y-2">
-                  <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Phone Vector</label>
-                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.phone.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="+1 (555) 000-0000" />
+                  <label htmlFor="input-phone" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Phone Vector *</label>
+                  <input id="input-phone" type="tel" name="phone" value={formData.phone} onChange={handleChange} required className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.phone.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="+1 (555) 000-0000" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Portfolio / Network URL</label>
-                <input type="url" name="portfolio" value={formData.portfolio} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.portfolio.includes('http') ? 'border-primary/50 focus:border-primary focus:bg-light/10' : formData.portfolio.length > 0 ? 'border-red-400 focus:border-red-500' : 'border-light/10 focus:border-light/30'}`} placeholder="https://github.com/jdoe" />
+                <label htmlFor="input-portfolio" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Portfolio / Network URL</label>
+                <input id="input-portfolio" type="url" name="portfolio" value={formData.portfolio} onChange={handleChange} className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 ${formData.portfolio.includes('http') ? 'border-primary/50 focus:border-primary focus:bg-light/10' : formData.portfolio.length > 0 ? 'border-red-400 focus:border-red-500' : 'border-light/10 focus:border-light/30'}`} placeholder="https://github.com/jdoe" />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="input-bio" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Short Bio</label>
+                <textarea id="input-bio" name="bio" value={formData.bio} onChange={handleChange} maxLength="120" className={`w-full bg-light/5 border rounded-xl px-4 py-3.5 font-sans text-base focus:outline-none transition-all placeholder:text-light/20 resize-none h-24 ${formData.bio?.length > 0 ? 'border-primary/50 focus:border-primary focus:bg-light/10' : 'border-light/10 focus:border-light/30'}`} placeholder="Student by day, developer by night..." />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="input-linkedin" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1"><Linkedin className="w-3 h-3 inline mr-1" />LinkedIn</label>
+                  <input id="input-linkedin" type="text" name="linkedin" value={formData.linkedin} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3 font-sans text-sm focus:border-primary focus:bg-light/10 focus:outline-none transition-all" placeholder="username" />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="input-twitter" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1"><Twitter className="w-3 h-3 inline mr-1" />Twitter/X</label>
+                  <input id="input-twitter" type="text" name="twitter" value={formData.twitter} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3 font-sans text-sm focus:border-primary focus:bg-light/10 focus:outline-none transition-all" placeholder="@username" />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="input-github" className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1"><Github className="w-3 h-3 inline mr-1" />Github</label>
+                  <input id="input-github" type="text" name="github" value={formData.github} onChange={handleChange} className="w-full bg-light/5 border border-light/10 rounded-xl px-4 py-3 font-sans text-sm focus:border-primary focus:bg-light/10 focus:outline-none transition-all" placeholder="username" />
+                </div>
               </div>
 
               {/* Customization Options */}
@@ -428,11 +564,11 @@ END:VCARD`;
                 </div>
               </div>
 
-              <div className="pt-6">
+              <div className="pt-6 flex flex-col sm:flex-row gap-4">
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full group relative overflow-hidden bg-primary text-light font-bold font-mono py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex-[2] w-full group relative overflow-hidden bg-primary text-light font-bold font-mono py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
                   {loading ? (
@@ -441,6 +577,25 @@ END:VCARD`;
                     <><QrCode className="w-5 h-5 relative z-10" /><span className="relative z-10">Execute Build</span></>
                   )}
                 </button>
+                <div className="flex flex-1 gap-2">
+                  <button
+                    type="button"
+                    onClick={generateShareableLink}
+                    disabled={!result}
+                    title="Copy Shareable Link"
+                    className="flex-1 flex items-center justify-center bg-light/5 border border-light/10 text-light rounded-xl hover:bg-light/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearCanvas}
+                    title="Initialize Wipe Canvas"
+                    className="flex-1 flex items-center justify-center bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl hover:bg-red-500/20 transition-colors"
+                  >
+                    <RefreshCw className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -465,8 +620,13 @@ END:VCARD`;
 
               {/* The "Card" - 3D Flippable */}
               <div 
-                className="relative w-full max-w-sm mx-auto aspect-[1/1.586] lg:ml-auto cursor-pointer [perspective:1000px] group"
+                className="relative w-full max-w-sm mx-auto aspect-[1/1.586] lg:ml-auto cursor-pointer [perspective:2000px] group transition-transform duration-200 ease-out"
                 onClick={() => setIsFlipped(!isFlipped)}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+                style={{
+                  transform: `rotateY(${tilt.x}deg) rotateX(${tilt.y}deg) scale3d(1.02, 1.02, 1.02)`,
+                }}
               >
                 <div className={`w-full h-full relative transition-transform duration-700 [transform-style:preserve-3d] shadow-2xl rounded-[2rem] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                   
@@ -544,17 +704,20 @@ END:VCARD`;
 
                       {/* Holographic Authentication Seal (Only visible when exporting) */}
                       {isExporting && (
-                        <div className="absolute bottom-6 left-6 w-16 h-16 sm:w-20 sm:h-20 rounded-full z-20 flex items-center justify-center overflow-hidden border-[1px] border-white/60 shadow-[0_4px_15px_rgba(0,0,0,0.3),inset_0_0_15px_rgba(255,255,255,0.8)] before:absolute before:inset-0 before:bg-[conic-gradient(from_0deg,#ff0080,#ff8c00,#40e0d0,#00ff00,#ff0080)] before:opacity-70 after:absolute after:inset-0 after:bg-[linear-gradient(135deg,rgba(255,255,255,0.9)_0%,transparent_30%,transparent_70%,rgba(255,255,255,0.9)_100%)]">
-                          <img src="/LOGO.png" alt="Authentic Seal" className="w-8 h-8 sm:w-10 sm:h-10 relative z-10 invert drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] opacity-90" />
-                          {/* Inner Dashed Ring */}
-                          <div className="absolute inset-0 rounded-full border border-dashed border-white/60 m-1.5 object-cover z-10"></div>
-                          {/* Small Seal Text */}
-                          <svg className="absolute inset-0 w-full h-full animate-[spin_15s_linear_infinite] z-10 opacity-70" viewBox="0 0 100 100">
-                            <path id="curve" d="M 50,50 m -35,0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent" />
-                            <text className="font-mono text-[8.5px] font-bold fill-white" style={{ letterSpacing: '2px' }}>
-                              <textPath href="#curve" startOffset="0%">• VERIFIED MATRIX NODE</textPath>
-                            </text>
-                          </svg>
+                        <div className="absolute bottom-6 left-6 w-16 h-16 sm:w-20 sm:h-20 rounded-full z-20 flex items-center justify-center overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.3),inset_0_0_10px_rgba(255,255,255,0.9)] before:absolute before:inset-0 before:bg-[conic-gradient(from_45deg_at_50%_50%,#eef2f3_0%,#f0c3df_15%,#b0e0e6_35%,#e1c4df_50%,#c1e3e1_70%,#f0cae1_85%,#eef2f3_100%)] after:absolute after:inset-0 after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,0.7)_0%,transparent_70%)]">
+                          
+                          {/* Inner abstract geometric wireframes to match reference image */}
+                          <div className="absolute inset-0 z-0 opacity-20 mix-blend-color-burn">
+                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border-[0.5px] border-black rounded-[40%] origin-center rotate-[30deg]"></div>
+                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border-[0.5px] border-black rounded-[40%] origin-center -rotate-[30deg]"></div>
+                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border-[0.5px] border-black rounded-[40%] origin-center rotate-[60deg]"></div>
+                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border-[0.5px] border-black rounded-[40%] origin-center rotate-[90deg]"></div>
+                          </div>
+
+                          <img src="/LOGO.png" alt="Authentic Seal" className="w-8 h-8 sm:w-10 sm:h-10 relative z-10 opacity-60 mix-blend-color-burn" style={{ filter: 'drop-shadow(0px 1px 1px rgba(255,255,255,0.9))' }} />
+                          
+                          {/* Outer thin white border for realism */}
+                          <div className="absolute inset-0 rounded-full border border-white/60 m-[1px] z-10"></div>
                         </div>
                       )}
 
@@ -665,6 +828,7 @@ END:VCARD`;
               <div className={`mt-8 flex flex-col justify-center gap-4 transition-all duration-500 ${result ? 'opacity-100 translate-y-0 relative' : 'opacity-0 translate-y-4 pointer-events-none absolute'}`}>
                  <div className="flex flex-col sm:flex-row gap-4">
                    <button 
+                    type="button"
                     onClick={downloadQR} 
                     className="flex-1 flex items-center justify-center gap-2 bg-light/10 text-light border border-light/20 font-mono text-xs font-bold px-6 py-4 rounded-xl hover:bg-light/20 transition-all"
                   >
@@ -672,6 +836,7 @@ END:VCARD`;
                     QR Code
                   </button>
                    <button 
+                    type="button"
                     onClick={exportFrontCard} 
                     disabled={isExporting}
                     className="flex-[2] flex items-center justify-center gap-2 bg-primary text-light font-mono text-xs font-bold px-8 py-4 rounded-xl hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
@@ -680,21 +845,35 @@ END:VCARD`;
                     Export Front
                   </button>
                  </div>
-                 <button 
-                  onClick={exportBackCard} 
-                  disabled={isExporting}
-                  className="w-full flex items-center justify-center gap-2 bg-dark/50 border border-primary/30 text-primary font-mono text-xs font-bold px-8 py-4 rounded-xl hover:bg-primary/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                  Export Back (With Details)
-                </button>
+                 
+                 <div className="flex flex-col sm:flex-row gap-4">
+                   <button 
+                    type="button"
+                    onClick={exportBackCard} 
+                    disabled={isExporting}
+                    className="flex-1 flex items-center justify-center gap-2 bg-dark/50 border border-primary/30 text-primary font-mono text-xs font-bold px-8 py-4 rounded-xl hover:bg-primary/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    Export Details Back
+                  </button>
+                   <button 
+                    type="button"
+                    onClick={exportPDF} 
+                    disabled={isExporting}
+                    className="flex-1 flex items-center justify-center gap-2 bg-purple-500/20 border border-purple-500/50 text-purple-400 font-mono text-xs font-bold px-8 py-4 rounded-xl hover:bg-purple-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                    Print as PDF
+                  </button>
+                 </div>
               </div>
 
             </div>
           </div>
 
-        </div>
+        </main>
       </div>
+
     </div>
   );
 };

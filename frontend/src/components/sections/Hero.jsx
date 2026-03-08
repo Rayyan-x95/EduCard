@@ -40,27 +40,27 @@ export const Hero = () => {
             <span className="w-2 h-2 rounded-full bg-primary inline-block animate-pulse" />
             System Online // EduCard
           </p>
-          <h1 className="hero-elem font-sans font-bold text-5xl md:text-7xl lg:text-8xl leading-[0.9] tracking-tighter text-light pb-2">
+          <h1 className="hero-elem font-sans font-bold text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1.1] md:leading-[0.9] tracking-tighter text-light pb-2">
             Program the
-            <br />
-            <span className="font-drama italic font-normal text-7xl md:text-9xl lg:text-[10rem] block -mt-4 text-light">
+            <br className="hidden md:block" />
+            <span className="font-drama italic font-normal text-6xl sm:text-7xl md:text-9xl lg:text-[10rem] block md:-mt-4 text-light">
               Identity.
             </span>
           </h1>
-          <p className="hero-elem font-sans text-lg md:text-xl text-light/70 max-w-xl mt-8 mb-12 leading-relaxed">
+          <p className="hero-elem font-sans text-lg md:text-xl text-light/70 max-w-xl mt-6 md:mt-8 mb-10 md:mb-12 leading-relaxed">
             Generate premium, verifiable digital academic profiles with instant vCard QR codes — ready to share, print, or tap.
           </p>
-          <div className="hero-elem flex flex-col sm:flex-row gap-4">
+          <div className="hero-elem flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <Link
               to="/generate"
-              className="bg-primary text-white px-8 py-4 rounded-full font-mono text-sm font-bold inline-flex items-center gap-2 group hover:bg-blue-700 transition-colors"
+              className="bg-primary text-white w-full sm:w-auto px-8 py-4 rounded-full font-mono text-sm font-bold flex justify-center items-center gap-2 group hover:bg-blue-700 transition-colors"
             >
               Launch App
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
               href="#features"
-              className="border border-light/30 text-light px-8 py-4 rounded-full font-mono text-sm font-bold inline-flex items-center gap-2 hover:border-light/70 hover:bg-light/5 transition-all"
+              className="border border-light/30 text-light w-full sm:w-auto px-8 py-4 rounded-full font-mono text-sm font-bold flex justify-center items-center gap-2 hover:border-light/70 hover:bg-light/5 transition-all"
             >
               See How It Works
             </a>

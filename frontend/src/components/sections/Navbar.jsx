@@ -29,21 +29,33 @@ export const Navbar = () => {
     { label: 'Protocol', href: '/#protocol' },
   ];
 
+  const handleNavClick = (e, href) => {
+    if (href.startsWith('/#')) {
+      const id = href.replace('/#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        e.preventDefault();
+        window.history.pushState(null, '', href);
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <>
-      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+      <div className="fixed top-4 md:top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
         <nav
           ref={navRef}
-          className={`pointer-events-auto flex items-center justify-between px-6 py-3 rounded-full w-full max-w-4xl transition-all duration-300 ${
+          className={`pointer-events-auto flex items-center justify-between px-4 md:px-6 py-2 md:py-3 rounded-full w-full max-w-4xl transition-all duration-300 ${
             scrolled
               ? 'bg-light/80 backdrop-blur-lg text-dark border border-dark/10 shadow-lg'
               : 'bg-transparent text-light border border-transparent'
           }`}
         >
           <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
-              <img src="/LOGO.png" alt="EduCard Logo" className="w-12 h-12 object-contain" />
-              <span className={`font-sans font-bold text-xl tracking-tighter ${scrolled ? 'text-dark' : 'text-light'}`}>
+            <Link to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-2">
+              <img src="/LOGO.png" alt="EduCard Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
+              <span className={`font-sans font-bold text-lg md:text-xl tracking-tighter ${scrolled ? 'text-dark' : 'text-light'}`}>
                 EduCard.
               </span>
             </Link>
@@ -52,13 +64,14 @@ export const Navbar = () => {
           {/* Desktop links */}
           <div className={`hidden md:flex gap-8 font-mono text-sm tracking-tight opacity-70`}>
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className="hover:-translate-y-[1px] transition-transform"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -87,18 +100,22 @@ export const Navbar = () => {
           <button
             onClick={() => setMenuOpen(false)}
             className="absolute top-8 right-8 p-2 text-light/50 hover:text-light transition-colors"
+            aria-label="Close menu"
           >
             <X className="w-6 h-6" />
           </button>
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.label}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
+              to={link.href}
+              onClick={(e) => {
+                setMenuOpen(false);
+                handleNavClick(e, link.href);
+              }}
               className="font-mono text-2xl text-light/70 hover:text-primary transition-colors tracking-widest uppercase"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
           <Link
             to="/generate"

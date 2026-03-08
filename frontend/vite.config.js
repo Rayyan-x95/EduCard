@@ -28,7 +28,21 @@ export default defineConfig({
             type: 'image/png'
           }
         ]
+      },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 3000000 // 3MB to allow html2canvas caching if needed
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-html2canvas': ['html2canvas'],
+          'vendor-lucide': ['lucide-react']
+        }
+      }
+    }
+  }
 })
