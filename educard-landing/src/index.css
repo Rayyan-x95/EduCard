@@ -1,0 +1,27 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #2563EB;
+  --color-accent: #22C55E;
+  --color-dark: #0F172A;
+  --color-light: #F3F4F6;
+}
+
+body {
+  background-color: var(--color-dark);
+  color: var(--color-light);
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-blue-700 focus:ring-4 focus:ring-primary/50 transition-all rounded-full px-8 py-4 font-mono text-sm font-bold inline-flex items-center gap-2;
+  }
+  .btn-secondary {
+    @apply bg-dark text-light border border-primary hover:bg-primary/10 focus:ring-4 focus:ring-primary/50 transition-all rounded-full px-8 py-4 font-mono text-sm font-bold inline-flex items-center gap-2;
+  }
+  .btn-success {
+    @apply bg-accent text-white hover:bg-green-600 focus:ring-4 focus:ring-accent/50 transition-all rounded-full px-8 py-4 font-mono text-sm font-bold inline-flex items-center gap-2;
+  }
+}
