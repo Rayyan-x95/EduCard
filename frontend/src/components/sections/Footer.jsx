@@ -48,14 +48,8 @@ export const Footer = () => {
             {/* Ninety5 branding */}
             <div className="pt-6 mt-6 border-t border-light/10">
               <p className="font-mono text-[10px] text-light/30 mb-3 uppercase tracking-widest">A Product Of</p>
-              <div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity">
-                <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 80L40 20L60 80L80 20" stroke="currentColor" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" className="text-light"/>
-                </svg>
-                <div>
-                  <div className="font-sans font-bold text-xl tracking-tighter text-light leading-none">Ninety5</div>
-                  <div className="font-mono text-[8px] tracking-[0.2em] text-light/40 mt-1">CREATE BOLD. STAY MODERN</div>
-                </div>
+              <div className="opacity-60 hover:opacity-100 transition-opacity">
+                <img src="/Ninety5.png" alt="Ninety5 Logo" className="h-8 w-auto object-contain" />
               </div>
             </div>
           </div>
