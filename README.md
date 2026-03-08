@@ -7,10 +7,11 @@ EduCard is a full-stack cryptographic vCard and academic networking identity gen
 This is a monorepo containing:
 
 | Folder | Stack | Purpose |
-|---|---|---|
-| `/educard-landing` | React 19 + Vite + Tailwind + GSAP | Frontend SPA (landing + generator) |
+| --- | --- | --- |
+| `/frontend` | React 19 + Vite + Tailwind + GSAP | Frontend SPA (landing + generator) |
 | `/backend` | Python 3 + FastAPI + QRCode | REST API (vCard + QR generation) |
-| `/frontend` | React 19 + Vite (in progress) | Future auth-enabled frontend |
+| `/assets` | — | Shared brand assets (logos, images) |
+| `/scripts` | Node.js | Dev utility / refactor scripts |
 
 ## Running Locally
 
