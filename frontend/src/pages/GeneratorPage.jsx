@@ -216,55 +216,67 @@ export const GeneratorPage = () => {
                           
                           {/* Education */}
                           <div className="flex flex-col items-center justify-center gap-1.5 text-light/70">
-                            <p className={`font-mono text-xs uppercase tracking-wider flex items-center gap-2 ${formData.university ? 'text-light/90' : 'text-light/40'}`}>
-                              <GraduationCap className="w-4 h-4 text-primary" />
-                              {formData.university || 'University Name'}
-                            </p>
-                            <p className={`font-mono text-[10px] uppercase tracking-widest ${formData.major ? 'text-primary' : 'text-primary/40'}`}>
-                              {formData.major || 'Degree / Major'}
-                            </p>
+                            {formData.university && (
+                              <p className="font-mono text-xs uppercase tracking-wider flex items-center gap-2 text-light/90">
+                                <GraduationCap className="w-4 h-4 text-primary" />
+                                {formData.university}
+                              </p>
+                            )}
+                            {formData.major && (
+                              <p className="font-mono text-[10px] uppercase tracking-widest text-primary">
+                                {formData.major}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
 
                       {/* Middle Section: Profile Picture */}
-                      <div className="flex justify-center my-4 relative">
-                        {/* decorative background glow for pic */}
-                        <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full scale-110"></div>
-                        <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-light/5 border border-light/10 flex items-center justify-center overflow-hidden backdrop-blur-md shadow-2xl">
-                          {profilePic ? (
-                            <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="text-center p-2">
-                              <Upload className="w-8 h-8 text-light/20 mx-auto mb-2" strokeWidth={1} />
-                              <div className="text-[10px] font-mono text-light/30 uppercase tracking-widest leading-tight">No Photo</div>
-                            </div>
-                          )}
+                      {profilePic ? (
+                        <div className="flex justify-center my-4 relative">
+                          <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full scale-110"></div>
+                          <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-light/5 border border-light/10 flex items-center justify-center overflow-hidden backdrop-blur-md shadow-2xl">
+                              <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                         <div className="flex-1"></div> /* Spacer when no image */
+                      )}
 
                       {/* Bottom Section: Contact details */}
                       <div className="space-y-3 w-full bg-light/5 rounded-xl p-4 sm:p-5 border border-light/10 shadow-inner">
-                        <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.email ? 'opacity-100' : 'opacity-30'}`}>
-                          <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
-                            <Mail className="w-3 h-3 text-primary" />
-                          </div>
-                          <span className="truncate text-light/90">{formData.email || 'email@domain.edu'}</span>
-                        </div>
-                        
-                        <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.phone ? 'opacity-100' : 'opacity-30'}`}>
-                          <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
-                            <Phone className="w-3 h-3 text-primary" />
-                          </div>
-                          <span className="truncate text-light/90">{formData.phone || '+1 (000) 000-0000'}</span>
-                        </div>
+                        {(!formData.email && !formData.phone && !formData.portfolio) ? (
+                            <div className="text-center text-light/30 font-mono text-xs italic">Awaiting Contact Vectors...</div>
+                        ) : (
+                          <>
+                            {formData.email && (
+                              <div className="flex items-center gap-3 text-xs font-mono transition-opacity opacity-100">
+                                <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
+                                  <Mail className="w-3 h-3 text-primary" />
+                                </div>
+                                <span className="truncate text-light/90">{formData.email}</span>
+                              </div>
+                            )}
+                            
+                            {formData.phone && (
+                              <div className="flex items-center gap-3 text-xs font-mono transition-opacity opacity-100">
+                                <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
+                                  <Phone className="w-3 h-3 text-primary" />
+                                </div>
+                                <span className="truncate text-light/90">{formData.phone}</span>
+                              </div>
+                            )}
 
-                        <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.portfolio ? 'opacity-100' : 'opacity-30'}`}>
-                          <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
-                            <LinkIcon className="w-3 h-3 text-primary" />
-                          </div>
-                          <span className="truncate block max-w-[200px] text-light/90">{formData.portfolio ? formData.portfolio.replace(/^https?:\/\//, '') : 'portfolio.link'}</span>
-                        </div>
+                            {formData.portfolio && (
+                              <div className="flex items-center gap-3 text-xs font-mono transition-opacity opacity-100">
+                                <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
+                                  <LinkIcon className="w-3 h-3 text-primary" />
+                                </div>
+                                <span className="truncate block max-w-[200px] text-light/90">{formData.portfolio.replace(/^https?:\/\//, '')}</span>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
