@@ -36,7 +36,7 @@ export const Footer = () => {
           {/* Brand col */}
           <div className="md:col-span-2 space-y-6">
             <Link to="/" className="flex items-center gap-3 group w-fit">
-              <img src="/LOGO.png" alt="EduCard Logo" className="w-10 h-10 object-contain" />
+              <img src="/LOGO.png" alt="EduCard Logo" className="w-16 h-16 object-contain" />
               <span className="font-sans font-bold text-4xl tracking-tighter text-light group-hover:text-primary transition-colors">
                 EduCard.
               </span>
@@ -49,7 +49,7 @@ export const Footer = () => {
             <div className="pt-6 mt-6 border-t border-light/10">
               <p className="font-mono text-[10px] text-light/30 mb-3 uppercase tracking-widest">A Product Of</p>
               <div className="opacity-60 hover:opacity-100 transition-opacity">
-                <img src="/Ninety5.png" alt="Ninety5 Logo" className="h-8 w-auto object-contain" />
+                <img src="/Ninety5.png" alt="Ninety5 Logo" className="h-12 w-auto object-contain" />
               </div>
             </div>
           </div>
