@@ -16,6 +16,15 @@ export default {
         sans: ['Inter', 'sans-serif'],
         mono: ['Space Mono', 'monospace'],
         drama: ['DM Serif Display', 'serif'],
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
+        }
+      },
+      animation: {
+        shimmer: 'shimmer 3s infinite linear',
       }
     },
   },

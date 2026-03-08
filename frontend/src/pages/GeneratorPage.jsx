@@ -650,6 +650,12 @@ END:VCARD`;
                     {/* Inner Shadow / Frame */}
                     <div className={`absolute inset-0 z-0 pointer-events-none rounded-[2rem] ${themes[cardTheme].inner}`}></div>
 
+                    {/* Holographic Strip */}
+                    <div className="absolute right-6 top-0 bottom-0 w-3 sm:w-4 z-[5] pointer-events-none overflow-hidden before:absolute before:inset-0 before:bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.8),transparent)] before:mix-blend-overlay after:absolute after:inset-0 after:bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] after:opacity-50">
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,#ff0000_0%,#ff7f00_15%,#ffff00_30%,#00ff00_50%,#0000ff_65%,#4b0082_85%,#9400d3_100%)] opacity-30 mix-blend-color-burn"></div>
+                      <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.6)_50%,transparent_75%)] bg-[length:200%_200%] animate-[shimmer_2s_infinite]"></div>
+                    </div>
+
                     {/* Card Content - Front */}
                     <div className={`relative z-10 p-6 sm:p-8 h-full flex flex-col items-center justify-between text-center ${themes[cardTheme].text}`}>
                       
@@ -738,7 +744,8 @@ END:VCARD`;
                     {/* Card Background / Texture */}
                     <div className="absolute inset-0 bg-gradient-to-tl from-[#1a1c29] to-[#0f1016] border border-light/10 shadow-[inner_0_0_80px_rgba(0,0,0,0.8)] z-0"></div>
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3 z-0 pointer-events-none"></div>
-
+                      {/* Hollow Logo in Empty Top Right Section */}
+                      <img src="/Ninety5.png" alt="95 Logo" className="absolute top-8 right-8 w-20 h-auto opacity-40 object-contain z-0 pointer-events-none" />
                     {/* Card Content - Back */}
                     <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col">
                       
