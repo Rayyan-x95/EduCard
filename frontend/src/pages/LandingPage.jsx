@@ -9,8 +9,7 @@ import { Footer } from '../components/sections/Footer';
 
 export const LandingPage = () => {
   return (
-    <div className="-dark">
-      <div className="noise-overlay"></div>
+    <div className="bg-dark">
       <Navbar />
       <Hero />
       <Features />
