@@ -718,7 +718,7 @@ END:VCARD`;
                       
                       {/* Logo at Top */}
                       <div className="flex justify-center pt-2">
-                        <img src="/LOGO.png" alt="EduCard Logo" className={`w-12 h-12 drop-shadow-lg ${themes[cardTheme].text === 'text-dark' ? 'invert' : ''}`} />
+                        <img src="/LOGO.png" alt="EduCard Logo" className={`w-16 h-16 sm:w-20 sm:h-20 drop-shadow-lg object-contain ${themes[cardTheme].text === 'text-dark' ? 'invert' : ''}`} />
                       </div>
 
                       {/* Profile Avatar */}
