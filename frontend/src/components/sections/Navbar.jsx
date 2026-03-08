@@ -24,9 +24,9 @@ export const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { label: 'Features', href: '#features' },
-    { label: 'Philosophy', href: '#philosophy' },
-    { label: 'Protocol', href: '#protocol' },
+    { label: 'Features', href: '/#features' },
+    { label: 'Philosophy', href: '/#philosophy' },
+    { label: 'Protocol', href: '/#protocol' },
   ];
 
   return (

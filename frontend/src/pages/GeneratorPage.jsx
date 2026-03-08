@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ArrowLeft, Loader2, QrCode, Download, Link as LinkIcon, Phone, Mail, GraduationCap, Upload, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { toPng } from 'html-to-image';
 
 export const GeneratorPage = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ export const GeneratorPage = () => {
   const [profilePic, setProfilePic] = useState(null); // Background Cover
   const [avatarUrl, setAvatarUrl] = useState(null); // Profile Avatar
   const [isFlipped, setIsFlipped] = useState(false);
+  const frontCardRef = useRef(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Customization States
   const [nameFont, setNameFont] = useState('font-sans');
@@ -75,11 +78,22 @@ export const GeneratorPage = () => {
     e.preventDefault();
     setLoading(true);
     
+    // The backend expects firstName and lastName
+    const nameParts = formData.name ? formData.name.trim().split(/\s+/) : [];
+    const firstName = nameParts.length > 0 ? nameParts[0] : '';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+    const payload = {
+      ...formData,
+      firstName,
+      lastName
+    };
+    
     try {
       const res = await fetch('http://localhost:8001/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('API Error');
       const data = await res.json();
@@ -98,8 +112,34 @@ export const GeneratorPage = () => {
     const link = document.createElement('a');
     link.href = result;
     const sanitizedName = formData.name ? formData.name.replace(/\s+/g, '_') : 'Student';
-    link.download = `EduCard_${sanitizedName}.png`;
+    link.download = `EduCard_QR_${sanitizedName}.png`;
     link.click();
+  };
+
+  const exportFrontCard = async () => {
+    if (!frontCardRef.current) return;
+    try {
+      setIsExporting(true);
+      // Wait a tick for react to re-render without "Tap to flip" text
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+      
+      const dataUrl = await toPng(frontCardRef.current, {
+        cacheBust: true,
+        style: { transform: 'none' }, // Ensure 3D transforms don't ruin perspective
+        pixelRatio: 2 // High Resolution
+      });
+      
+      const link = document.createElement('a');
+      const sanitizedName = formData.name ? formData.name.replace(/\s+/g, '_') : 'Student';
+      link.download = `EduCard_Front_${sanitizedName}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to export card:', err);
+      alert('Could not export the ID card image at this time.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -331,7 +371,10 @@ export const GeneratorPage = () => {
                 <div className={`w-full h-full relative transition-transform duration-700 [transform-style:preserve-3d] shadow-2xl rounded-[2rem] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
                   
                   {/* FRONT FACE */}
-                  <div className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden [backface-visibility:hidden]">
+                  <div 
+                    ref={frontCardRef}
+                    className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden [backface-visibility:hidden] bg-dark"
+                  >
                     {/* Background Picture or Fallback Theme */}
                     {profilePic ? (
                       <div className="absolute inset-0 z-0">
@@ -388,10 +431,19 @@ export const GeneratorPage = () => {
                           </h2>
                       </div>
                       
+                      {/* Front Face QR Code (Only visible when generated) */}
+                      {result && (
+                        <div className="absolute bottom-6 right-6 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/20 shadow-xl z-20">
+                          <img src={result} alt="QR Code" className="w-full h-full object-contain" />
+                        </div>
+                      )}
+
                       {/* Small Call to action indicating flip */}
-                      <div className="absolute bottom-6 opacity-30 text-[10px] font-mono tracking-widest uppercase">
-                        Tap to flip
-                      </div>
+                      {!isExporting && (
+                        <div className="absolute bottom-6 opacity-30 text-[10px] font-mono tracking-widest uppercase z-10">
+                          Tap to flip
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -487,13 +539,21 @@ export const GeneratorPage = () => {
               </div>
 
               {/* Download Action Area */}
-              <div className={`mt-8 flex justify-center transition-all duration-500 ${result ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none absolute w-full'}`}>
+              <div className={`mt-8 flex flex-col sm:flex-row justify-center gap-4 transition-all duration-500 ${result ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none absolute w-full'}`}>
                  <button 
                   onClick={downloadQR} 
-                  className="flex items-center gap-2 bg-light text-dark font-mono text-sm font-bold px-8 py-4 rounded-xl hover:scale-105 transition-transform"
+                  className="flex items-center justify-center gap-2 bg-light/10 text-light border border-light/20 font-mono text-xs sm:text-sm font-bold px-6 py-4 rounded-xl hover:bg-light/20 transition-all"
                 >
                   <Download className="w-4 h-4" />
-                  Download Matrix (PNG)
+                  QR Data
+                </button>
+                 <button 
+                  onClick={exportFrontCard} 
+                  disabled={isExporting}
+                  className="flex flex-1 items-center justify-center gap-2 bg-primary text-light font-mono text-xs sm:text-sm font-bold px-8 py-4 rounded-xl hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                  {isExporting ? 'Exporting...' : 'Export Front Card (PNG)'}
                 </button>
               </div>
 

@@ -18,13 +18,13 @@ export const Footer = () => {
       { label: 'How It Works', href: '#protocol' },
     ],
     Company: [
-      { label: 'Philosophy', href: '#philosophy' },
-      { label: 'Architecture', href: '#' },
-      { label: 'API Reference', href: '#' },
+      { label: 'Philosophy', href: '/#philosophy' },
+      { label: 'Architecture', href: '/architecture' },
+      { label: 'API Reference', href: '/api-reference' },
     ],
     Legal: [
-      { label: 'Terms of Service', href: '#' },
-      { label: 'Privacy Policy', href: '#' },
+      { label: 'Terms of Service', href: '/terms' },
+      { label: 'Privacy Policy', href: '/privacy' },
     ],
   };
 
