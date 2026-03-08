@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Loader2, QrCode, Download, Link as LinkIcon, Phone, Mail, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Loader2, QrCode, Download, Link as LinkIcon, Phone, Mail, GraduationCap, Upload, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const GeneratorPage = () => {
@@ -14,6 +14,14 @@ export const GeneratorPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [profilePic, setProfilePic] = useState(null);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const handleImageUpload = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setProfilePic(URL.createObjectURL(e.target.files[0]));
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,6 +40,7 @@ export const GeneratorPage = () => {
       if (!res.ok) throw new Error('API Error');
       const data = await res.json();
       setResult(data.qr_code);
+      setIsFlipped(true);
     } catch (err) {
       console.error(err);
       alert('Node connection failed. Ensure backend API is active at port 8000.');
@@ -87,6 +96,23 @@ export const GeneratorPage = () => {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">Identity Photo (Optional)</label>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-light/5 border border-light/10 overflow-hidden flex items-center justify-center shrink-0">
+                     {profilePic ? (
+                       <img src={profilePic} alt="Upload preview" className="w-full h-full object-cover" />
+                     ) : (
+                       <Upload className="w-6 h-6 text-light/20" />
+                     )}
+                  </div>
+                  <label className="cursor-pointer bg-light/5 hover:bg-light/10 text-light text-xs font-mono py-2.5 px-4 rounded-xl transition-all border border-light/10 hover:border-primary">
+                    Upload Picture
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  </label>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1">First Name *</label>
@@ -146,91 +172,138 @@ export const GeneratorPage = () => {
             <div className="sticky top-12">
               <div className="flex items-center justify-between mb-6 border-b border-light/10 pb-4">
                 <h3 className="font-mono text-sm tracking-widest uppercase text-light/50">Live Preview</h3>
-                {result && (
-                  <span className="font-mono text-xs text-green-400 bg-green-400/10 px-3 py-1 rounded-full border border-green-400/20 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
-                    Compiled
-                  </span>
-                )}
+                <div className="flex items-center gap-4">
+                  <button type="button" onClick={() => setIsFlipped(!isFlipped)} className="flex items-center gap-2 font-mono text-xs text-light/50 hover:text-primary transition-colors">
+                    <RefreshCw className="w-3 h-3" /> Flip Card
+                  </button>
+                  {result && (
+                    <span className="font-mono text-xs text-green-400 bg-green-400/10 px-3 py-1 rounded-full border border-green-400/20 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                      Compiled
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* The "Card" */}
-              <div className="relative w-full max-w-sm mx-auto aspect-[1/1.586] rounded-[2rem] overflow-hidden group shadow-2xl transition-transform duration-500 hover:rotate-1 lg:ml-auto">
-                {/* Card Background / Texture */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1a1c29] to-[#0f1016] border border-light/10 shadow-[inset_0_0_80px_rgba(0,0,0,0.8)] z-0"></div>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[80px] rounded-full translate-x-1/3 -translate-y-1/3 z-0 pointer-events-none"></div>
+              {/* The "Card" - 3D Flippable */}
+              <div 
+                className="relative w-full max-w-sm mx-auto aspect-[1/1.586] lg:ml-auto cursor-pointer [perspective:1000px] group"
+                onClick={() => setIsFlipped(!isFlipped)}
+              >
+                <div className={`w-full h-full relative transition-transform duration-700 [transform-style:preserve-3d] shadow-2xl rounded-[2rem] ${isFlipped ? '[transform:rotateY(180deg)]' : ''}`}>
+                  
+                  {/* FRONT FACE */}
+                  <div className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden [backface-visibility:hidden]">
+                    {/* Card Background / Texture */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#1a1c29] to-[#0f1016] border border-light/10 shadow-[inset_0_0_80px_rgba(0,0,0,0.8)] z-0"></div>
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[80px] rounded-full translate-x-1/3 -translate-y-1/3 z-0 pointer-events-none"></div>
 
-                {/* Card Content */}
-                <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col justify-between">
-                  {/* Top Section: Header & Name */}
-                  <div className="space-y-4">
-                    {/* Logo at Top */}
-                    <div className="flex justify-center mb-2">
-                      <img src="/LOGO.png" alt="EduCard Logo" className="w-12 h-12 opacity-80" />
+                    {/* Card Content - Front */}
+                    <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col justify-between">
+                      {/* Top Section: Header & Name */}
+                      <div className="space-y-4">
+                        {/* Logo at Top */}
+                        <div className="flex justify-center mb-2">
+                          <img src="/LOGO.png" alt="EduCard Logo" className="w-12 h-12 opacity-80" />
+                        </div>
+
+                        {/* Name */}
+                        <div className="text-center">
+                          <h2 className={`font-sans font-bold text-3xl sm:text-4xl tracking-tight leading-none mb-3 ${formData.firstName || formData.lastName ? 'text-light' : 'text-light/20'}`}>
+                            {formData.firstName || 'Student'} <br />
+                            {formData.lastName || 'Name'}
+                          </h2>
+                          
+                          {/* Education */}
+                          <div className="flex flex-col items-center justify-center gap-1.5 text-light/70">
+                            <p className={`font-mono text-xs uppercase tracking-wider flex items-center gap-2 ${formData.university ? 'text-light/90' : 'text-light/40'}`}>
+                              <GraduationCap className="w-4 h-4 text-primary" />
+                              {formData.university || 'University Name'}
+                            </p>
+                            <p className={`font-mono text-[10px] uppercase tracking-widest ${formData.major ? 'text-primary' : 'text-primary/40'}`}>
+                              {formData.major || 'Degree / Major'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Middle Section: Profile Picture */}
+                      <div className="flex justify-center my-4 relative">
+                        {/* decorative background glow for pic */}
+                        <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full scale-110"></div>
+                        <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-light/5 border border-light/10 flex items-center justify-center overflow-hidden backdrop-blur-md shadow-2xl">
+                          {profilePic ? (
+                            <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="text-center p-2">
+                              <Upload className="w-8 h-8 text-light/20 mx-auto mb-2" strokeWidth={1} />
+                              <div className="text-[10px] font-mono text-light/30 uppercase tracking-widest leading-tight">No Photo</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Bottom Section: Contact details */}
+                      <div className="space-y-3 w-full bg-light/5 rounded-xl p-4 sm:p-5 border border-light/10 shadow-inner">
+                        <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.email ? 'opacity-100' : 'opacity-30'}`}>
+                          <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
+                            <Mail className="w-3 h-3 text-primary" />
+                          </div>
+                          <span className="truncate text-light/90">{formData.email || 'email@domain.edu'}</span>
+                        </div>
+                        
+                        <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.phone ? 'opacity-100' : 'opacity-30'}`}>
+                          <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
+                            <Phone className="w-3 h-3 text-primary" />
+                          </div>
+                          <span className="truncate text-light/90">{formData.phone || '+1 (000) 000-0000'}</span>
+                        </div>
+
+                        <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.portfolio ? 'opacity-100' : 'opacity-30'}`}>
+                          <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
+                            <LinkIcon className="w-3 h-3 text-primary" />
+                          </div>
+                          <span className="truncate block max-w-[200px] text-light/90">{formData.portfolio ? formData.portfolio.replace(/^https?:\/\//, '') : 'portfolio.link'}</span>
+                        </div>
+                      </div>
                     </div>
+                  </div>
 
-                    {/* Name */}
-                    <div className="text-center">
-                      <h2 className={`font-sans font-bold text-3xl sm:text-4xl tracking-tight leading-none mb-3 ${formData.firstName || formData.lastName ? 'text-light' : 'text-light/20'}`}>
-                        {formData.firstName || 'Student'} <br />
-                        {formData.lastName || 'Name'}
-                      </h2>
+                  {/* BACK FACE */}
+                  <div className="absolute inset-0 w-full h-full rounded-[2rem] overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                    {/* Card Background / Texture */}
+                    <div className="absolute inset-0 bg-gradient-to-tl from-[#1a1c29] to-[#0f1016] border border-light/10 shadow-[inner_0_0_80px_rgba(0,0,0,0.8)] z-0"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/20 blur-[80px] rounded-full -translate-x-1/3 translate-y-1/3 z-0 pointer-events-none"></div>
+
+                    {/* Card Content - Back */}
+                    <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col justify-center items-center">
+                      <div className="text-center mb-8">
+                        <img src="/LOGO.png" alt="EduCard Logo" className="w-16 h-16 opacity-80 mx-auto mb-4" />
+                        <h3 className="font-sans font-bold text-2xl tracking-tighter text-light mb-1">EduCard.</h3>
+                        <p className="font-mono text-[10px] tracking-widest uppercase text-light/30">Identity Matrix</p>
+                      </div>
+
+                      <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-2xl bg-white/5 border border-light/10 flex items-center justify-center overflow-hidden backdrop-blur-md shadow-2xl relative">
+                        {/* Inner glowing element for back side matrix */}
+                        <div className="absolute inset-0 bg-primary/10 blur-xl rounded-full scale-125"></div>
+                        {result ? (
+                          <div className="absolute inset-0 w-full h-full bg-white p-3 sm:p-4 z-10 animate-in zoom-in duration-300">
+                            <img src={result} alt="vCard QR" className="w-full h-full object-contain" />
+                          </div>
+                        ) : (
+                          <div className="text-center p-4 z-10">
+                            <QrCode className="w-12 h-12 text-light/20 mx-auto mb-3" strokeWidth={1} />
+                            <div className="text-[10px] font-mono text-light/30 uppercase tracking-widest leading-tight">Awaiting Build</div>
+                          </div>
+                        )}
+                      </div>
                       
-                      {/* Education */}
-                      <div className="flex flex-col items-center justify-center gap-1.5 text-light/70">
-                        <p className={`font-mono text-xs uppercase tracking-wider flex items-center gap-2 ${formData.university ? 'text-light/90' : 'text-light/40'}`}>
-                          <GraduationCap className="w-4 h-4 text-primary" />
-                          {formData.university || 'University Name'}
-                        </p>
-                        <p className={`font-mono text-[10px] uppercase tracking-widest ${formData.major ? 'text-primary' : 'text-primary/40'}`}>
-                          {formData.major || 'Degree / Major'}
-                        </p>
-                      </div>
+                      <p className="font-mono text-[10px] uppercase tracking-widest text-light/30 mt-10 text-center px-4 leading-relaxed">
+                        Scan matrix to import verified identity parameters to local node.
+                      </p>
                     </div>
                   </div>
 
-                  {/* Middle Section: QR Code */}
-                  <div className="flex justify-center my-4 relative">
-                    {/* decorative background glow for qr */}
-                    <div className="absolute inset-0 bg-primary/10 blur-2xl rounded-full scale-110"></div>
-                    <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-2xl bg-white/5 border border-light/10 flex items-center justify-center overflow-hidden backdrop-blur-md shadow-2xl">
-                      {result ? (
-                        <div className="absolute inset-0 w-full h-full bg-white p-3 animate-in zoom-in duration-300">
-                           {/* API returns QR code on white bg. We preserve it for scanning. */}
-                          <img src={result} alt="vCard QR" className="w-full h-full object-contain" />
-                        </div>
-                      ) : (
-                        <div className="text-center p-2">
-                          <QrCode className="w-10 h-10 text-light/20 mx-auto mb-3" strokeWidth={1} />
-                          <div className="text-[10px] font-mono text-light/30 uppercase tracking-widest leading-tight">Awaiting Build</div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Bottom Section: Contact details */}
-                  <div className="space-y-3 w-full bg-light/5 rounded-xl p-4 sm:p-5 border border-light/10 shadow-inner">
-                    <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.email ? 'opacity-100' : 'opacity-30'}`}>
-                      <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
-                        <Mail className="w-3 h-3 text-primary" />
-                      </div>
-                      <span className="truncate text-light/90">{formData.email || 'email@domain.edu'}</span>
-                    </div>
-                    
-                    <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.phone ? 'opacity-100' : 'opacity-30'}`}>
-                      <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
-                        <Phone className="w-3 h-3 text-primary" />
-                      </div>
-                      <span className="truncate text-light/90">{formData.phone || '+1 (000) 000-0000'}</span>
-                    </div>
-
-                    <div className={`flex items-center gap-3 text-xs font-mono transition-opacity ${formData.portfolio ? 'opacity-100' : 'opacity-30'}`}>
-                      <div className="w-6 h-6 rounded-full bg-light/10 border border-light/10 flex items-center justify-center shrink-0">
-                        <LinkIcon className="w-3 h-3 text-primary" />
-                      </div>
-                      <span className="truncate block max-w-[200px] text-light/90">{formData.portfolio ? formData.portfolio.replace(/^https?:\/\//, '') : 'portfolio.link'}</span>
-                    </div>
-                  </div>
                 </div>
               </div>
 
