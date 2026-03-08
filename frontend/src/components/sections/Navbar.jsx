@@ -52,12 +52,16 @@ export const Navbar = () => {
               : 'bg-transparent text-light border border-transparent'
           }`}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Link to="/" onClick={() => window.scrollTo(0, 0)} className="flex items-center gap-2">
               <img src="/LOGO.png" alt="EduCard Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
               <span className={`font-sans font-bold text-lg md:text-xl tracking-tighter ${scrolled ? 'text-dark' : 'text-light'}`}>
                 EduCard.
               </span>
+            </Link>
+            <Link to="/roadmap" className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border mt-0.5 transition-colors hover:scale-105 cursor-pointer ${scrolled ? 'bg-primary/10 border-primary/30' : 'bg-light/10 border-light/20 backdrop-blur-md'}`}>
+               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+               <span className={`font-mono text-[9px] uppercase tracking-wider font-bold ${scrolled ? 'text-primary' : 'text-white'}`}>V2 In Progress</span>
             </Link>
           </div>
 

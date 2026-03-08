@@ -8,6 +8,7 @@ const ArchitecturePage = lazy(() => import('./pages/ArchitecturePage').then(m =>
 const APIReferencePage = lazy(() => import('./pages/APIReferencePage').then(m => ({ default: m.APIReferencePage })));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
+const V2RoadmapPage = lazy(() => import('./pages/V2RoadmapPage').then(m => ({ default: m.V2RoadmapPage })));
 
 // Loading Fallback
 const PageLoader = () => (
@@ -28,8 +29,7 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/generate" element={<GeneratorPage />} />
           <Route path="/architecture" element={<ArchitecturePage />} />
-          <Route path="/api-reference" element={<APIReferencePage />} />
-          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/api-reference" element={<APIReferencePage />} />          <Route path="/roadmap" element={<V2RoadmapPage />} />          <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
         </Routes>
       </Suspense>

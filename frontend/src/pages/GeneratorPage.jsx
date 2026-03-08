@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowLeft, Loader2, QrCode, Download, Link as LinkIcon, Phone, Mail, GraduationCap, Upload, RefreshCw, Trash2, Share2, Linkedin, Twitter, Github, Printer, Wand2 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toPng } from 'html-to-image';
-import QRCode from 'qrcode';
+import QRCodeStyling from 'qr-code-styling';
 import jsPDF from 'jspdf';
 
 export const GeneratorPage = () => {
@@ -98,6 +98,7 @@ export const GeneratorPage = () => {
   const [nameColor, setNameColor] = useState('#ffffff');
   const [nameSize, setNameSize] = useState(1);
   const [nameWeight, setNameWeight] = useState(700);
+  const [nameSpacing, setNameSpacing] = useState(0);
   const [avatarRoundness, setAvatarRoundness] = useState(25);
   const [cardTheme, setCardTheme] = useState('dark-glass');
 
@@ -163,15 +164,39 @@ END:VCARD`;
     
     try {
       const vCardText = generateVCard(formData);
-      const qrDataUrl = await QRCode.toDataURL(vCardText, {
-        width: 400,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#ffffff'
+      
+      const qrCode = new QRCodeStyling({
+        width: 800,
+        height: 800,
+        data: vCardText,
+        image: "/LOGO.png",
+        margin: 10,
+        qrOptions: {
+          errorCorrectionLevel: "H"
+        },
+        dotsOptions: {
+          color: "#000000",
+          type: "rounded"
+        },
+        cornersSquareOptions: {
+          color: "#000000",
+          type: "extra-rounded"
+        },
+        cornersDotOptions: {
+          color: "#000000",
+          type: "dot"
+        },
+        imageOptions: {
+          crossOrigin: "anonymous",
+          margin: 10,
+          imageSize: 0.3
         }
       });
-      
+
+      const blob = await qrCode.getRawData("png");
+      if (!blob) throw new Error("Failed to generate styled QR code.");
+      const qrDataUrl = URL.createObjectURL(blob);
+
       setResult(qrDataUrl);
       setIsFlipped(true);
     } catch (err) {
@@ -326,7 +351,10 @@ END:VCARD`;
           <div className="flex items-center gap-3">
             <img src="/LOGO.png" alt="EduCard Logo" className="w-6 h-6 object-contain" />
             <span className="font-sans font-bold text-xl tracking-tighter">EduCard.</span>
-            <div className="h-4 w-px bg-light/20 mx-2"></div>
+            <Link to="/roadmap" className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded border border-primary/20 bg-primary/10 ml-1 hover:scale-105 transition-transform cursor-pointer">
+               <span className="font-mono text-[9px] uppercase tracking-wider text-primary font-bold">V2 In Progress</span>
+            </Link>
+            <div className="h-4 w-px bg-light/20 mx-1"></div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
               <span className="font-mono text-xs text-primary uppercase tracking-widest">Generator Active</span>
@@ -521,6 +549,30 @@ END:VCARD`;
                     </div>
                   </div>
 
+                  {/* Name Letter Spacing Selection */}
+                  <div className="space-y-2 mt-4 sm:mt-0">
+                    <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1 flex justify-between">
+                      <span>Text Spacing</span>
+                      <span className="text-primary">{nameSpacing}px</span>
+                    </label>
+                    <div className="flex items-center gap-4 h-[52px] bg-light/5 border border-light/10 rounded-xl px-4">
+                      <span className="text-light/30 font-mono text-xs">-10</span>
+                      <input 
+                        type="range" 
+                        min="-10" 
+                        max="30" 
+                        step="1" 
+                        value={nameSpacing} 
+                        onChange={(e) => setNameSpacing(Number(e.target.value))}
+                        className="w-full h-1.5 bg-light/20 rounded-lg appearance-none cursor-pointer accent-primary"
+                        style={{
+                           background: `linear-gradient(to right, var(--primary) ${((nameSpacing + 10) / 40) * 100}%, rgba(255,255,255,0.2) ${((nameSpacing + 10) / 40) * 100}%)`
+                        }}
+                      />
+                      <span className="text-light/30 font-mono text-xs">30</span>
+                    </div>
+                  </div>
+
                   {/* Avatar Roundness Selection */}
                   <div className="space-y-2 mt-4 sm:mt-0 sm:col-span-2">
                     <label className="block font-mono text-[10px] uppercase tracking-widest text-light/70 ml-1 flex justify-between">
@@ -651,9 +703,14 @@ END:VCARD`;
                     <div className={`absolute inset-0 z-0 pointer-events-none rounded-[2rem] ${themes[cardTheme].inner}`}></div>
 
                     {/* Holographic Strip */}
-                    <div className="absolute right-6 top-0 bottom-0 w-3 sm:w-4 z-[5] pointer-events-none overflow-hidden before:absolute before:inset-0 before:bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.8),transparent)] before:mix-blend-overlay after:absolute after:inset-0 after:bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] after:opacity-50">
+                    <div className="absolute right-6 top-0 bottom-0 w-4 sm:w-6 z-[5] pointer-events-none overflow-hidden before:absolute before:inset-0 before:bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.8),transparent)] before:mix-blend-overlay after:absolute after:inset-0 after:bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] after:opacity-50 flex items-center justify-center">
                       <div className="absolute inset-0 bg-[linear-gradient(180deg,#ff0000_0%,#ff7f00_15%,#ffff00_30%,#00ff00_50%,#0000ff_65%,#4b0082_85%,#9400d3_100%)] opacity-30 mix-blend-color-burn"></div>
                       <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.6)_50%,transparent_75%)] bg-[length:200%_200%] animate-[shimmer_2s_infinite]"></div>
+                      <div className="absolute inset-0 flex flex-col items-center justify-around py-8">
+                        {[1, 2, 3, 4, 5].map(i => (
+                          <span key={i} className="font-sans font-black text-black/80 text-[8px] sm:text-[10px] tracking-[0.4em] uppercase [writing-mode:vertical-rl] mix-blend-overlay">EDUCARD.</span>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Card Content - Front */}
@@ -680,11 +737,12 @@ END:VCARD`;
                       {/* Full Screen Name */}
                       <div className="w-full flex-1 flex flex-col justify-center pb-12">
                          <h2 
-                            className={`tracking-tighter leading-[1.1] uppercase break-words px-2 ${nameFont} ${formData.name ? '' : 'opacity-30'}`}
+                            className={`leading-[1.1] uppercase break-words px-2 ${nameFont} ${formData.name ? '' : 'opacity-30'}`}
                             style={{ 
                               color: nameColor,
                               fontSize: `clamp(${2.5 * nameSize}rem, ${12 * nameSize}cqw, ${4.5 * nameSize}rem)`,
                               fontWeight: nameWeight,
+                              letterSpacing: `${nameSpacing}px`,
                               textShadow: cardTheme === 'light-glass' ? '0 4px 20px rgba(0,0,0,0.1)' : '0 4px 30px rgba(0,0,0,0.5)'
                             }}
                           >
@@ -708,22 +766,11 @@ END:VCARD`;
                         </div>
                       )}
 
-                      {/* Holographic Authentication Seal (Only visible when exporting) */}
-                      {isExporting && (
-                        <div className="absolute bottom-6 left-6 w-16 h-16 sm:w-20 sm:h-20 rounded-full z-20 flex items-center justify-center overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.3),inset_0_0_10px_rgba(255,255,255,0.9)] before:absolute before:inset-0 before:bg-[conic-gradient(from_45deg_at_50%_50%,#eef2f3_0%,#f0c3df_15%,#b0e0e6_35%,#e1c4df_50%,#c1e3e1_70%,#f0cae1_85%,#eef2f3_100%)] after:absolute after:inset-0 after:bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,0.7)_0%,transparent_70%)]">
-                          
-                          {/* Inner abstract geometric wireframes to match reference image */}
-                          <div className="absolute inset-0 z-0 opacity-20 mix-blend-color-burn">
-                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border-[0.5px] border-black rounded-[40%] origin-center rotate-[30deg]"></div>
-                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border-[0.5px] border-black rounded-[40%] origin-center -rotate-[30deg]"></div>
-                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border-[0.5px] border-black rounded-[40%] origin-center rotate-[60deg]"></div>
-                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border-[0.5px] border-black rounded-[40%] origin-center rotate-[90deg]"></div>
-                          </div>
-
-                          <img src="/LOGO.png" alt="Authentic Seal" className="w-8 h-8 sm:w-10 sm:h-10 relative z-10 opacity-60 mix-blend-color-burn" style={{ filter: 'drop-shadow(0px 1px 1px rgba(255,255,255,0.9))' }} />
-                          
-                          {/* Outer thin white border for realism */}
-                          <div className="absolute inset-0 rounded-full border border-white/60 m-[1px] z-10"></div>
+{/* Organic Authentication Seal (Only visible when exporting) */}
+                        {isExporting && (
+                          <div className={`absolute bottom-6 left-6 w-16 h-16 sm:w-20 sm:h-20 rounded-full z-20 flex items-center justify-center border shadow-lg backdrop-blur-md ${themes[cardTheme].text === 'text-dark' ? 'border-black/20 bg-white/30' : 'border-white/20 bg-black/30'}`}>
+                            <div className={`absolute inset-[3px] rounded-full border border-dashed ${themes[cardTheme].text === 'text-dark' ? 'border-black/30' : 'border-white/30'}`}></div>
+                            <img src="/LOGO.png" alt="Authentic Seal" className={`w-6 h-6 sm:w-8 sm:h-8 relative z-10 opacity-90 ${themes[cardTheme].text === 'text-dark' ? 'invert' : ''}`} />
                         </div>
                       )}
 
@@ -744,11 +791,10 @@ END:VCARD`;
                     {/* Card Background / Texture */}
                     <div className="absolute inset-0 bg-gradient-to-tl from-[#1a1c29] to-[#0f1016] border border-light/10 shadow-[inner_0_0_80px_rgba(0,0,0,0.8)] z-0"></div>
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3 z-0 pointer-events-none"></div>
-                      {/* Hollow Logo in Empty Top Right Section */}
-                      <img src="/Ninety5.png" alt="95 Logo" className="absolute top-8 right-8 w-20 h-auto opacity-40 object-contain z-0 pointer-events-none" />
+
                     {/* Card Content - Back */}
                     <div className="relative z-10 p-6 sm:p-8 h-full flex flex-col">
-                      
+
                       {/* Top section: Identity Vectors */}
                       <div className="flex-1 space-y-4">
                          {/* Name again smaller for reference */}

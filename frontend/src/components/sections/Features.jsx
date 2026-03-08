@@ -50,7 +50,7 @@ export const Features = () => {
   }, []);
 
   // Card 3: QR code mockup fields
-  const fields = ['M. Rayyan', 'CS Engineering', 'IIT Delhi', 'rayyan@iit.ac.in'];
+  const fields = ['Joe Smith', 'CS Engineering', 'IIT Delhi', 'smith@iit.ac.in'];
   const [activeField, setActiveField] = useState(0);
   useEffect(() => {
     const int = setInterval(() => {
