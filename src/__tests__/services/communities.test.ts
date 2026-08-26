@@ -1,6 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { CommunitiesService } from "../../services/communities";
 
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn(),
+    rpc: vi.fn(),
+  },
+}));
+
 vi.mock("expo-secure-store", () => ({
   getItemAsync: vi.fn().mockResolvedValue(null),
   setItemAsync: vi.fn().mockResolvedValue(null),
