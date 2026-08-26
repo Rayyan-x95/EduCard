@@ -43,7 +43,7 @@ jobs:
           )
           FOUND=0
           for p in "${PATTERNS[@]}"; do
-            MATCHES=$(git grep -I -n -E -e "$p" -- . ':!*.lock' ':!package-lock.json' ':!.github/workflows/pre-commit-audit.yml' || true)
+            MATCHES=$(git grep -I -n -E -e "$p" -- . ':!*.lock' ':!package-lock.json' | grep -v -E '^\.github/workflows/pre-commit-audit\.yml:[0-9]+:\s*"' || true)
             if [ -n "$MATCHES" ]; then
               echo "::error::Potential secret detected matching $p"
               echo "$MATCHES"
