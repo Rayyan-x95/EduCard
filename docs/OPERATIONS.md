@@ -51,10 +51,7 @@ Migration process:
 6. Verify.
 
 Current migrations:
-- `20260826000000_initial_schema.sql` — full schema, RLS, RPCs, storage buckets, indexes.
-- `20260827000000_audit_fixes.sql` — security hardening (see docs/SECURITY.md), topic seeds,
-  profile preference + `onboarding_completed` columns, author-counter triggers,
-  `check_username_available` RPC, `client_error_reports` table, notifications.`push_sent_at`.
+- `20260826000000_initial_schema.sql` — full canonical schema, tables, RLS policies, security definer RPCs, storage buckets & policies, rate limits, topic seeds, and retention purges.
 
 `supabase/scripts/setup_database.sql` was removed: it was a byte-for-byte duplicate of
 the initial migration and drifted. The migrations directory is the single source of truth.

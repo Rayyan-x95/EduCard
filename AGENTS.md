@@ -35,7 +35,7 @@ Run one test file: `npx vitest run src/__tests__/lib/query-client.test.ts`
 - User-facing error messages come from `normalizeError()` in `src/lib/errors.ts`. Never surface raw Supabase/Postgres messages. App-thrown errors use human text + `code: "APP_ERROR"`.
 - Supabase types live hand-maintained in `src/types/database.ts`. When editing `supabase/migrations/*.sql`, sync tables/enums/**Functions/RPC signatures** there — nothing regenerates it. Migrations are the single source of truth (`supabase/scripts/` was deleted for drift).
 - Security model: RLS + SECURITY DEFINER RPCs enforce everything. Guards that protect profile fields check `current_user = 'authenticated'` (NOT the JWT role) so definer RPCs can do maintenance — preserve this pattern or accept/unaccept breaks again. See docs/SECURITY.md.
-- Topics table is seeded by migration `20260827000000_audit_fixes.sql`; never fabricate client-side fallback UUIDs (that broke fresh deployments before).
+- Topics table is seeded by canonical migration `20260826000000_initial_schema.sql`; never fabricate client-side fallback UUIDs (that broke fresh deployments before).
 
 ## Docs
 
