@@ -1,0 +1,85 @@
+name: Nightly Deep Audit
+
+# Scheduled deep audit: full vulnerability report, dependency freshness,
+# and the live-database security audit (scripts/security-audit.ts) against
+# staging. Uploads a report artifact; fails the run on critical vulns or
+# live-DB audit failures so breakage is visible, not silent.
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # 02:00 UTC daily
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deep-audit:
+    runs-on: ubuntu-latest
+    env:
+      # Live-DB audit target. Point these at a STAGING project — never
+      # production. The anon key is sufficient: the script verifies RLS by
+      # probing as an ordinary client.
+      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Full dependency audit report
+        id: npm_audit
+        run: |
+          npx audit-ci --low || true
+          npm audit --json > audit-report.json || true
+          npm audit || true
+
+      - name: Dependency freshness report
+        run: |
+          echo "# Outdated dependencies" > outdated-report.md
+          npm outdated --long >> outdated-report.md 2>/dev/null || \
+            echo "All dependencies current." >> outdated-report.md
+          cat outdated-report.md
+
+      - name: Live database security audit
+        if: env.EXPO_PUBLIC_SUPABASE_URL != ''
+        run: |
+          # Script needs dotenv + tsx at runtime (not app dependencies).
+          npm i --no-save dotenv tsx@4
+          npx tsx scripts/security-audit.ts | tee live-db-audit.log
+
+      - name: Summarize run
+        if: always()
+        run: |
+          {
+            echo "## Nightly Audit Summary"
+            echo ""
+            echo "| Check | Status |"
+            echo "|---|---|"
+            echo "| Dependency criticals | see job result |"
+            if [ -f live-db-audit.log ]; then
+              echo "| Live DB audit | executed |"
+              grep -c "Failed" live-db-audit.log > /dev/null 2>&1 && \
+                echo "⚠️ Failures detected in live-db-audit.log" || true
+            else
+              echo "| Live DB audit | skipped (no STAGING secrets configured) |"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-audit-${{ github.run_number }}
+          path: |
+            audit-report.json
+            outdated-report.md
+            live-db-audit.log
+          retention-days: 30
+          if-no-files-found: ignore

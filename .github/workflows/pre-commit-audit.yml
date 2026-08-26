@@ -1,0 +1,83 @@
+name: Pre-Commit Audit
+
+# Fast security gate on every push and PR. Complements ci.yml (quality
+# gates: typecheck/lint/test/build) by focusing exclusively on what must
+# NEVER land: leaked credentials and known-vulnerable dependencies.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: pre-commit-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secrets-scan:
+    name: Scan for leaked secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so new additions to existing files are scanned
+
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fallback pattern scan
+        if: always()
+        run: |
+          # Belt-and-braces regex sweep for high-confidence credential
+          # patterns (gitleaks may be skipped on forked PRs).
+          PATTERNS=(
+            "AKIA[0-9A-Z]{16}"                                        # AWS access key
+            "-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----"         # private keys
+            "sk_live_[A-Za-z0-9]{20,}"                                # Stripe live key
+            "expo_[A-Za-z0-9]{20,}|[0-9a-f]{32}:expos"                # Expo tokens
+            "SUPABASE_SERVICE_ROLE_KEY=.+[A-Za-z0-9]"                 # service role in code
+            "eyJhbGciOi.*service_role"                                # service-role JWT
+          )
+          FOUND=0
+          for p in "${PATTERNS[@]}"; do
+            MATCHES=$(git grep -I -n -E "$p" -- . ':!*.lock' ':!package-lock.json' || true)
+            if [ -n "$MATCHES" ]; then
+              echo "::error::Potential secret detected matching $p"
+              echo "$MATCHES"
+              FOUND=1
+            fi
+          done
+          exit $FOUND
+
+  dependency-audit:
+    name: Dependency vulnerabilities (high+)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Stricter than ci.yml's critical-only gate: blocks high severity too.
+      - name: npm audit (high and above)
+        run: npm audit --audit-level=high
+
+      - name: Check overrides are still required
+        run: |
+          node - <<'EOF'
+          const pkg = require("./package.json");
+          const overrides = Object.keys(pkg.overrides || {});
+          console.log(
+            overrides.length
+              ? `Active audit overrides (review quarterly): ${overrides.join(", ")}`
+              : "No overrides present."
+          );
+          EOF

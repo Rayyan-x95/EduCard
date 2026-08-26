@@ -1,0 +1,143 @@
+name: Android APK Build (EAS)
+
+# Builds an installable APK on every push to main using Expo EAS Build
+# (eas.json -> build.preview, buildType "apk", autoIncrement enabled).
+#
+# ONE-TIME SETUP (required before the first run):
+#   1. Create an Expo access token: https://expo.dev/accounts/<user>/settings/access-tokens
+#      then add it as a repository secret named EXPO_TOKEN.
+#   2. The JS bundle needs the public Supabase env vars at build time. Configure
+#      them once in the EAS environment (values are public client keys, safe for
+#      the app bundle):
+#        npx eas-cli env:create --environment production --name EXPO_PUBLIC_SUPABASE_URL --value "<your-url>"
+#        npx eas-cli env:create --environment production --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value "<your-anon-key>"
+#      (or set them in https://expo.dev under the project's Environment variables).
+#
+# Versioning:
+#   - Android versionCode increments automatically per build (autoIncrement).
+#   - Release tag/filename use package.json version + GitHub run number.
+#   - Changelog is generated from commits since the last release tag.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write # required to publish the GitHub Release
+
+concurrency:
+  group: eas-android-build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history (for changelog)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve version and run number
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          RUN_NUMBER=${{ github.run_number }}
+          SHORT_SHA=$(git rev-parse --short HEAD)
+
+          echo "version=$VERSION"     >> "$GITHUB_OUTPUT"
+          echo "run_number=$RUN_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+
+          echo "EduCard v$VERSION (run $RUN_NUMBER) @ $SHORT_SHA"
+
+      - name: Generate changelog from commits
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          if [ -n "$LAST_TAG" ]; then
+            RANGE="$LAST_TAG..HEAD"
+          else
+            RANGE="HEAD~15..HEAD"
+          fi
+
+          git log "$RANGE" --pretty=format:"- %s (%h)" > changelog.md
+
+          if [ ! -s changelog.md ]; then
+            echo "- Automated build ${{ steps.version.outputs.run_number }} of v${{ steps.version.outputs.version }}" > changelog.md
+          fi
+
+          {
+            echo "### Changes in this build"
+            echo ""
+            cat changelog.md
+          } > release-notes.md
+
+          echo "----- release-notes.md -----"
+          cat release-notes.md
+
+      - name: Submit build and wait for completion
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          npx --yes eas-cli@latest build \
+            --platform android \
+            --profile preview \
+            --non-interactive
+
+      - name: Resolve built APK download URL
+        id: apk
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          BUILD_JSON=$(npx --yes eas-cli@latest build:list \
+            --platform android \
+            --limit 1 \
+            --json \
+            --non-interactive)
+
+          APK_URL=$(node -e "
+            const builds = JSON.parse(process.argv[1]);
+            const b = Array.isArray(builds) ? builds[0] : builds;
+            if (!b || !b.artifacts || !b.artifacts.buildUrl) {
+              console.error('No artifact URL found for latest build');
+              process.exit(1);
+            }
+            console.log(b.artifacts.buildUrl);
+          " "$BUILD_JSON")
+
+          echo "apk_url=$APK_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Download APK
+        run: |
+          mkdir -p output
+          curl -L --fail --retry 3 -o \
+            "output/EduCard-v${{ steps.version.outputs.version }}-build${{ steps.version.outputs.run_number }}-${{ steps.version.outputs.short_sha }}.apk" \
+            "${{ steps.apk.outputs.apk_url }}"
+          ls -la output/
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EduCard-apk-run-${{ steps.version.outputs.run_number }}
+          path: output/*.apk
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}-build.${{ steps.version.outputs.run_number }}
+          name: EduCard v${{ steps.version.outputs.version }} (build ${{ steps.version.outputs.run_number }})
+          body_path: release-notes.md
+          files: output/*.apk
+          prerelease: false
+          make_latest: true

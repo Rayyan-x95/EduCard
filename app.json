@@ -1,0 +1,72 @@
+{
+  "expo": {
+    "name": "EduCard",
+    "slug": "educard",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/LOGO.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "educard",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.educard.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "EduCard needs access to your photo library so you can attach screenshots to questions and set a profile photo.",
+        "NSPhotoLibraryAddUsageDescription": "EduCard can save images you choose to share back to your photo library.",
+        "NSCameraUsageDescription": "EduCard uses the camera only when you choose to capture a profile photo."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/Simple logo.png",
+        "backgroundColor": "#101416"
+      },
+      "package": "com.educard.app",
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "server",
+      "favicon": "./assets/Simple logo.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/LOGO.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#101416"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#818CF8"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "b8f47d1c-abd5-4ee9-9de0-4756e2169893"
+      }
+    },
+    "owner": "rayyan-x95",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/b8f47d1c-abd5-4ee9-9de0-4756e2169893"
+    }
+  }
+}
