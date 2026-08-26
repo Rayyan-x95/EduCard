@@ -65,12 +65,10 @@ jobs:
         run: |
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
           if [ -n "$LAST_TAG" ]; then
-            RANGE="$LAST_TAG..HEAD"
+            git log "$LAST_TAG..HEAD" --pretty=format:"- %s (%h)" > changelog.md || true
           else
-            RANGE="HEAD~15..HEAD"
+            git log -n 15 --pretty=format:"- %s (%h)" > changelog.md || true
           fi
-
-          git log "$RANGE" --pretty=format:"- %s (%h)" > changelog.md
 
           if [ ! -s changelog.md ]; then
             echo "- Automated build ${{ steps.version.outputs.run_number }} of v${{ steps.version.outputs.version }}" > changelog.md
