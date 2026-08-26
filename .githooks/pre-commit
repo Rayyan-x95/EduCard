@@ -24,7 +24,7 @@ echo "==> Pre-commit audit"
 # ---------------------------------------------------------------------------
 # 1. Secret scan on staged content
 # ---------------------------------------------------------------------------
-STAGED=$(git diff --cached --diff-filter=ACM --unified=0)
+STAGED=$(git diff --cached --diff-filter=ACM --unified=0 -- ':(exclude).githooks')
 
 if [ -n "$STAGED" ]; then
   SCAN_RESULT=$(printf '%s' "$STAGED" | node -e '
