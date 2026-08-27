@@ -22,7 +22,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -41,6 +41,10 @@ jobs:
         run: npm audit --audit-level=critical
 
       - name: Web production export
+        env:
+          # SDK 57 Metro/Rollup bundle can spike past the default 512MB heap
+          # on shared CI runners — give it headroom to avoid OOM crashes.
+          NODE_OPTIONS: --max-old-space-size=4096
         run: npx expo export --platform web --output-dir dist
 
       - name: Upload web bundle artifact
