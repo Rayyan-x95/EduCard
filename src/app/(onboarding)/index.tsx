@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
+import { View, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
@@ -73,10 +73,10 @@ const ROLES: RoleOption[] = [
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { user, setProfile } = useAuthStore();
+  const { user, profile, setProfile } = useAuthStore();
   const [step, setStep] = useState(1);
 
-  const { data: availableTopics = [] } = useQuery({
+  const { data: availableTopics = [], isLoading: topicsLoading } = useQuery({
     queryKey: queryKeys.topics(),
     queryFn: () => TopicsService.getTopics(),
   });
@@ -86,36 +86,47 @@ export default function OnboardingScreen() {
   const [username, setUsername] = useState("");
   const [institutionName, setInstitutionName] = useState("");
   const [field, setField] = useState("");
-  const displayName = user?.user_metadata?.display_name || "";
+  const displayName =
+    profile?.display_name ||
+    user?.user_metadata?.display_name ||
+    user?.user_metadata?.full_name ||
+    "";
   const [countryCode, setCountryCode] = useState("");
   const [degree, setDegree] = useState("");
   const [startYear, setStartYear] = useState("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [enteringFeed, setEnteringFeed] = useState(false);
   const [error, setError] = useState("");
+  const [pendingProfile, setPendingProfile] = useState<any>(null);
 
   // Debounced username availability (only when format is valid)
   const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "taken" | "available">("idle");
+  const isUsernameValidFormat = USERNAME_RE.test(username.trim());
+
   useEffect(() => {
-    if (!USERNAME_RE.test(username.trim())) {
-      setUsernameStatus("idle");
+    if (!isUsernameValidFormat) {
       return;
     }
     let cancelled = false;
-    setUsernameStatus("checking");
     const t = setTimeout(async () => {
+      setUsernameStatus("checking");
       try {
         const available = await AuthService.isUsernameAvailable(username.trim());
-        if (!cancelled) setUsernameStatus(available ? "available" : "taken");
+        if (!cancelled) {
+          setUsernameStatus(available ? "available" : "taken");
+          setError((prev) => (prev.includes("availability") ? "" : prev));
+        }
       } catch {
         if (!cancelled) setUsernameStatus("idle");
       }
-    }, 500);
+    }, 400);
     return () => {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [username]);
+  }, [username, isUsernameValidFormat]);
 
   const toggleTopic = (id: string) => {
     AppHaptics.selection();
@@ -144,6 +155,37 @@ export default function OnboardingScreen() {
     return "";
   };
 
+  const onContinueToInterests = async () => {
+    const validationError = validateEducationStep();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    let status = usernameStatus;
+    if (status === "checking" || status === "idle") {
+      setCheckingUsername(true);
+      try {
+        const available = await AuthService.isUsernameAvailable(username.trim());
+        status = available ? "available" : "taken";
+        setUsernameStatus(status);
+      } catch {
+        status = "available";
+      } finally {
+        setCheckingUsername(false);
+      }
+    }
+
+    if (status === "taken") {
+      setError("That username is already taken. Please choose another.");
+      return;
+    }
+
+    setError("");
+    AppHaptics.light();
+    setStep(3);
+  };
+
   const handleFinish = async () => {
     const validationError = validateEducationStep();
     if (validationError) {
@@ -169,7 +211,7 @@ export default function OnboardingScreen() {
 
       if (user?.id) {
         const updatedProfile = await AuthService.getCurrentProfile(user.id);
-        setProfile(updatedProfile);
+        setPendingProfile(updatedProfile);
       }
       Analytics.track("onboarding_completed", { role: selectedRole });
       AppHaptics.success();
@@ -302,7 +344,13 @@ export default function OnboardingScreen() {
               label="Scholar Handle / Username"
               placeholder="e.g. sarahchen"
               value={username}
-              onChangeText={setUsername}
+              onChangeText={(val) => {
+                setUsername(val);
+                setError("");
+                if (!USERNAME_RE.test(val.trim())) {
+                  setUsernameStatus("idle");
+                }
+              }}
               autoCapitalize="none"
               autoCorrect={false}
               error={usernameStatus === "taken" ? "That username is taken." : undefined}
@@ -313,7 +361,10 @@ export default function OnboardingScreen() {
               label="University or Institution"
               placeholder="e.g. Stanford University, UC Berkeley, Oxford"
               value={institutionName}
-              onChangeText={setInstitutionName}
+              onChangeText={(val) => {
+                setInstitutionName(val);
+                setError("");
+              }}
               leftIcon={<School size={18} color="#818CF8" />}
             />
 
@@ -321,7 +372,10 @@ export default function OnboardingScreen() {
               label="Major or Field of Study"
               placeholder="e.g. Computer Science, Mechanical Engineering"
               value={field}
-              onChangeText={setField}
+              onChangeText={(val) => {
+                setField(val);
+                setError("");
+              }}
               leftIcon={<BookOpen size={18} color="#818CF8" />}
             />
 
@@ -329,7 +383,10 @@ export default function OnboardingScreen() {
               label="Degree"
               placeholder="e.g. B.S., M.A., Ph.D., Diploma"
               value={degree}
-              onChangeText={setDegree}
+              onChangeText={(val) => {
+                setDegree(val);
+                setError("");
+              }}
             />
 
             <Typography variant="label-md" className="text-on-surface font-semibold mb-2">
@@ -349,6 +406,7 @@ export default function OnboardingScreen() {
                   onPress={() => {
                     AppHaptics.selection();
                     setCountryCode(c.code);
+                    setError("");
                   }}
                   className={`px-3 py-1.5 rounded-full border ${
                     countryCode === c.code
@@ -366,7 +424,10 @@ export default function OnboardingScreen() {
               label="Or type your 2-letter country code"
               placeholder="e.g. US, UK, IN, PK, NG"
               value={countryCode}
-              onChangeText={(t) => setCountryCode(t.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase())}
+              onChangeText={(t) => {
+                setCountryCode(t.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase());
+                setError("");
+              }}
               autoCapitalize="characters"
               error={
                 countryCode.length === 2 && !isValidCountryCode(countryCode)
@@ -384,7 +445,10 @@ export default function OnboardingScreen() {
               label="Start Year"
               placeholder={`e.g. ${new Date().getFullYear()}`}
               value={startYear}
-              onChangeText={(t) => setStartYear(t.replace(/[^0-9]/g, "").slice(0, 4))}
+              onChangeText={(t) => {
+                setStartYear(t.replace(/[^0-9]/g, "").slice(0, 4));
+                setError("");
+              }}
               keyboardType="number-pad"
               helperText={`Between ${YEAR_MIN} and ${YEAR_MAX}.`}
             />
@@ -392,27 +456,8 @@ export default function OnboardingScreen() {
             <Button
               variant="primary"
               size="lg"
-              onPress={() => {
-                const validationError = validateEducationStep();
-                if (validationError) {
-                  setError(validationError);
-                  return;
-                }
-                if (usernameStatus === "taken") {
-                  setError("That username is already taken. Please choose another.");
-                  return;
-                }
-                // Don't advance while availability is still resolving — a
-                // conflict discovered at final submit would cost the user
-                // the whole form.
-                if (usernameStatus === "checking") {
-                  setError("Checking username availability — one moment…");
-                  return;
-                }
-                setError("");
-                AppHaptics.light();
-                setStep(3);
-              }}
+              loading={checkingUsername}
+              onPress={onContinueToInterests}
               className="mt-4 mb-3"
             >
               Continue to Interests
@@ -443,7 +488,14 @@ export default function OnboardingScreen() {
               </Typography>
             </View>
 
-            {availableTopics.length > 0 ? (
+            {topicsLoading ? (
+              <View className="py-8 items-center justify-center mb-8">
+                <ActivityIndicator size="small" color="#818CF8" />
+                <Typography variant="body-md" className="text-on-surface-variant text-center mt-3 normal-case">
+                  Loading topic catalog...
+                </Typography>
+              </View>
+            ) : availableTopics.length > 0 ? (
               <View className="flex-row flex-wrap gap-2.5 mb-8">
                 {availableTopics.map((topic: any) => {
                   const isSelected = selectedTopics.includes(topic.id);
@@ -476,7 +528,7 @@ export default function OnboardingScreen() {
               </View>
             ) : (
               <Typography variant="body-md" className="text-on-surface-variant text-center mb-8 normal-case">
-                Topic catalog is loading or unavailable — you can skip this step.
+                Topic catalog is currently unavailable — you can skip this step.
               </Typography>
             )}
 
@@ -521,10 +573,29 @@ export default function OnboardingScreen() {
             <Button
               variant="primary"
               size="lg"
+              loading={enteringFeed}
               rightIcon={<ArrowRight size={18} color="#0F172A" />}
-              onPress={() => {
+              onPress={async () => {
+                if (enteringFeed) return;
                 AppHaptics.medium();
-                router.replace("/(tabs)" as any);
+                setEnteringFeed(true);
+                try {
+                  // Always resolve the profile before navigating so the auth
+                  // guard's `isOnboarded` check sees the completed profile.
+                  // `pendingProfile` is pre-fetched in handleFinish; the
+                  // fallback re-fetches in the rare case it is missing.
+                  const resolved =
+                    pendingProfile ??
+                    (user?.id ? await AuthService.getCurrentProfile(user.id) : null);
+                  if (resolved) setProfile(resolved);
+                  router.replace("/(tabs)" as any);
+                } catch {
+                  // Profile re-fetch failed; navigate anyway — the guard will
+                  // use the cached onboarding flag to avoid bouncing the user.
+                  router.replace("/(tabs)" as any);
+                } finally {
+                  setEnteringFeed(false);
+                }
               }}
               className="w-full"
             >

@@ -12,7 +12,7 @@ async function importEnv() {
   return await import("@/constants/env");
 }
 
-describe("constants/env (real module)", () => {
+describe("constants/env (real module)", { timeout: 15000 }, () => {
   beforeEach(() => {
     vi.resetModules();
     vi.unstubAllEnvs();

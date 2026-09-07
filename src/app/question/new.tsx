@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { QuestionsService } from "@/services/questions";
 import { TopicsService } from "@/services/topics";
 import { StorageService } from "@/services/storage";
-import { supabase } from "@/lib/supabase";
+import { CommunitiesService } from "@/services/communities";
 import { useAuthStore } from "@/stores/authStore";
 import { queryKeys } from "@/lib/query-client";
 import {
@@ -49,15 +49,7 @@ export default function NewQuestionModal() {
 
   const { data: targetCommunity } = useQuery({
     queryKey: ["community-by-id", communityId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("communities")
-        .select("id, name, slug")
-        .eq("id", communityId as string)
-        .single();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => CommunitiesService.getCommunityById(communityId as string),
     enabled: Boolean(communityId),
   });
 

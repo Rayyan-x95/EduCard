@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { View, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useQuery } from "@tanstack/react-query";
 import { Typography } from "@/components/ui/Typography";
 import { TextInput } from "@/components/ui/TextInput";
 import { Button } from "@/components/ui/Button";
@@ -35,41 +36,11 @@ export default function GlobalSearchScreen() {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [activeTab, setActiveTab] = useState<SearchFilterTab>("top");
-  const [loading, setLoading] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const [results, setResults] = useState<SearchResults>(EMPTY);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   // Load recent history once; refreshed after each recorded search.
   useEffect(() => {
     void getRecentSearches().then(setRecentSearches);
-  }, []);
-
-  const runSearch = useCallback(async (rawQuery: string) => {
-    if (rawQuery.trim().length < 2) return;
-    let isMounted = true;
-    setLoading(true);
-    setFailed(false);
-
-    try {
-      const res = await SearchService.searchAll(rawQuery);
-      if (isMounted) {
-        setResults(res);
-        void addRecentSearch(rawQuery).then(() =>
-          getRecentSearches().then((r) => {
-            if (isMounted) setRecentSearches(r);
-          })
-        );
-        Analytics.track("search_performed", { query_length: rawQuery.length });
-      }
-    } catch {
-      if (isMounted) {
-        setFailed(true);
-        setResults(EMPTY);
-      }
-    } finally {
-      if (isMounted) setLoading(false);
-    }
   }, []);
 
   useEffect(() => {
@@ -82,16 +53,27 @@ export default function GlobalSearchScreen() {
     };
   }, [query]);
 
-  useEffect(() => {
-    if (debouncedQuery.trim().length < 2) {
-      setResults(EMPTY);
-      setLoading(false);
-      setFailed(false);
-      return;
-    }
+  const {
+    data: searchResults,
+    isLoading: loading,
+    isError: failed,
+    refetch,
+  } = useQuery({
+    queryKey: ["search", debouncedQuery],
+    queryFn: async () => {
+      const trimmed = debouncedQuery.trim();
+      const res = await SearchService.searchAll(trimmed);
+      void addRecentSearch(trimmed).then(() =>
+        getRecentSearches().then(setRecentSearches)
+      );
+      Analytics.track("search_performed", { query_length: trimmed.length });
+      return res;
+    },
+    enabled: debouncedQuery.trim().length >= 2,
+    staleTime: 60 * 1000,
+  });
 
-    void runSearch(debouncedQuery);
-  }, [debouncedQuery, runSearch]);
+  const results = searchResults ?? EMPTY;
 
   const showQuestions = activeTab === "top" || activeTab === "questions";
   const showPeople = activeTab === "top" || activeTab === "people";
@@ -156,7 +138,7 @@ export default function GlobalSearchScreen() {
                 onPress={() => {
                   AppHaptics.selection();
                   setQuery(s);
-                  void runSearch(s);
+                  setDebouncedQuery(s);
                 }}
                 className="px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/60 active:bg-surface-container-high"
               >
@@ -227,7 +209,7 @@ export default function GlobalSearchScreen() {
               variant="secondary"
               size="md"
               onPress={() => {
-                if (query.trim().length >= 2) void runSearch(query);
+                refetch();
               }}
             >
               Retry search
@@ -335,7 +317,7 @@ export default function GlobalSearchScreen() {
               </View>
             )}
 
-            {/* People & Scholars Section â€” tappable, opens public profile */}
+            {/* People & Scholars Section — tappable, opens public profile */}
             {showPeople && results.profiles.length > 0 && (
               <View className="mb-6">
                 <Typography variant="label-lg" className="text-secondary mb-3 font-bold">

@@ -154,7 +154,9 @@ function AuthProtectedRoute({ children }: { children: React.ReactNode }) {
     // The flag clears once the user leaves the auth group (the reset screen
     // routes to sign-in on success) or when SIGNED_OUT fires.
     if (isRecoveringPassword) {
-      if (!inAuthGroup) setIsRecoveringPassword(false);
+      if (!inAuthGroup) {
+        setTimeout(() => setIsRecoveringPassword(false), 0);
+      }
       return;
     }
 

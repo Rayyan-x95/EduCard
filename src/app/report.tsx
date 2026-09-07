@@ -133,7 +133,7 @@ export default function ReportModal() {
         {!validTarget && (
           <View className="bg-error-container/40 border border-error/50 rounded-xl p-4 mb-5">
             <Typography variant="label-sm" className="text-error font-semibold normal-case">
-              Missing content reference â€” please reopen this form from the content you want to report.
+              Missing content reference — please reopen this form from the content you want to report.
             </Typography>
           </View>
         )}

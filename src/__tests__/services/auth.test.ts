@@ -50,14 +50,14 @@ describe("AuthService", () => {
     });
   });
 
-  it("throws friendly error message when username is already taken", async () => {
+  it("throws friendly error message with APP_ERROR code when username is already taken", async () => {
     vi.mocked(supabase.rpc).mockResolvedValueOnce({
       data: null,
       error: { code: "23505", message: "duplicate key value violates unique constraint" },
     } as any);
 
-    await expect(
-      AuthService.completeOnboarding({
+    try {
+      await AuthService.completeOnboarding({
         username: "taken_user",
         displayName: "Scholar",
         countryCode: "US",
@@ -67,8 +67,12 @@ describe("AuthService", () => {
         field: "Physics",
         startYear: 2023,
         topicIds: [],
-      })
-    ).rejects.toThrow("This username is already taken. Please choose another username.");
+      });
+      expect.unreachable("should have thrown");
+    } catch (err: any) {
+      expect(err.message).toBe("This username is already taken. Please choose another username.");
+      expect(err.code).toBe("APP_ERROR");
+    }
   });
 
   it("calls delete_own_account RPC and signs out user", async () => {

@@ -34,6 +34,17 @@ export const CommunitiesService = {
     return data;
   },
 
+  async getCommunityById(id: string): Promise<{ id: string; name: string; slug: string } | null> {
+    const { data, error } = await supabase
+      .from("communities")
+      .select("id, name, slug")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+
   async isMember(communityId: string, userId: string): Promise<boolean> {
     if (!communityId || !userId) return false;
     const { data } = await supabase

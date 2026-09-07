@@ -54,7 +54,7 @@ export default function PrivacyAccountScreen() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportMessage, setExportMessage] = useState("");
 
-  // Settings State â€” backed by real profiles columns.
+  // Settings State — backed by real profiles columns.
   const [publicProfile, setPublicProfile] = useState(profile?.is_public_profile ?? true);
   const [activityStatus, setActivityStatus] = useState(profile?.activity_status ?? false);
   const [dmNotifications, setDmNotifications] = useState(profile?.dm_notifications ?? true);
@@ -555,7 +555,7 @@ export default function PrivacyAccountScreen() {
           <View className="flex-row items-center space-x-1.5 mb-1">
             <Smartphone size={14} color="#64748B" />
             <Typography variant="label-sm" className="text-on-surface-variant/60 normal-case">
-              {deviceModel} â€¢ EduCard v{appVersion} ({buildVersion})
+              {deviceModel} • EduCard v{appVersion} ({buildVersion})
             </Typography>
           </View>
         </View>

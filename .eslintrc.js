@@ -13,6 +13,7 @@ module.exports = {
     // environments via tsx/node — they are not part of the app build.
     "scripts/",
     "*.log",
+    "vitest.config.mts",
   ],
   rules: {
     "@typescript-eslint/no-explicit-any": "off",

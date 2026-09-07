@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ContributorBadge } from "@/components/domain/ContributorBadge";
-import { supabase } from "@/lib/supabase";
+import { AuthService } from "@/services/auth";
 import { QuestionsService } from "@/services/questions";
 import { FollowsService } from "@/services/follows";
 import { SafetyService } from "@/services/safety";
@@ -47,15 +47,7 @@ export default function UserProfileScreen() {
 
   const { data: profile, isLoading, isError, refetch } = useQuery({
     queryKey: ["profile", id as string],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*, education(*)")
-        .eq("id", id as string)
-        .single();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => AuthService.getPublicProfile(id as string),
     enabled: Boolean(id) && !isOwnProfile,
   });
 
@@ -107,8 +99,7 @@ export default function UserProfileScreen() {
       ]);
     },
     onError: (err) => {
-      // Likely already blocked — surface friendly copy.
-      Alert.alert("Already blocked", normalizeError(err).message);
+      Alert.alert("Block Failed", normalizeError(err).message);
     },
   });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -71,16 +71,12 @@ export default function PostDetailScreen() {
   });
 
   const imagePaths = (post as any)?.image_paths as string[] | null | undefined;
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  useEffect(() => {
-    let cancelled = false;
-    if (Array.isArray(imagePaths) && imagePaths.length > 0) {
-      StorageService.getSignedAttachmentUrls(imagePaths).then((urls) => {
-        if (!cancelled) setImageUrls(urls);
-      });
-    } else setImageUrls([]);
-    return () => { cancelled = true; };
-  }, [imagePaths]);
+  const { data: imageUrls = [] } = useQuery({
+    queryKey: ["post-image-urls", imagePaths],
+    queryFn: () => StorageService.getSignedAttachmentUrls(imagePaths ?? []),
+    enabled: Boolean(Array.isArray(imagePaths) && imagePaths.length > 0),
+    staleTime: 50 * 60 * 1000,
+  });
 
   const reactionMutation = useMutation({
     mutationFn: () => QuestionsService.toggleReaction("post", id as string),

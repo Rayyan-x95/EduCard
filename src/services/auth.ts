@@ -33,6 +33,11 @@ export const AuthService = {
     return data;
   },
 
+  /** Public profile lookup for other users */
+  async getPublicProfile(userId: string) {
+    return this.getCurrentProfile(userId);
+  },
+
   /** Live availability check for the onboarding username field. */
   async isUsernameAvailable(username: string): Promise<boolean> {
     const { data, error } = await supabase.rpc("check_username_available", {
@@ -63,9 +68,12 @@ export const AuthService = {
         error.code === "23505" ||
         /profiles_username_key|duplicate key.*username/i.test(error.message ?? "")
       ) {
-        throw new Error("This username is already taken. Please choose another username.");
+        throw Object.assign(
+          new Error("This username is already taken. Please choose another username."),
+          { code: "APP_ERROR" }
+        );
       }
-      throw new Error(normalizeError(error).message);
+      throw Object.assign(new Error(normalizeError(error).message), { code: "APP_ERROR" });
     }
   },
 

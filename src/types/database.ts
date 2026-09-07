@@ -294,6 +294,8 @@ export interface Database {
           name: string;
           description: string;
           rules: string | null;
+          avatar_path: string | null;
+          banner_path: string | null;
           university_id: string | null;
           topic_id: string | null;
           created_by: string | null;
@@ -307,6 +309,8 @@ export interface Database {
           name: string;
           description: string;
           rules?: string | null;
+          avatar_path?: string | null;
+          banner_path?: string | null;
           university_id?: string | null;
           topic_id?: string | null;
           created_by?: string | null;
@@ -320,6 +324,8 @@ export interface Database {
           name?: string;
           description?: string;
           rules?: string | null;
+          avatar_path?: string | null;
+          banner_path?: string | null;
           university_id?: string | null;
           topic_id?: string | null;
           created_by?: string | null;
@@ -529,6 +535,34 @@ export interface Database {
           },
           {
             foreignKeyName: "question_topics_topic_id_fkey";
+            columns: ["topic_id"];
+            referencedRelation: "topics";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      post_topics: {
+        Row: {
+          post_id: string;
+          topic_id: string;
+        };
+        Insert: {
+          post_id: string;
+          topic_id: string;
+        };
+        Update: {
+          post_id?: string;
+          topic_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "post_topics_post_id_fkey";
+            columns: ["post_id"];
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "post_topics_topic_id_fkey";
             columns: ["topic_id"];
             referencedRelation: "topics";
             referencedColumns: ["id"];

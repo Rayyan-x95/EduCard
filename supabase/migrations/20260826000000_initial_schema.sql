@@ -569,9 +569,11 @@ $$;
 
 -- Check username availability RPC
 CREATE OR REPLACE FUNCTION public.check_username_available(p_username CITEXT)
-RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, extensions AS $$
     SELECT NOT EXISTS (
-        SELECT 1 FROM public.profiles WHERE username = lower(p_username)
+        SELECT 1 FROM public.profiles
+        WHERE username = lower(p_username)
+          AND (auth.uid() IS NULL OR id <> auth.uid())
     );
 $$;
 
@@ -1582,7 +1584,7 @@ RETURNS TABLE (
     comment_count INT,
     image_paths TEXT[],
     bookmarked_at TIMESTAMPTZ
-) LANGUAGE plpgsql STABLE PARALLEL SAFE SECURITY DEFINER SET search_path = public AS $$
+) LANGUAGE plpgsql STABLE PARALLEL SAFE SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE
     v_user_id UUID := auth.uid();
     v_limit INT := GREATEST(1, LEAST(COALESCE(p_limit, 50), 100));
@@ -1706,7 +1708,7 @@ RETURNS TABLE (
     created_at TIMESTAMPTZ,
     is_helpful BOOLEAN,
     is_bookmarked BOOLEAN
-) LANGUAGE plpgsql STABLE PARALLEL SAFE SECURITY DEFINER SET search_path = public AS $$
+) LANGUAGE plpgsql STABLE PARALLEL SAFE SECURITY DEFINER SET search_path = public, extensions AS $$
 DECLARE
     v_user_id UUID := auth.uid();
     v_user_university_id UUID;
@@ -2086,3 +2088,37 @@ INSERT INTO public.topics (slug, name, description, icon_name) VALUES
     ('exams-certifications', 'Exams & Certifications','Standardized tests, professional certifications, prep.',  'award'),
     ('campus-life',          'Campus Life',         'Housing, societies, balance, and student wellbeing.',       'home')
 ON CONFLICT (slug) DO NOTHING;
+
+-- Default Communities Seed (Campus Circles)
+INSERT INTO public.communities (id, slug, name, description, topic_id, member_count)
+SELECT 'c1111111-1111-1111-1111-111111111111'::uuid, 'computer-science', 'Computer Science Circle', 'Algorithms, systems engineering, machine learning, and theory.', id, 0
+FROM public.topics WHERE slug = 'computer-science'
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO public.communities (id, slug, name, description, topic_id, member_count)
+SELECT 'c2222222-2222-2222-2222-222222222222'::uuid, 'engineering', 'Engineering & Robotics', 'Mechanical, electrical, aerospace, and robotics engineering inquiry.', id, 0
+FROM public.topics WHERE slug = 'engineering'
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO public.communities (id, slug, name, description, topic_id, member_count)
+SELECT 'c3333333-3333-3333-3333-333333333333'::uuid, 'research-methods', 'Natural Sciences & Research Lab', 'Physics, chemistry, biology, research, and scientific methodology.', id, 0
+FROM public.topics WHERE slug = 'research-methods'
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO public.communities (id, slug, name, description, topic_id, member_count)
+SELECT 'c4444444-4444-4444-4444-444444444444'::uuid, 'study-strategies', 'Academic Success & Study Strategies', 'Note-taking, exam prep, time management, and peer accountability.', id, 0
+FROM public.topics WHERE slug = 'study-strategies'
+ON CONFLICT (slug) DO NOTHING;
+
+
+-- ============================================================
+-- 12. PERMISSIONS & SCHEMA PRIVILEGES
+-- ============================================================
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;

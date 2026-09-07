@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   ScrollView as RNScrollView,
@@ -27,7 +27,7 @@ import { useQuestionDetail } from "@/hooks/useQuestionDetail";
 import { StorageService } from "@/services/storage";
 import { PostsService, PostComment } from "@/services/posts";
 import { QuestionsService } from "@/services/questions";
-import { supabase } from "@/lib/supabase";
+import { CommunitiesService } from "@/services/communities";
 import { useAuthStore } from "@/stores/authStore";
 import { AppHaptics } from "@/lib/haptics";
 import { ShareService } from "@/lib/sharing";
@@ -104,15 +104,7 @@ export default function QuestionDetailScreen() {
   const communityId = (question as any)?.community_id as string | null | undefined;
   const { data: communityName } = useQuery({
     queryKey: ["community-name", communityId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("communities")
-        .select("name, slug")
-        .eq("id", communityId as string)
-        .single();
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => CommunitiesService.getCommunityById(communityId as string),
     enabled: Boolean(communityId),
   });
 
@@ -127,20 +119,12 @@ export default function QuestionDetailScreen() {
 
   // Signed URLs for private attachment images (attachments bucket is private).
   const attachmentImagePaths = (question as any)?.image_paths as string[] | null | undefined;
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  useEffect(() => {
-    let cancelled = false;
-    if (Array.isArray(attachmentImagePaths) && attachmentImagePaths.length > 0) {
-      StorageService.getSignedAttachmentUrls(attachmentImagePaths).then((urls) => {
-        if (!cancelled) setImageUrls(urls);
-      });
-    } else {
-      setImageUrls([]);
-    }
-    return () => {
-      cancelled = true;
-    };
-  }, [attachmentImagePaths]);
+  const { data: imageUrls = [] } = useQuery({
+    queryKey: ["question-image-urls", attachmentImagePaths],
+    queryFn: () => StorageService.getSignedAttachmentUrls(attachmentImagePaths ?? []),
+    enabled: Boolean(Array.isArray(attachmentImagePaths) && attachmentImagePaths.length > 0),
+    staleTime: 50 * 60 * 1000,
+  });
 
   if (qLoading) {
     return (
