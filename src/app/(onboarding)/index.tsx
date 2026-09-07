@@ -170,7 +170,8 @@ export default function OnboardingScreen() {
         status = available ? "available" : "taken";
         setUsernameStatus(status);
       } catch {
-        status = "available";
+        setError("Unable to verify username availability. Please check your connection and try again.");
+        return;
       } finally {
         setCheckingUsername(false);
       }
@@ -178,6 +179,11 @@ export default function OnboardingScreen() {
 
     if (status === "taken") {
       setError("That username is already taken. Please choose another.");
+      return;
+    }
+
+    if (status !== "available") {
+      setError("Unable to verify username availability. Please check your connection and try again.");
       return;
     }
 
@@ -347,9 +353,7 @@ export default function OnboardingScreen() {
               onChangeText={(val) => {
                 setUsername(val);
                 setError("");
-                if (!USERNAME_RE.test(val.trim())) {
-                  setUsernameStatus("idle");
-                }
+                setUsernameStatus("idle");
               }}
               autoCapitalize="none"
               autoCorrect={false}

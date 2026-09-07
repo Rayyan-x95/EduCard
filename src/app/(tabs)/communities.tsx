@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { FlashList } from "@shopify/flash-list";
 import { CommunitiesService } from "@/services/communities";
-import { queryKeys } from "@/lib/query-client";
+import { queryKeys, CACHE_TTL } from "@/lib/query-client";
 import { AppHaptics } from "@/lib/haptics";
 import { Users, Compass, Plus } from "lucide-react-native";
 
@@ -26,6 +26,7 @@ export default function CommunitiesScreen() {
   } = useQuery({
     queryKey: queryKeys.communities(),
     queryFn: () => CommunitiesService.listCommunities(),
+    staleTime: CACHE_TTL.COMMUNITIES,
   });
 
   return (

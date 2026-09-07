@@ -22,6 +22,7 @@ function makeChain(result: { data: unknown; error: unknown }) {
     ilike: vi.fn(() => chain),
     is: vi.fn(() => chain),
     eq: vi.fn(() => chain),
+    or: vi.fn(() => chain),
     limit: vi.fn(() => chain),
     then: (resolve: any, reject: any) => Promise.resolve(result).then(resolve, reject),
   };
@@ -126,20 +127,27 @@ describe("SearchService", () => {
     expect(res.topics[0].slug).toBe("computer-science");
   });
 
-  it("deduplicates profiles matched by both username and display name", async () => {
+  it("queries profiles matching username or display name in a single consolidated .or() query", async () => {
     vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: [], error: null } as any);
 
     const profileRow = { id: "u-1", username: "ana", display_name: "Ana Scholar", avatar_path: null, current_status: "alumni", is_verified: true };
-    let call = 0;
+    const profilesChain = makeChain({ data: [profileRow], error: null });
+    let profileQueryCount = 0;
+
     vi.mocked(supabase.from).mockImplementation(((table: string) => {
       if (table === "questions") return makeChain({ data: [], error: null });
       if (table === "communities") return makeChain({ data: [], error: null });
-      call += 1;
-      return makeChain({ data: [profileRow], error: null }); // both profile queries hit same row
+      if (table === "topics") return makeChain({ data: [], error: null });
+      if (table === "profiles") {
+        profileQueryCount += 1;
+        return profilesChain;
+      }
+      return makeChain({ data: [], error: null });
     }) as any);
 
     const res = await SearchService.searchAll("ana");
-    expect(call).toBeGreaterThanOrEqual(2);
+    expect(profileQueryCount).toBe(1);
+    expect(profilesChain.or).toHaveBeenCalledWith("username.ilike.%ana%,display_name.ilike.%ana%");
     expect(res.profiles).toHaveLength(1);
     expect(res.profiles[0].id).toBe("u-1");
   });

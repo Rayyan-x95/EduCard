@@ -118,7 +118,14 @@ export const NotificationsService = {
       .from("notifications")
       .select(
         `
-        *,
+        id,
+        recipient_id,
+        actor_id,
+        type,
+        entity_type,
+        entity_id,
+        read_at,
+        created_at,
         actor:profiles!notifications_actor_id_fkey(
           id,
           display_name,

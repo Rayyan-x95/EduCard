@@ -48,7 +48,9 @@ export const SearchService = {
         .limit(10);
     };
 
-    const [questionsRes, communitiesRes, topicsRes, profilesByUsernameRes, profilesByNameRes] =
+    // Consolidated profile query matches username or display_name in a single request.
+    // safeFilter is sanitized of () , . % \ * _ preventing PostgREST filter injection.
+    const [questionsRes, communitiesRes, topicsRes, profilesRes] =
       await Promise.all([
         fetchQuestions(),
         supabase
@@ -62,26 +64,16 @@ export const SearchService = {
           .select("id, name, slug, description")
           .ilike("name", likePattern)
           .limit(10),
-        // Split profile search into two separate safe queries instead of
-        // using .or() with string interpolation (prevents filter injection)
         supabase
           .from("profiles")
           .select("id, username, display_name, avatar_path, current_status, is_verified")
-          .ilike("username", likePattern)
-          .limit(10),
-        supabase
-          .from("profiles")
-          .select("id, username, display_name, avatar_path, current_status, is_verified")
-          .ilike("display_name", likePattern)
+          .or(`username.ilike.${likePattern},display_name.ilike.${likePattern}`)
           .limit(10),
       ]);
 
     // Merge and deduplicate profile results
     const profileMap = new Map<string, any>();
-    for (const p of (profilesByUsernameRes.data || []) as any[]) {
-      profileMap.set(p.id, p);
-    }
-    for (const p of (profilesByNameRes.data || []) as any[]) {
+    for (const p of (profilesRes.data || []) as any[]) {
       profileMap.set(p.id, p);
     }
 

@@ -48,3 +48,15 @@ export const queryKeys = {
   bookmarks: (targetType?: string) => ["bookmarks", targetType || "all"] as const,
   isBookmarked: (targetType: string, id: string) => ["is-bookmarked", targetType, id] as const,
 };
+
+// Cache TTL Presets (in milliseconds)
+export const CACHE_TTL = {
+  /** Topics table is seeded once and immutable at runtime */
+  TOPICS: 1000 * 60 * 60, // 1 hour
+  /** Communities list changes infrequently */
+  COMMUNITIES: 1000 * 60 * 10, // 10 minutes
+  /** User profile cached across screen views */
+  PROFILE: 1000 * 60 * 5, // 5 minutes
+  /** Standard dynamic query stale time */
+  STANDARD: 1000 * 60 * 2, // 2 minutes
+} as const;

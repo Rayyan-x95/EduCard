@@ -46,7 +46,7 @@ export default function GlobalSearchScreen() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(query);
-    }, 300);
+    }, 400);
 
     return () => {
       clearTimeout(handler);

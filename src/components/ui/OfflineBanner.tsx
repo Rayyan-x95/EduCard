@@ -11,7 +11,7 @@ import { useUIStore } from "@/stores/uiStore";
  * event listener (addNetworkStateListener arrives in SDK 54), so we use a
  * lightweight periodic check. Replace with the listener after upgrading.
  */
-const POLL_INTERVAL_MS = 15_000;
+const POLL_INTERVAL_MS = 45_000;
 
 export function OfflineBanner() {
   const { isOffline, setOffline } = useUIStore();

@@ -12,7 +12,7 @@ import { TopicsService } from "@/services/topics";
 import { StorageService } from "@/services/storage";
 import { CommunitiesService } from "@/services/communities";
 import { useAuthStore } from "@/stores/authStore";
-import { queryKeys } from "@/lib/query-client";
+import { queryKeys, CACHE_TTL } from "@/lib/query-client";
 import {
   saveQuestionDraft,
   readQuestionDraft,
@@ -45,9 +45,14 @@ export default function NewQuestionModal() {
   const { data: availableTopics = [] } = useQuery({
     queryKey: queryKeys.topics(),
     queryFn: () => TopicsService.getTopics(),
+    staleTime: CACHE_TTL.TOPICS,
   });
 
-  const { data: targetCommunity } = useQuery({
+  const {
+    data: targetCommunity,
+    isLoading: isCommunityLoading,
+    isError: isCommunityError,
+  } = useQuery({
     queryKey: ["community-by-id", communityId],
     queryFn: () => CommunitiesService.getCommunityById(communityId as string),
     enabled: Boolean(communityId),
@@ -158,12 +163,15 @@ export default function NewQuestionModal() {
   const createMutation = useMutation({
     mutationFn: () => {
       if (!user?.id) throw new Error("Authentication required");
+      if (communityId && !targetCommunity?.id) {
+        throw new Error("Selected community could not be found.");
+      }
       return QuestionsService.createQuestion({
         title: title.trim(),
         body: body.trim(),
         topic_ids: selectedTopics,
         media_paths: mediaPaths,
-        community_id: targetCommunity?.id,
+        community_id: communityId ? targetCommunity?.id : undefined,
       });
     },
     onSuccess: (newQuestion: { id: string }) => {
@@ -180,6 +188,13 @@ export default function NewQuestionModal() {
   });
 
   const handleSubmit = () => {
+    if (communityId) {
+      if (isCommunityLoading) return;
+      if (isCommunityError || !targetCommunity) {
+        setError("Selected community could not be found. Please try again or ask in the global feed.");
+        return;
+      }
+    }
     if (title.trim().length < 10) {
       setError("Title must be at least 10 characters long.");
       return;
@@ -213,6 +228,7 @@ export default function NewQuestionModal() {
           variant="primary"
           size="sm"
           loading={createMutation.isPending}
+          disabled={Boolean(communityId && isCommunityLoading)}
           onPress={handleSubmit}
           className="px-5 py-2"
         >

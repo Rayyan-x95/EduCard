@@ -7,12 +7,12 @@ export const CommunitiesService = {
   async listCommunities(limit = 50): Promise<CommunityRow[]> {
     const { data, error } = await supabase
       .from("communities")
-      .select("*")
+      .select("id, name, slug, description, rules, avatar_path, banner_path, member_count, topic_id, created_at, created_by")
       .order("member_count", { ascending: false })
       .limit(limit);
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as CommunityRow[];
   },
 
   async getCommunityBySlug(slug: string) {
@@ -20,7 +20,17 @@ export const CommunitiesService = {
       .from("communities")
       .select(
         `
-        *,
+        id,
+        name,
+        slug,
+        description,
+        rules,
+        avatar_path,
+        banner_path,
+        member_count,
+        topic_id,
+        created_at,
+        created_by,
         created_by_profile:profiles!communities_created_by_fkey (
           display_name,
           username

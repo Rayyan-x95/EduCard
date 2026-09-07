@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { CommunitiesService } from "@/services/communities";
 import { TopicsService } from "@/services/topics";
 import { useAuthStore } from "@/stores/authStore";
-import { queryKeys } from "@/lib/query-client";
+import { queryKeys, CACHE_TTL } from "@/lib/query-client";
 import { AppHaptics } from "@/lib/haptics";
 import { X, Users, Shield, Check } from "lucide-react-native";
 
@@ -22,6 +22,7 @@ export default function NewCommunityModal() {
   const { data: topics = [] } = useQuery({
     queryKey: queryKeys.topics(),
     queryFn: () => TopicsService.getTopics(),
+    staleTime: CACHE_TTL.TOPICS,
   });
 
   const [name, setName] = useState("");

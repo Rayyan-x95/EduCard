@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { queryKeys } from "../../lib/query-client";
+import { queryKeys, CACHE_TTL } from "../../lib/query-client";
 
 describe("queryKeys factory", () => {
   it("produces deterministic feed keys based on filter", () => {
@@ -34,5 +34,12 @@ describe("queryKeys factory", () => {
   it("produces deterministic notification keys", () => {
     expect(queryKeys.notifications()).toEqual(["notifications"]);
     expect(queryKeys.unreadNotificationsCount()).toEqual(["notifications", "unread-count"]);
+  });
+
+  it("provides expected CACHE_TTL presets", () => {
+    expect(CACHE_TTL.TOPICS).toBe(3600000); // 1 hour
+    expect(CACHE_TTL.COMMUNITIES).toBe(600000); // 10 min
+    expect(CACHE_TTL.PROFILE).toBe(300000); // 5 min
+    expect(CACHE_TTL.STANDARD).toBe(120000); // 2 min
   });
 });
