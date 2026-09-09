@@ -1393,6 +1393,15 @@ export interface Database {
           shared_topics: number;
         }[];
       };
+      purge_expired_operational_data: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          purged_notifications: number;
+          purged_reports: number;
+          purged_audit_logs: number;
+          purged_error_reports: number;
+        }[];
+      };
     };
     Enums: {
       user_status_enum: UserStatusEnum;

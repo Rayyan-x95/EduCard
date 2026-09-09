@@ -319,6 +319,18 @@ export const QuestionsService = {
     if (error) throw error;
   },
 
+  // Soft-delete question (author or admin)
+  async deleteQuestion(id: string): Promise<void> {
+    const userId = await requireUserId();
+    const { error } = await supabase
+      .from("questions")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("author_id", userId);
+
+    if (error) throw error;
+  },
+
   // Toggle helpful reaction
   async toggleReaction(
     targetType: "question" | "answer" | "post" | "comment",

@@ -22,8 +22,8 @@ module.exports = {
         },
         "on-surface": {
           DEFAULT: "#F8FAFC", // Crisp pure white text
-          variant: "#94A3B8", // High-clarity slate
-          muted: "#64748B",
+          variant: "#CBD5E1", // Brighter slate for better contrast at lower opacities
+          muted: "#94A3B8",
         },
         "inverse-surface": {
           DEFAULT: "#F8FAFC",
@@ -33,8 +33,8 @@ module.exports = {
         },
         outline: {
           DEFAULT: "#475569", // Slate 600
-          variant: "#2A3441", // Subtle border stroke
-          subtle: "rgba(255, 255, 255, 0.08)",
+          variant: "#334155", // Slate 700 for visible borders
+          subtle: "rgba(255, 255, 255, 0.15)", // Increased opacity for subtle borders
         },
         primary: {
           DEFAULT: "#818CF8", // Electric Indigo

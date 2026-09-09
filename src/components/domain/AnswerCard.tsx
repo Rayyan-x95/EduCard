@@ -39,6 +39,7 @@ export interface AnswerCardData {
 interface AnswerCardProps {
   answer: AnswerCardData;
   isQuestionAuthor?: boolean;
+  currentUserId?: string;
   onAcceptPress?: (id: string) => void;
   onHelpfulPress?: (id: string) => void;
   isAccepting?: boolean;
@@ -52,12 +53,14 @@ interface AnswerCardProps {
 export function AnswerCard({
   answer,
   isQuestionAuthor = false,
+  currentUserId,
   onAcceptPress,
   onHelpfulPress,
   isAccepting = false,
 }: AnswerCardProps) {
   const queryClient = useQueryClient();
   const [showComments, setShowComments] = useState(false);
+  const isSelfAnswer = Boolean(currentUserId && answer.author_id === currentUserId);
   const [commentText, setCommentText] = useState("");
 
   // Lazy: only fetched once expanded.
@@ -136,26 +139,39 @@ export function AnswerCard({
         {/* Violet Helpful Reaction Toggle with Subtle Glow Effect */}
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel={`Mark answer helpful, ${answer.helpful_count} marks`}
-          accessibilityState={{ selected: Boolean(answer.is_helpful) }}
+          accessibilityLabel={
+            isSelfAnswer
+              ? `Your answer, ${answer.helpful_count} marks`
+              : `Mark answer helpful, ${answer.helpful_count} marks`
+          }
+          accessibilityState={{ selected: Boolean(answer.is_helpful), disabled: isSelfAnswer }}
+          disabled={isSelfAnswer}
           onPress={() => {
             AppHaptics.medium();
             onHelpfulPress?.(answer.id);
           }}
           className={`flex-row items-center space-x-2 px-3.5 py-1.5 rounded-full border ${
-            answer.is_helpful
+            isSelfAnswer
+              ? "bg-surface-container-high/40 border-outline-variant/30 opacity-70"
+              : answer.is_helpful
               ? "bg-secondary-container/50 border-secondary/60"
               : "bg-surface-container-high border-outline-variant/40 active:bg-surface-container-highest"
           }`}
         >
           <ThumbsUp
             size={14}
-            color={answer.is_helpful ? "#C084FC" : "#94A3B8"}
-            fill={answer.is_helpful ? "#C084FC" : "none"}
+            color={isSelfAnswer ? "#64748B" : answer.is_helpful ? "#C084FC" : "#94A3B8"}
+            fill={!isSelfAnswer && answer.is_helpful ? "#C084FC" : "none"}
           />
           <Typography
             variant="label-md"
-            className={answer.is_helpful ? "text-secondary font-bold" : "text-on-surface-variant"}
+            className={
+              isSelfAnswer
+                ? "text-on-surface-variant/60 font-medium"
+                : answer.is_helpful
+                ? "text-secondary font-bold"
+                : "text-on-surface-variant"
+            }
           >
             Helpful ({answer.helpful_count})
           </Typography>
@@ -182,8 +198,8 @@ export function AnswerCard({
           </Typography>
         </TouchableOpacity>
 
-        {/* Accept Solution CTA for Question Author */}
-        {isQuestionAuthor && !answer.is_accepted && (
+        {/* Accept Solution CTA for Question Author — only if not the answer author */}
+        {isQuestionAuthor && !isSelfAnswer && !answer.is_accepted && (
           <Button
             variant="solved"
             size="sm"

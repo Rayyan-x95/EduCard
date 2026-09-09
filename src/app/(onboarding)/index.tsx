@@ -101,6 +101,8 @@ export default function OnboardingScreen() {
   const [error, setError] = useState("");
   const [pendingProfile, setPendingProfile] = useState<any>(null);
 
+  const usernameGeneration = React.useRef(0);
+
   // Debounced username availability (only when format is valid)
   const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "taken" | "available">("idle");
   const isUsernameValidFormat = USERNAME_RE.test(username.trim());
@@ -165,15 +167,20 @@ export default function OnboardingScreen() {
     let status = usernameStatus;
     if (status === "checking" || status === "idle") {
       setCheckingUsername(true);
+      const currentGen = usernameGeneration.current;
       try {
         const available = await AuthService.isUsernameAvailable(username.trim());
+        if (currentGen !== usernameGeneration.current) return;
         status = available ? "available" : "taken";
         setUsernameStatus(status);
       } catch {
+        if (currentGen !== usernameGeneration.current) return;
         setError("Unable to verify username availability. Please check your connection and try again.");
         return;
       } finally {
-        setCheckingUsername(false);
+        if (currentGen === usernameGeneration.current) {
+          setCheckingUsername(false);
+        }
       }
     }
 
@@ -354,6 +361,7 @@ export default function OnboardingScreen() {
                 setUsername(val);
                 setError("");
                 setUsernameStatus("idle");
+                usernameGeneration.current += 1;
               }}
               autoCapitalize="none"
               autoCorrect={false}

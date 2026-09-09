@@ -974,6 +974,63 @@ CREATE TRIGGER tr_question_rate_limit
     BEFORE INSERT ON public.questions
     FOR EACH ROW EXECUTE FUNCTION public.check_question_rate_limit();
 
+CREATE OR REPLACE FUNCTION public.check_answer_rate_limit()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+    IF (
+        SELECT COUNT(*) FROM public.answers
+        WHERE author_id = NEW.author_id
+          AND created_at > NOW() - INTERVAL '60 seconds'
+    ) >= 5 THEN
+        RAISE EXCEPTION 'Rate limited: please wait before answering again.' USING ERRCODE = '42501';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS tr_answer_rate_limit ON public.answers;
+CREATE TRIGGER tr_answer_rate_limit
+    BEFORE INSERT ON public.answers
+    FOR EACH ROW EXECUTE FUNCTION public.check_answer_rate_limit();
+
+CREATE OR REPLACE FUNCTION public.check_post_rate_limit()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+    IF (
+        SELECT COUNT(*) FROM public.posts
+        WHERE author_id = NEW.author_id
+          AND created_at > NOW() - INTERVAL '60 seconds'
+    ) >= 3 THEN
+        RAISE EXCEPTION 'Rate limited: please wait before posting again.' USING ERRCODE = '42501';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS tr_post_rate_limit ON public.posts;
+CREATE TRIGGER tr_post_rate_limit
+    BEFORE INSERT ON public.posts
+    FOR EACH ROW EXECUTE FUNCTION public.check_post_rate_limit();
+
+CREATE OR REPLACE FUNCTION public.check_comment_rate_limit()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+    IF (
+        SELECT COUNT(*) FROM public.comments
+        WHERE author_id = NEW.author_id
+          AND created_at > NOW() - INTERVAL '60 seconds'
+    ) >= 10 THEN
+        RAISE EXCEPTION 'Rate limited: please wait before commenting again.' USING ERRCODE = '42501';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS tr_comment_rate_limit ON public.comments;
+CREATE TRIGGER tr_comment_rate_limit
+    BEFORE INSERT ON public.comments
+    FOR EACH ROW EXECUTE FUNCTION public.check_comment_rate_limit();
+
 CREATE OR REPLACE FUNCTION public.check_error_report_rate_limit()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
@@ -1217,6 +1274,10 @@ BEGIN
         RAISE EXCEPTION 'Answer not found for this question' USING ERRCODE = 'P0002';
     END IF;
 
+    IF v_answer_author_id = v_author_id THEN
+        RAISE EXCEPTION 'Question authors cannot accept their own answer' USING ERRCODE = '42501';
+    END IF;
+
     IF v_prev_accepted_id IS NOT NULL THEN
         SELECT author_id INTO v_prev_author_id FROM public.answers WHERE id = v_prev_accepted_id;
         UPDATE public.answers SET is_accepted = FALSE WHERE id = v_prev_accepted_id;
@@ -1289,9 +1350,25 @@ DECLARE
     v_inserted_id UUID;
     v_is_active BOOLEAN := FALSE;
     v_new_count INT := 0;
+    v_target_author_id UUID;
 BEGIN
     IF v_user_id IS NULL THEN
         RAISE EXCEPTION 'Authentication required' USING ERRCODE = '42501';
+    END IF;
+
+    -- Prevent self-reaction / upvote inflation
+    IF p_target_type = 'question' THEN
+        SELECT author_id INTO v_target_author_id FROM public.questions WHERE id = p_target_id;
+    ELSIF p_target_type = 'answer' THEN
+        SELECT author_id INTO v_target_author_id FROM public.answers WHERE id = p_target_id;
+    ELSIF p_target_type = 'post' THEN
+        SELECT author_id INTO v_target_author_id FROM public.posts WHERE id = p_target_id;
+    ELSIF p_target_type = 'comment' THEN
+        SELECT author_id INTO v_target_author_id FROM public.comments WHERE id = p_target_id;
+    END IF;
+
+    IF v_target_author_id IS NOT NULL AND v_target_author_id = v_user_id THEN
+        RAISE EXCEPTION 'Users cannot react to their own content' USING ERRCODE = '42501';
     END IF;
 
     DELETE FROM public.reactions
@@ -1920,6 +1997,10 @@ DECLARE
     v_deleted BIGINT;
     v_total BIGINT;
 BEGIN
+    IF NOT public.is_admin() THEN
+        RAISE EXCEPTION 'Unauthorized: Only platform administrators can invoke operational data retention purges.' USING ERRCODE = '42501';
+    END IF;
+
     -- 1. Notifications: read older than 90 days, unread older than 180 days
     v_total := 0;
     LOOP
@@ -2118,6 +2199,10 @@ GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+
+-- Restrict retention maintenance routine to service_role only
+REVOKE EXECUTE ON FUNCTION public.purge_expired_operational_data() FROM anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.purge_expired_operational_data() TO service_role;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON ROUTINES TO anon, authenticated, service_role;

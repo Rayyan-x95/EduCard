@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { Typography } from "@/components/ui/Typography";
 import { TextInput } from "@/components/ui/TextInput";
@@ -37,6 +37,7 @@ export default function GlobalSearchScreen() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [activeTab, setActiveTab] = useState<SearchFilterTab>("top");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const insets = useSafeAreaInsets();
 
   // Load recent history once; refreshed after each recorded search.
   useEffect(() => {
@@ -185,7 +186,7 @@ export default function GlobalSearchScreen() {
         })}
       </View>
 
-      <ScrollView className="flex-1 px-5 py-4" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 24 }}>
+      <ScrollView className="flex-1 px-5 py-4" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: Math.max(24, insets.bottom + 24) }}>
         {loading ? (
           // Skeleton rows match the rest of the app (a lone spinner didn't).
           <View className="space-y-3">

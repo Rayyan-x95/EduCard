@@ -50,10 +50,10 @@ describe("Native Expo Features", () => {
   });
 
   it("triggers clipboard copy with string content", async () => {
-    await expect(ShareService.copyToClipboard("https://educard.app", "Link")).resolves.not.toThrow();
+    await expect(ShareService.copyToClipboard("https://educard.ninety5.in", "Link")).resolves.not.toThrow();
   });
 
   it("opens URLs in in-app browser", async () => {
-    await expect(InAppBrowser.openUrl("https://educard.app/terms")).resolves.not.toThrow();
+    await expect(InAppBrowser.openUrl("https://educard.ninety5.in/terms")).resolves.not.toThrow();
   });
 });

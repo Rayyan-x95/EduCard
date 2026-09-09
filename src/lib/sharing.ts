@@ -9,7 +9,7 @@ export const ShareService = {
    */
   async shareQuestion(title: string, questionId: string) {
     await AppHaptics.light();
-    const url = `https://educard.app/question/${questionId}`;
+    const url = `https://educard.ninety5.in/question/${questionId}`;
     try {
       if (Platform.OS === "web" && typeof navigator !== "undefined" && navigator.share) {
         await navigator.share({
@@ -35,7 +35,7 @@ export const ShareService = {
    */
   async shareCommunity(name: string, slug: string) {
     await AppHaptics.light();
-    const url = `https://educard.app/community/${slug}`;
+    const url = `https://educard.ninety5.in/community/${slug}`;
     try {
       if (Platform.OS === "web" && typeof navigator !== "undefined" && navigator.share) {
         await navigator.share({

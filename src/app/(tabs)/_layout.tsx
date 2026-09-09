@@ -3,9 +3,11 @@ import { Tabs, useRouter } from "expo-router";
 import { View, TouchableOpacity } from "react-native";
 import { Home, Users, Plus, Bell, User } from "lucide-react-native";
 import { AppHaptics } from "@/lib/haptics";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -15,8 +17,8 @@ export default function TabLayout() {
           backgroundColor: "#0D1115",
           borderTopColor: "rgba(255, 255, 255, 0.08)",
           borderTopWidth: 1,
-          height: 66,
-          paddingBottom: 10,
+          height: 66 + insets.bottom,
+          paddingBottom: 10 + insets.bottom,
           paddingTop: 8,
           elevation: 8,
         },

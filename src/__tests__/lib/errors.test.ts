@@ -41,6 +41,24 @@ describe("normalizeError", () => {
     expect(result.message).toBe("Please sign in first.");
   });
 
+  it("maps self-acceptance error to friendly message", () => {
+    const result = normalizeError(new Error("Question authors cannot accept their own answer"));
+    expect(result.code).toBe("SELF_ACCEPT_FORBIDDEN");
+    expect(result.message).toBe("You cannot accept your own answer as the solution.");
+  });
+
+  it("maps self-reaction error to friendly message", () => {
+    const result = normalizeError(new Error("Users cannot react to their own content"));
+    expect(result.code).toBe("SELF_REACTION_FORBIDDEN");
+    expect(result.message).toBe("You cannot react to your own content.");
+  });
+
+  it("maps rate-limited error to friendly message", () => {
+    const result = normalizeError(new Error("Rate limited: please wait before posting again."));
+    expect(result.code).toBe("RATE_LIMITED");
+    expect(result.message).toBe("You are posting too quickly. Please wait a moment.");
+  });
+
   it("handles null/undefined safely", () => {
     expect(normalizeError(null).message).toBeTruthy();
     expect(normalizeError(undefined).message).toBeTruthy();

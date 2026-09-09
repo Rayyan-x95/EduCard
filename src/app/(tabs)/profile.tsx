@@ -61,8 +61,9 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      {/* Top Header */}
-      <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-surface-container-high/80">
+      <View className="flex-1 w-full max-w-2xl mx-auto">
+        {/* Top Header */}
+        <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-surface-container-high/80">
         <Typography variant="headline-md" className="text-on-surface font-bold">
           Scholar Profile
         </Typography>
@@ -264,6 +265,7 @@ export default function ProfileScreen() {
           Sign Out of Account
         </Button>
       </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

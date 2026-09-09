@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Typography } from "@/components/ui/Typography";
 import { TextInput } from "@/components/ui/TextInput";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +18,7 @@ import { ArrowLeft, User, FileText, Camera, Globe } from "lucide-react-native";
 export default function EditProfileScreen() {
   const router = useRouter();
   const { profile, setProfile, user } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
   const [bio, setBio] = useState(profile?.bio || "");
@@ -121,7 +122,7 @@ export default function EditProfileScreen() {
         </Button>
       </View>
 
-      <ScrollView className="flex-1 px-5 py-6" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView className="flex-1 px-5 py-6" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: Math.max(32, insets.bottom + 24) }}>
         {/* Profile Photo Section with Role Ring Indicator */}
         <View className="items-center mb-8">
           <View className="relative">

@@ -9,7 +9,10 @@
     "scheme": "educard",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.educard.app",
+      "bundleIdentifier": "com.educard.ninety5.in",
+      "associatedDomains": [
+        "applinks:educard.ninety5.in"
+      ],
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "EduCard needs access to your photo library so you can attach screenshots to questions and set a profile photo.",
         "NSPhotoLibraryAddUsageDescription": "EduCard can save images you choose to share back to your photo library.",
@@ -21,9 +24,26 @@
         "foregroundImage": "./assets/Simple logo.png",
         "backgroundColor": "#101416"
       },
-      "package": "com.educard.app",
+      "package": "com.educard.ninety5.in",
       "permissions": [
         "POST_NOTIFICATIONS"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "educard.ninety5.in",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
       ]
     },
     "web": {
@@ -55,7 +75,7 @@
     },
     "extra": {
       "router": {
-        "origin": false
+        "origin": "https://educard.ninety5.in"
       },
       "eas": {
         "projectId": "b8f47d1c-abd5-4ee9-9de0-4756e2169893"

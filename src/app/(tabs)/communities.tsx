@@ -31,7 +31,8 @@ export default function CommunitiesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      <View className="px-5 pt-3 pb-3 border-b border-surface-container-high/80 flex-row items-center justify-between">
+      <View className="flex-1 w-full max-w-2xl mx-auto">
+        <View className="px-5 pt-3 pb-3 border-b border-surface-container-high/80 flex-row items-center justify-between">
         <View className="flex-1 mr-3">
           <Typography variant="headline-md" className="text-on-surface font-bold">
             Academic Spaces
@@ -145,6 +146,7 @@ export default function CommunitiesScreen() {
             </Card>
         </View>
       )}
+      </View>
     </SafeAreaView>
   );
 }

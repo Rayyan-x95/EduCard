@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, ScrollView, TouchableOpacity, Alert, Platform } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Typography } from "@/components/ui/Typography";
 import { TextInput } from "@/components/ui/TextInput";
@@ -41,6 +41,22 @@ export default function NewQuestionModal() {
   const { communityId } = useLocalSearchParams<{ communityId?: string }>();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace("/(tabs)" as any);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [router]);
 
   const { data: availableTopics = [] } = useQuery({
     queryKey: queryKeys.topics(),
@@ -236,7 +252,7 @@ export default function NewQuestionModal() {
         </Button>
       </View>
 
-      <ScrollView className="flex-1 px-5 py-5" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView className="flex-1 px-5 py-5" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: Math.max(32, insets.bottom + 24) }}>
         {error ? (
           <View className="bg-error-container/40 border border-error/50 rounded-xl p-4 mb-5 shadow-sm shadow-error/10">
             <Typography variant="label-sm" className="text-error font-semibold normal-case">

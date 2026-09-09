@@ -7,12 +7,9 @@ import { WifiOff } from "lucide-react-native";
 import { useUIStore } from "@/stores/uiStore";
 
 /**
- * Connectivity indicator. expo-network on SDK 52 does not expose an
- * event listener (addNetworkStateListener arrives in SDK 54), so we use a
- * lightweight periodic check. Replace with the listener after upgrading.
+ * Connectivity indicator. Uses expo-network's addNetworkStateListener for
+ * instantaneous event-driven online/offline detection with initial probe on mount.
  */
-const POLL_INTERVAL_MS = 45_000;
-
 export function OfflineBanner() {
   const { isOffline, setOffline } = useUIStore();
   const [fadeAnim] = useState(new Animated.Value(0));
@@ -21,23 +18,32 @@ export function OfflineBanner() {
   useEffect(() => {
     let isMounted = true;
 
-    const checkNetwork = async () => {
-      try {
-        const state = await Network.getNetworkStateAsync();
+    // Initial check on mount
+    Network.getNetworkStateAsync()
+      .then((state) => {
         if (isMounted) {
           setOffline(Boolean(!state.isConnected || !state.isInternetReachable));
         }
-      } catch {
-        // Unreachable — keep last known state.
-      }
-    };
+      })
+      .catch(() => {});
 
-    void checkNetwork();
-    const interval = setInterval(checkNetwork, POLL_INTERVAL_MS);
+    // Event listener for immediate connectivity change responses
+    let subscription: { remove: () => void } | undefined;
+    try {
+      if (typeof Network.addNetworkStateListener === "function") {
+        subscription = Network.addNetworkStateListener((state) => {
+          if (isMounted) {
+            setOffline(Boolean(!state.isConnected || !state.isInternetReachable));
+          }
+        });
+      }
+    } catch {
+      // Degrade gracefully if unavailable
+    }
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
+      subscription?.remove();
     };
   }, [setOffline]);
 

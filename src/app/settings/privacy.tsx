@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, ScrollView, TouchableOpacity, Switch, Alert } from "react-native";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Typography } from "@/components/ui/Typography";
 import { TextInput } from "@/components/ui/TextInput";
@@ -60,6 +60,7 @@ export default function PrivacyAccountScreen() {
   const [dmNotifications, setDmNotifications] = useState(profile?.dm_notifications ?? true);
   const [answerNotifications, setAnswerNotifications] = useState(profile?.answer_notifications ?? true);
   const [weeklyDigest, setWeeklyDigest] = useState(profile?.weekly_digest ?? false);
+  const insets = useSafeAreaInsets();
 
   // Verification state
   const [selectedVerification, setSelectedVerification] = useState<VerificationType | null>(null);
@@ -227,7 +228,7 @@ export default function PrivacyAccountScreen() {
         </Typography>
       </View>
 
-      <ScrollView className="flex-1 px-5 py-5" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView className="flex-1 px-5 py-5" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: Math.max(32, insets.bottom + 24) }}>
         <Typography variant="headline-lg" className="text-on-surface mb-1 font-bold text-2xl">
           Privacy & Account
         </Typography>
@@ -494,7 +495,7 @@ export default function PrivacyAccountScreen() {
           <TouchableOpacity
             onPress={() => {
               AppHaptics.light();
-              InAppBrowser.openUrl("https://educard.app/privacy");
+              InAppBrowser.openUrl("https://educard.ninety5.in/privacy");
             }}
             className="flex-row items-center justify-between py-3 border-b border-outline-variant/30"
           >
@@ -507,7 +508,7 @@ export default function PrivacyAccountScreen() {
           <TouchableOpacity
             onPress={() => {
               AppHaptics.light();
-              InAppBrowser.openUrl("https://educard.app/terms");
+              InAppBrowser.openUrl("https://educard.ninety5.in/terms");
             }}
             className="flex-row items-center justify-between py-3"
           >

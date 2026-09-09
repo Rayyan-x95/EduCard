@@ -120,8 +120,9 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      {/* Top Header */}
-      <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-surface-container-high/80">
+      <View className="flex-1 w-full max-w-2xl mx-auto">
+        {/* Top Header */}
+        <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-surface-container-high/80">
         <View className="flex-1 mr-3">
           <Typography variant="headline-md" className="text-on-surface font-bold">
             Alerts
@@ -271,6 +272,7 @@ export default function NotificationsScreen() {
           </Button>
         </ScrollView>
       )}
+      </View>
     </SafeAreaView>
   );
 }

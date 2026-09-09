@@ -134,4 +134,23 @@ describe("QuestionsService", () => {
     });
     expect(result).toEqual({ is_active: true, count: 5 });
   });
+
+  it("soft-deletes a question setting deleted_at timestamp", async () => {
+    const eqAuthorMock = vi.fn().mockResolvedValue({ data: null, error: null });
+    const eqIdMock = vi.fn().mockReturnValue({ eq: eqAuthorMock });
+    const updateMock = vi.fn().mockReturnValue({ eq: eqIdMock });
+
+    vi.mocked(supabase.from).mockReturnValue({ update: updateMock } as any);
+
+    await QuestionsService.deleteQuestion("q-delete-1");
+
+    expect(supabase.from).toHaveBeenCalledWith("questions");
+    expect(updateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        deleted_at: expect.any(String),
+      })
+    );
+    expect(eqIdMock).toHaveBeenCalledWith("id", "q-delete-1");
+    expect(eqAuthorMock).toHaveBeenCalledWith("author_id", "u-9");
+  });
 });

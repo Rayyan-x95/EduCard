@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
+import Head from "expo-router/head";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -189,6 +190,28 @@ function AuthProtectedRoute({ children }: { children: React.ReactNode }) {
 export default function RootLayout() {
   return (
     <ErrorBoundary>
+      <Head>
+        <title>EduCard — Academic Intelligence Network</title>
+        <meta
+          name="description"
+          content="EduCard connects university students, alumni, and scholars across academic circles to solve inquiries, collaborate, and share knowledge."
+        />
+        <meta property="og:title" content="EduCard — Academic Intelligence Network" />
+        <meta
+          property="og:description"
+          content="Connect with verified peers, ask academic inquiries, and advance your scholarly journey."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="EduCard" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="EduCard — Academic Intelligence Network" />
+        <meta
+          name="twitter:description"
+          content="Connect with verified peers, ask academic inquiries, and advance your scholarly journey."
+        />
+        <meta name="theme-color" content="#0B0F12" />
+        <link rel="manifest" href="/manifest.json" />
+      </Head>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <StatusBar style="light" />

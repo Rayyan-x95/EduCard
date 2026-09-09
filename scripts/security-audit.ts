@@ -59,7 +59,7 @@ async function runAudit() {
 
   // 4. Test User Authentication & Security Hardening
   console.log("\n[4] Testing Authentication and Security Protections...");
-  const testEmail = `sec_audit_${Date.now()}@educard.app`;
+  const testEmail = `sec_audit_${Date.now()}@educard.ninety5.in`;
   const testPassword = 'TestPassword123!';
 
   console.log(`Registering test user: ${testEmail}...`);

@@ -46,6 +46,12 @@ const FRIENDLY_MESSAGES: { match: RegExp; message: string; code?: string }[] = [
   { match: /value too long for type character varying\(2\)/i, message: "Country must be a 2-letter code (e.g. US, UK, IN).", code: "VALIDATION_COUNTRY" },
   { match: /report_reason_enum/i, message: "That report reason is not valid.", code: "VALIDATION_REASON" },
 
+  // Action specific security/validation guards
+  { match: /cannot accept their own answer/i, message: "You cannot accept your own answer as the solution.", code: "SELF_ACCEPT_FORBIDDEN" },
+  { match: /cannot react to their own content/i, message: "You cannot react to your own content.", code: "SELF_REACTION_FORBIDDEN" },
+  { match: /rate limited: please wait/i, message: "You are posting too quickly. Please wait a moment.", code: "RATE_LIMITED" },
+  { match: /only platform administrators/i, message: "Platform administrator access required.", code: "ADMIN_REQUIRED" },
+
   // RLS / permission
   { match: /row-level security|violates row-level/i, message: "You don't have permission to do that.", code: "FORBIDDEN" },
   { match: /42501|permission denied/i, message: "You don't have permission to do that.", code: "FORBIDDEN" },

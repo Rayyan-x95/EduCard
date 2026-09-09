@@ -1,13 +1,13 @@
 # AGENTS.md
 
-EduCard: cross-platform student Q&A/knowledge network. Expo SDK 52 + React Native 0.74 + TypeScript strict, Expo Router v3, Supabase backend, NativeWind/Tailwind styling.
+EduCard: cross-platform student Q&A/knowledge network. Expo SDK 57 + React Native 0.86 + TypeScript strict, Expo Router v57, Supabase backend, NativeWind/Tailwind styling.
 
 ## Commands
 
 ```bash
 npm run typecheck   # tsc --noEmit
 npm run lint        # eslint . --ext .js,.jsx,.ts,.tsx
-npm run test        # vitest run (18 files / 65 tests)
+npm run test        # vitest run (21 files / 106 tests)
 npm run android|ios|web   # expo dev servers
 ```
 

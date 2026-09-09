@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /moderation
+Disallow: /settings/
+Disallow: /report
+
+Sitemap: https://educard.ninety5.in/sitemap.xml

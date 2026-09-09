@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, ScrollView, TouchableOpacity, Switch, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, TouchableOpacity, Switch, Alert, Platform } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Typography } from "@/components/ui/Typography";
@@ -60,6 +60,21 @@ export default function ReportModal() {
     targetUserId?: string;
   }>();
   const { user } = useAuthStore();
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace("/(tabs)" as any);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [router]);
 
   const [selectedReason, setSelectedReason] = useState<ReportReasonEnum>("spam");
   const [details, setDetails] = useState("");

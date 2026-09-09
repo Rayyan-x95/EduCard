@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
@@ -46,6 +47,7 @@ import {
   Flag,
   Bookmark,
   Share2,
+  Trash2,
 } from "lucide-react-native";
 
 /**
@@ -82,6 +84,34 @@ export default function QuestionDetailScreen() {
 
   const isAuthor = user?.id === question?.author_id;
   const isSolved = question?.status === "solved";
+
+  const deleteQuestionMutation = useMutation({
+    mutationFn: () => QuestionsService.deleteQuestion(id as string),
+    onSuccess: () => {
+      AppHaptics.success();
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+      router.replace("/(tabs)" as any);
+    },
+    onError: (err) => {
+      AppHaptics.error();
+      Alert.alert("Delete Failed", normalizeError(err).message);
+    },
+  });
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Inquiry",
+      "Are you sure you want to delete this question? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteQuestionMutation.mutate(),
+        },
+      ]
+    );
+  };
 
   // Question comments thread (listQuestionComments existed but was never wired up)
   const { data: comments = [] } = useQuery({
@@ -179,6 +209,9 @@ export default function QuestionDetailScreen() {
           id={id}
           isBookmarked={isBookmarked}
           bookmarkMutation={bookmarkMutation}
+          isAuthor={isAuthor}
+          onDelete={handleDelete}
+          isDeleting={deleteQuestionMutation.isPending}
         />
         <FlashList<AnswerCardData>
           data={aLoading || aIsError ? [] : ((answers as AnswerCardData[]) || [])}
@@ -422,6 +455,7 @@ export default function QuestionDetailScreen() {
               <AnswerCard
                 answer={ans}
                 isQuestionAuthor={isAuthor}
+                currentUserId={user?.id}
                 onAcceptPress={(ansId) => acceptAnswerMutation.mutate(ansId)}
                 onHelpfulPress={(ansId) => reactionMutation.mutate(ansId)}
                 isAccepting={acceptAnswerMutation.isPending}
@@ -509,12 +543,18 @@ function HeaderBar({
   id,
   isBookmarked,
   bookmarkMutation,
+  isAuthor,
+  onDelete,
+  isDeleting,
 }: {
   onBack: () => void;
   questionTitle: string | undefined;
   id?: string;
   isBookmarked: boolean;
   bookmarkMutation: { mutate: () => void; isPending: boolean } | null;
+  isAuthor?: boolean;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }) {
   const router = useRouter();
   return (
@@ -534,6 +574,21 @@ function HeaderBar({
         Academic Inquiry
       </Typography>
       <View className="flex-row items-center space-x-2">
+        {isAuthor && (
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Delete this question"
+            disabled={isDeleting}
+            onPress={() => {
+              AppHaptics.medium();
+              onDelete?.();
+            }}
+            className="w-10 h-10 rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20"
+          >
+            <Trash2 size={18} color="#F87171" />
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity
           onPress={() => {
             AppHaptics.light();

@@ -140,7 +140,7 @@ export default function PostDetailScreen() {
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Share this post"
-            onPress={() => { AppHaptics.light(); ShareService.copyToClipboard(`https://educard.app/post/${id}`, "Post link"); }}
+            onPress={() => { AppHaptics.light(); ShareService.copyToClipboard(`https://educard.ninety5.in/post/${id}`, "Post link"); }}
             className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
           >
             <Share2 size={18} color="#818CF8" />
