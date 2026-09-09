@@ -319,16 +319,20 @@ export const QuestionsService = {
     if (error) throw error;
   },
 
-  // Soft-delete question (author or admin)
+  // Soft-delete question (author only)
   async deleteQuestion(id: string): Promise<void> {
     const userId = await requireUserId();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("questions")
       .update({ deleted_at: new Date().toISOString() })
       .eq("id", id)
-      .eq("author_id", userId);
+      .eq("author_id", userId)
+      .select("id");
 
     if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error("Question not found or you do not have permission to delete it.");
+    }
   },
 
   // Toggle helpful reaction

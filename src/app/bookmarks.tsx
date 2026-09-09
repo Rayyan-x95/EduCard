@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
+import { View, TouchableOpacity, RefreshControl } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -105,71 +106,107 @@ export default function BookmarksScreen() {
         </Typography>
       </View>
 
-      <ScrollView
-        className="flex-1 px-5 py-5"
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={refetch}
-            tintColor="#818CF8"
-          />
-        }
-      >
-        <Typography variant="headline-lg" className="text-on-surface mb-1 font-bold text-2xl">
-          Bookmarks & Saved
-        </Typography>
-        <Typography variant="body-md" className="text-on-surface-variant mb-5 leading-relaxed">
-          Your saved intellectual assets, curated for deep reading and research.
-        </Typography>
+      <View style={{ flex: 1, width: "100%" }}>
+        <FlashList<any>
+          data={(() => {
+            const items: any[] = [];
+            items.push({ type: "header" });
+            items.push({ type: "tabs" });
 
-        {/* Tab Filters */}
-        <View className="flex-row bg-surface-container-low p-1 rounded-2xl border border-white/[0.06] mb-6">
-          {(["questions", "posts"] as const).map((tab) => {
-            const isSelected = activeTab === tab;
-            return (
-              <TouchableOpacity
-                key={tab}
-                onPress={() => {
-                  AppHaptics.selection();
-                  setActiveTab(tab);
-                }}
-                className={`flex-1 py-2 rounded-xl items-center justify-center transition-all ${
-                  isSelected
-                    ? "bg-surface-container-high border border-white/[0.08] shadow-sm shadow-black/30"
-                    : "border border-transparent"
-                }`}
-              >
-                <Typography
-                  variant="label-sm"
-                  className={
-                    isSelected
-                      ? "text-primary font-bold capitalize"
-                      : "text-on-surface-variant font-medium capitalize"
-                  }
-                >
-                  {tab}
-                </Typography>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+            if (isLoading) {
+              items.push({ type: "loading" });
+            } else if (isError) {
+              items.push({ type: "error" });
+            } else if (hasBookmarks) {
+              bookmarks.forEach((bm: any) => items.push({ type: "bookmark", data: bm }));
+              if (hasNextPage) {
+                items.push({ type: "load_more" });
+              }
+            } else {
+              items.push({ type: "empty_state" });
+            }
+            return items;
+          })()}
+          {...{ estimatedItemSize: 150 } as any}
+          getItemType={(item: any) => item.type}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={refetch}
+              tintColor="#818CF8"
+            />
+          }
+          renderItem={({ item }: { item: any }) => {
+            if (item.type === "header") {
+              return (
+                <View>
+                  <Typography variant="headline-lg" className="text-on-surface mb-1 font-bold text-2xl">
+                    Bookmarks & Saved
+                  </Typography>
+                  <Typography variant="body-md" className="text-on-surface-variant mb-5 leading-relaxed">
+                    Your saved intellectual assets, curated for deep reading and research.
+                  </Typography>
+                </View>
+              );
+            }
 
-        {isLoading ? (
-          <View className="space-y-4">
-            <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
-            <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
-          </View>
-        ) : isError ? (
-          /* Failed fetch must never read as "no bookmarks yet". */
-          <ErrorState
-            title="Couldn't load bookmarks"
-            message="We couldn't reach the network while loading your saved items. Check your connection and try again."
-            onRetry={() => refetch()}
-          />
-        ) : hasBookmarks ? (
-          <View className="space-y-4">
-            {bookmarks.map((bm: BookmarkItem) => {
+            if (item.type === "tabs") {
+              return (
+                <View className="flex-row bg-surface-container-low p-1 rounded-2xl border border-white/[0.06] mb-6">
+                  {(["questions", "posts"] as const).map((tab) => {
+                    const isSelected = activeTab === tab;
+                    return (
+                      <TouchableOpacity
+                        key={tab}
+                        onPress={() => {
+                          AppHaptics.selection();
+                          setActiveTab(tab);
+                        }}
+                        className={`flex-1 py-2 rounded-xl items-center justify-center transition-all ${
+                          isSelected
+                            ? "bg-surface-container-high border border-white/[0.08] shadow-sm shadow-black/30"
+                            : "border border-transparent"
+                        }`}
+                      >
+                        <Typography
+                          variant="label-sm"
+                          className={
+                            isSelected
+                              ? "text-primary font-bold capitalize"
+                              : "text-on-surface-variant font-medium capitalize"
+                          }
+                        >
+                          {tab}
+                        </Typography>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              );
+            }
+
+            if (item.type === "loading") {
+              return (
+                <View className="space-y-4">
+                  <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
+                  <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
+                </View>
+              );
+            }
+
+            if (item.type === "error") {
+              return (
+                <ErrorState
+                  title="Couldn't load bookmarks"
+                  message="We couldn't reach the network while loading your saved items. Check your connection and try again."
+                  onRetry={() => refetch()}
+                />
+              );
+            }
+
+            if (item.type === "bookmark") {
+              const bm = item.data;
               const isRemoving = removingIds.has(bm.bookmark_id);
               const card =
                 bm.item_type === "question" ? (
@@ -220,7 +257,7 @@ export default function BookmarksScreen() {
               if (!card) return null;
 
               return (
-                <View key={bm.bookmark_id} className="relative">
+                <View className="relative mb-4">
                   {card}
                   {/* Quick-remove so the list manages itself without visiting
                       each item and unbookmarking there. */}
@@ -236,52 +273,59 @@ export default function BookmarksScreen() {
                   </TouchableOpacity>
                 </View>
               );
-            })}
+            }
 
-            {hasNextPage && (
-              <Button
-                variant="outline"
-                size="md"
-                disabled={isFetchingNextPage}
-                onPress={() => {
-                  AppHaptics.light();
-                  fetchNextPage();
-                }}
-                className="mt-2"
-              >
-                {isFetchingNextPage ? "Loading…" : "Load more"}
-              </Button>
-            )}
-          </View>
-        ) : (          /* Empty State */
-          <View className="flex-1 items-center justify-center py-12">
-            <Card className="p-8 items-center text-center max-w-sm w-full bg-surface-container border border-outline-variant/60 shadow-lg shadow-black/30">
-              <View className="w-16 h-16 rounded-2xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-4 shadow-sm shadow-primary/20">
-                <Bookmark size={32} color="#818CF8" />
-              </View>
+            if (item.type === "load_more") {
+              return (
+                <Button
+                  variant="outline"
+                  size="md"
+                  disabled={isFetchingNextPage}
+                  onPress={() => {
+                    AppHaptics.light();
+                    fetchNextPage();
+                  }}
+                  className="mt-2"
+                >
+                  {isFetchingNextPage ? "Loading…" : "Load more"}
+                </Button>
+              );
+            }
 
-              <Typography variant="headline-md" className="text-on-surface text-center mb-1.5 font-bold">
-                No bookmarks yet
-              </Typography>
-              <Typography variant="body-md" className="text-on-surface-variant text-center mb-6 leading-relaxed">
-                Your reading list is currently empty. Save insightful questions and key resources to build your personal knowledge base.
-              </Typography>
-
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<Compass size={18} color="#0F172A" />}
-                onPress={() => {
-                  AppHaptics.medium();
-                  router.push("/(tabs)" as any);
-                }}
-              >
-                Explore Content
-              </Button>
-            </Card>
-          </View>
-        )}
-      </ScrollView>
+            if (item.type === "empty_state") {
+              return (
+                <View className="flex-1 items-center justify-center py-12">
+                  <Card className="p-8 items-center text-center max-w-sm w-full bg-surface-container border border-outline-variant/60 shadow-lg shadow-black/30">
+                    <View className="w-16 h-16 rounded-2xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-4 shadow-sm shadow-primary/20">
+                      <Bookmark size={32} color="#818CF8" />
+                    </View>
+      
+                    <Typography variant="headline-md" className="text-on-surface text-center mb-1.5 font-bold">
+                      No bookmarks yet
+                    </Typography>
+                    <Typography variant="body-md" className="text-on-surface-variant text-center mb-6 leading-relaxed">
+                      Your reading list is currently empty. Save insightful questions and key resources to build your personal knowledge base.
+                    </Typography>
+      
+                    <Button
+                      variant="primary"
+                      size="md"
+                      leftIcon={<Compass size={18} color="#0F172A" />}
+                      onPress={() => {
+                        AppHaptics.medium();
+                        router.push("/(tabs)" as any);
+                      }}
+                    >
+                      Explore Content
+                    </Button>
+                  </Card>
+                </View>
+              );
+            }
+            return null;
+          }}
+        />
+      </View>
     </SafeAreaView>
   );
 }

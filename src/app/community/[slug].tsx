@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
+import { View, TouchableOpacity, RefreshControl } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -112,140 +113,174 @@ export default function CommunityDetailScreen() {
         onShare={comm.name && slug ? () => ShareService.shareCommunity(comm.name, slug) : undefined}
       />
 
-      <ScrollView
-        className="flex-1 px-5 py-5"
-        contentContainerStyle={{ paddingBottom: 32 }}
-        refreshControl={
-          <RefreshControl refreshing={false} onRefresh={() => refetch()} tintColor="#818CF8" />
-        }
-      >
-        {/* Header Card */}
-        <Card className="p-6 mb-5 border border-white/[0.08] shadow-lg shadow-black/30">
-          <View className="flex-row items-center space-x-2.5 mb-3">
-            <Badge variant="category" label="Verified Space" />
-            <View className="flex-row items-center space-x-1 px-2.5 py-1 rounded-full bg-surface-container-high border border-outline-variant/40">
-              <Users size={12} color="#94A3B8" />
-              <Typography variant="label-sm" className="text-on-surface-variant/80 font-medium normal-case">
-                {(comm.member_count || 1).toLocaleString()} scholars
-              </Typography>
-            </View>
-          </View>
-
-          <Typography variant="headline-lg" className="text-on-surface mb-2 font-bold text-2xl">
-            {comm.name}
-          </Typography>
-          <Typography variant="body-md" className="text-on-surface-variant leading-relaxed mb-6">
-            {comm.description}
-          </Typography>
-
-          {actionError ? (
-            <Typography variant="label-sm" className="text-error mb-3 normal-case">
-              {actionError}
-            </Typography>
-          ) : null}
-
-          {!user?.id ? (
-            <Button variant="outline" size="md" onPress={() => router.push("/(auth)/login" as any)}>
-              Sign in to join
-            </Button>
-          ) : (
-            <View className="space-y-2.5">
-              <Button
-                variant={isMember ? "secondary" : "primary"}
-                size="md"
-                loading={joinMutation.isPending}
-                leftIcon={
-                  isMember ? (
-                    <UserCheck size={16} color="#818CF8" />
+      <View style={{ flex: 1, width: "100%" }}>
+        <FlashList<any>
+          data={(() => {
+            const items: any[] = [];
+            items.push({ type: "header", data: comm });
+            if (comm.rules) {
+              items.push({ type: "rules", data: comm.rules });
+            }
+            items.push({ type: "questions_title" });
+            if (questions.length === 0) {
+              items.push({ type: "empty_state" });
+            } else {
+              questions.forEach((q: any) => {
+                items.push({ type: "question", data: q });
+              });
+            }
+            return items;
+          })()}
+          {...{ estimatedItemSize: 150 } as any}
+          getItemType={(item: any) => item.type}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32 }}
+          refreshControl={
+            <RefreshControl refreshing={false} onRefresh={() => refetch()} tintColor="#818CF8" />
+          }
+          renderItem={({ item }: { item: any }) => {
+            if (item.type === "header") {
+              const communityData = item.data;
+              return (
+                <Card className="p-6 mb-5 border border-white/[0.08] shadow-lg shadow-black/30">
+                  <View className="flex-row items-center space-x-2.5 mb-3">
+                    <Badge variant="category" label="Verified Space" />
+                    <View className="flex-row items-center space-x-1 px-2.5 py-1 rounded-full bg-surface-container-high border border-outline-variant/40">
+                      <Users size={12} color="#94A3B8" />
+                      <Typography variant="label-sm" className="text-on-surface-variant/80 font-medium normal-case">
+                        {(communityData.member_count || 1).toLocaleString()} scholars
+                      </Typography>
+                    </View>
+                  </View>
+        
+                  <Typography variant="headline-lg" className="text-on-surface mb-2 font-bold text-2xl">
+                    {communityData.name}
+                  </Typography>
+                  <Typography variant="body-md" className="text-on-surface-variant leading-relaxed mb-6">
+                    {communityData.description}
+                  </Typography>
+        
+                  {actionError ? (
+                    <Typography variant="label-sm" className="text-error mb-3 normal-case">
+                      {actionError}
+                    </Typography>
+                  ) : null}
+        
+                  {!user?.id ? (
+                    <Button variant="outline" size="md" onPress={() => router.push("/(auth)/login" as any)}>
+                      Sign in to join
+                    </Button>
                   ) : (
-                    <UserPlus size={16} color="#0F172A" />
-                  )
-                }
-                onPress={() => joinMutation.mutate()}
-                className="w-full"
-              >
-                {isMember ? "Leave Space" : "Join Space"}
-              </Button>
+                    <View className="space-y-2.5">
+                      <Button
+                        variant={isMember ? "secondary" : "primary"}
+                        size="md"
+                        loading={joinMutation.isPending}
+                        leftIcon={
+                          isMember ? (
+                            <UserCheck size={16} color="#818CF8" />
+                          ) : (
+                            <UserPlus size={16} color="#0F172A" />
+                          )
+                        }
+                        onPress={() => joinMutation.mutate()}
+                        className="w-full"
+                      >
+                        {isMember ? "Leave Space" : "Join Space"}
+                      </Button>
+        
+                      {/* Ask scoped to this Space — composer pre-locked via communityId */}
+                      {isMember && (
+                        <Button
+                          variant="primary"
+                          size="md"
+                          leftIcon={<MessageSquare size={16} color="#0F172A" />}
+                          onPress={() => {
+                            AppHaptics.medium();
+                            router.push({
+                              pathname: "/question/new",
+                              params: { communityId: communityId as string },
+                            } as any);
+                          }}
+                          className="w-full"
+                        >
+                          Ask in this Space
+                        </Button>
+                      )}
+                    </View>
+                  )}
+                </Card>
+              );
+            }
 
-              {/* Ask scoped to this Space — composer pre-locked via communityId */}
-              {isMember && (
-                <Button
-                  variant="primary"
-                  size="md"
-                  leftIcon={<MessageSquare size={16} color="#0F172A" />}
-                  onPress={() => {
-                    AppHaptics.medium();
-                    router.push({
-                      pathname: "/question/new",
-                      params: { communityId: communityId as string },
-                    } as any);
-                  }}
-                  className="w-full"
-                >
-                  Ask in this Space
-                </Button>
-              )}
-            </View>
-          )}
-        </Card>
+            if (item.type === "rules") {
+              return (
+                <Card className="p-5 mb-5 border border-outline-variant/60">
+                  <View className="flex-row items-center space-x-2.5 mb-3">
+                    <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30">
+                      <Shield size={16} color="#818CF8" />
+                    </View>
+                    <Typography variant="label-md" className="text-primary font-bold normal-case">
+                      Space Guidelines & Integrity
+                    </Typography>
+                  </View>
+                  <Typography variant="body-sm" className="text-on-surface-variant leading-relaxed">
+                    {item.data}
+                  </Typography>
+                </Card>
+              );
+            }
 
-        {/* Rules */}
-        {comm.rules ? (
-          <Card className="p-5 mb-5 border border-outline-variant/60">
-            <View className="flex-row items-center space-x-2.5 mb-3">
-              <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30">
-                <Shield size={16} color="#818CF8" />
-              </View>
-              <Typography variant="label-md" className="text-primary font-bold normal-case">
-                Space Guidelines & Integrity
-              </Typography>
-            </View>
-            <Typography variant="body-sm" className="text-on-surface-variant leading-relaxed">
-              {comm.rules}
-            </Typography>
-          </Card>
-        ) : null}
-
-        {/* Community Questions */}
-        <View className="mb-3">
-          <Typography variant="label-lg" className="text-on-surface font-bold">
-            Recent Inquiries in this Space
-          </Typography>
-        </View>
-
-        {questions.length === 0 ? (
-          <Card className="p-6 items-center border border-outline-variant/60">
-            <MessageSquare size={24} color="#94A3B8" className="mb-2" />
-            <Typography variant="body-sm" className="text-on-surface-variant text-center">
-              No questions posted here yet.
-            </Typography>
-          </Card>
-        ) : (
-          questions.map((q: any) => (
-            <Card
-              key={q.id}
-              className="p-4 mb-3 border border-outline-variant/60"
-              onPress={() => router.push(`/question/${q.id}` as any)}
-            >
-              <View className="flex-row items-start justify-between mb-2">
-                <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
-                <View className="flex-row items-center space-x-1">
-                  <MessageSquare size={12} color="#94A3B8" />
-                  <Typography variant="label-sm" className="text-on-surface-variant/70">
-                    {q.answer_count ?? 0}
+            if (item.type === "questions_title") {
+              return (
+                <View className="mb-3">
+                  <Typography variant="label-lg" className="text-on-surface font-bold">
+                    Recent Inquiries in this Space
                   </Typography>
                 </View>
-              </View>
-              <Typography variant="label-md" className="text-on-surface font-bold mb-1" numberOfLines={2}>
-                {q.title}
-              </Typography>
-              <Typography variant="body-sm" className="text-on-surface-variant" numberOfLines={2}>
-                {q.body}
-              </Typography>
-            </Card>
-          ))
-        )}
-      </ScrollView>
+              );
+            }
+
+            if (item.type === "empty_state") {
+              return (
+                <Card className="p-6 items-center border border-outline-variant/60">
+                  <MessageSquare size={24} color="#94A3B8" className="mb-2" />
+                  <Typography variant="body-sm" className="text-on-surface-variant text-center">
+                    No questions posted here yet.
+                  </Typography>
+                </Card>
+              );
+            }
+
+            if (item.type === "question") {
+              const q = item.data;
+              return (
+                <Card
+                  className="p-4 mb-3 border border-outline-variant/60"
+                  onPress={() => router.push(`/question/${q.id}` as any)}
+                >
+                  <View className="flex-row items-start justify-between mb-2">
+                    <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
+                    <View className="flex-row items-center space-x-1">
+                      <MessageSquare size={12} color="#94A3B8" />
+                      <Typography variant="label-sm" className="text-on-surface-variant/70">
+                        {q.answer_count ?? 0}
+                      </Typography>
+                    </View>
+                  </View>
+                  <Typography variant="label-md" className="text-on-surface font-bold mb-1" numberOfLines={2}>
+                    {q.title}
+                  </Typography>
+                  <Typography variant="body-sm" className="text-on-surface-variant" numberOfLines={2}>
+                    {q.body}
+                  </Typography>
+                </Card>
+              );
+            }
+
+            return null;
+          }}
+        />
+      </View>
     </SafeAreaView>
   );
 }

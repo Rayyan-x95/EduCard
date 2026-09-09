@@ -210,7 +210,6 @@ export default function RootLayout() {
           content="Connect with verified peers, ask academic inquiries, and advance your scholarly journey."
         />
         <meta name="theme-color" content="#0B0F12" />
-        <link rel="manifest" href="/manifest.json" />
       </Head>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>

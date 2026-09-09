@@ -136,7 +136,8 @@ describe("QuestionsService", () => {
   });
 
   it("soft-deletes a question setting deleted_at timestamp", async () => {
-    const eqAuthorMock = vi.fn().mockResolvedValue({ data: null, error: null });
+    const selectMock = vi.fn().mockResolvedValue({ data: [{ id: "q-delete-1" }], error: null });
+    const eqAuthorMock = vi.fn().mockReturnValue({ select: selectMock });
     const eqIdMock = vi.fn().mockReturnValue({ eq: eqAuthorMock });
     const updateMock = vi.fn().mockReturnValue({ eq: eqIdMock });
 

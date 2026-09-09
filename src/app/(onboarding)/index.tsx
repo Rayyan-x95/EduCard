@@ -362,6 +362,7 @@ export default function OnboardingScreen() {
                 setError("");
                 setUsernameStatus("idle");
                 usernameGeneration.current += 1;
+                setCheckingUsername(false);
               }}
               autoCapitalize="none"
               autoCorrect={false}
