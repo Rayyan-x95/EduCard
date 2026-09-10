@@ -33,7 +33,7 @@ export default function CommunityDetailScreen() {
   const { user } = useAuthStore();
   const [actionError, setActionError] = useState("");
 
-  const { data: community, isLoading, isError, refetch } = useQuery({
+  const { data: community, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ["community", slug],
     queryFn: () => CommunitiesService.getCommunityBySlug(slug || ""),
     enabled: Boolean(slug),
@@ -135,7 +135,17 @@ export default function CommunityDetailScreen() {
           getItemType={(item: any) => item.type}
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32 }}
           refreshControl={
-            <RefreshControl refreshing={false} onRefresh={() => refetch()} tintColor="#818CF8" />
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={() => {
+                refetch();
+                if (communityId) {
+                  queryClient.invalidateQueries({ queryKey: ["community-member", communityId, user?.id] });
+                  queryClient.invalidateQueries({ queryKey: ["community-questions", communityId] });
+                }
+              }}
+              tintColor="#818CF8"
+            />
           }
           renderItem={({ item }: { item: any }) => {
             if (item.type === "header") {

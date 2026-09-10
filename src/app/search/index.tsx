@@ -187,14 +187,15 @@ export default function GlobalSearchScreen() {
         })}
       </View>
 
-      <FlashList<any>
-        data={(() => {
-          if (loading || failed) return [];
-          const items: any[] = [];
-          if ((results.topics?.length ?? 0) > 0) {
-            items.push({ type: "topics_header", count: results.topics!.length });
-            items.push({ type: "topics", items: results.topics });
-          }
+      <View style={{ flex: 1, width: "100%" }}>
+        <FlashList<any>
+          data={(() => {
+            if (loading || failed) return [];
+            const items: any[] = [];
+            if (activeTab === "top" && (results.topics?.length ?? 0) > 0) {
+              items.push({ type: "topics_header", count: results.topics!.length });
+              items.push({ type: "topics", items: results.topics });
+            }
           if (showCommunities && results.communities.length > 0) {
             items.push({ type: "communities_header", count: results.communities.length });
             results.communities.forEach((c, i) => items.push({ type: "community", item: c, isLast: i === results.communities.length - 1 }));
@@ -395,7 +396,8 @@ export default function GlobalSearchScreen() {
           }
           return null;
         }}
-      />
+        />
+      </View>
     </SafeAreaView>
   );
 }
