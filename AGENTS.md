@@ -11,7 +11,7 @@ npm run test        # vitest run (21 files / 106 tests)
 npm run android|ios|web   # expo dev servers
 ```
 
-CI runs exactly this order: typecheck → lint → test → `npm audit --audit-level=critical` → `npx expo export --platform web --output-dir dist` with placeholder env vars (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`). The audit gate passes via package.json `overrides` (tar ≥7.5.21, @remix-run/* ^2.17.1, js-yaml ≥4.3.2, brace-expansion); do not remove them. Pre-commit audit scans high+ using audit-ci allowlisting unpatched upstream Expo CLI node-forge (GHSA-86w9-cpqp-85rv).
+CI runs exactly this order: typecheck → lint → test → `npm audit --audit-level=critical` → `npx expo export --platform web --output-dir dist` with placeholder env vars (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`). The audit gate passes via package.json `overrides` (tar ≥7.5.21, @remix-run/* ^2.17.1, js-yaml ≥4.3.2); do not remove them. Pre-commit audit scans high+ using audit-ci allowlisting unpatched upstream Expo CLI node-forge (GHSA-86w9-cpqp-85rv).
 
 Run one test file: `npx vitest run src/__tests__/lib/query-client.test.ts`
 

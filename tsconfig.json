@@ -8,6 +8,7 @@
     "module": "ESNext",
     "target": "ESNext",
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": [
         "./src/*"
