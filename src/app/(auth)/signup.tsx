@@ -131,22 +131,22 @@ export default function SignupScreen() {
         className="px-6 py-8"
         keyboardShouldPersistTaps="handled"
       >
-        {/* Brand Header with Official EduCard 3D Logo */}
+        {/* Brand Header with Official EduCard Logo */}
         <View className="items-center mb-8">
           <View className="p-3.5 rounded-3xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-3 shadow-lg shadow-primary/20">
-            <Logo variant="full" size="xl" />
+            <Logo variant="simple" size="xl" />
           </View>
           <Typography variant="headline-lg" className="text-on-surface text-center mb-1.5 font-extrabold text-3xl">
             Join EduCard
           </Typography>
           <Typography variant="body-md" className="text-center text-on-surface-variant max-w-[280px] leading-relaxed">
-            Connect with peers, verified alumni, and mentors across global institutions.
+            Connect with students and alumni from universities worldwide.
           </Typography>
         </View>
 
         <Card className="mb-6 p-6 border border-white/[0.08] shadow-xl shadow-black/40">
           <Typography variant="headline-md" className="text-on-surface mb-5 text-xl font-bold">
-            Scholar Registration
+            Create Account
           </Typography>
 
           {awaitingConfirmation ? (
@@ -158,7 +158,7 @@ export default function SignupScreen() {
                 </Typography>
               </View>
               <Typography variant="body-sm" className="text-on-surface-variant/90 leading-relaxed">
-                We sent a verification link to {email.trim()}. Confirm your email, then sign in to continue setting up your scholar profile.
+                We sent a verification link to {email.trim()}. Confirm your email, then sign in to continue setting up your profile.
               </Typography>
 
               {resendNote ? (
@@ -209,14 +209,14 @@ export default function SignupScreen() {
           />
 
           <TextInput
-            label="Institutional Email"
-            placeholder="scholar@university.edu"
+            label="Email"
+            placeholder="student@university.edu"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
             leftIcon={<Mail size={18} color="#818CF8" />}
-            helperText="Use your university domain for verified scholar credentials."
+            helperText="Use your university or school email if available."
           />
 
           <TextInput
@@ -235,7 +235,7 @@ export default function SignupScreen() {
             onPress={handleSignup}
             className="mt-3 mb-2"
           >
-            Create Scholar Account
+            Create Account
           </Button>
             </>
           )}

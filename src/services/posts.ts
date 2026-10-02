@@ -19,6 +19,22 @@ export interface PostDetail {
   } | null;
 }
 
+export interface PostListItem {
+  id: string;
+  author_id: string | null;
+  author_username: string;
+  author_display_name: string;
+  author_avatar_path: string | null;
+  author_status: UserStatusEnum;
+  author_is_verified: boolean;
+  community_id: string | null;
+  body: string;
+  helpful_count: number;
+  comment_count: number;
+  image_paths: string[] | null;
+  created_at: string;
+}
+
 export interface PostComment {
   id: string;
   body: string;
@@ -55,7 +71,7 @@ function mapComment(row: any): PostComment {
     body: row.body,
     created_at: row.created_at,
     author_id: row.author_id,
-    author_display_name: row.profiles?.display_name || "Scholar",
+    author_display_name: row.profiles?.display_name || "User",
     author_avatar_path: row.profiles?.avatar_path || null,
     author_status: row.profiles?.current_status || "undergraduate",
     author_is_verified: row.profiles?.is_verified || false,
@@ -79,6 +95,24 @@ async function requireUserId(): Promise<string> {
 }
 
 export const PostsService = {
+  async createPost(input: {
+    body: string;
+    topic_ids?: string[];
+    community_id?: string | null;
+    media_paths?: string[];
+    visibility?: "public" | "community" | "unlisted" | "removed";
+  }): Promise<{ id: string }> {
+    const { data: postId, error } = await supabase.rpc("rpc_create_post", {
+      p_body: input.body,
+      p_community_id: input.community_id || null,
+      p_topic_ids: input.topic_ids || [],
+      p_image_paths: input.media_paths || [],
+      p_visibility: (input.visibility as any) || "public",
+    });
+    if (error) throw error;
+    return { id: postId as string };
+  },
+
   async getPostById(id: string): Promise<PostDetail> {
     const { data, error } = await supabase
       .from("posts")
@@ -182,5 +216,75 @@ export const PostsService = {
 
     if (error) throw error;
     return data;
+  },
+
+  /** Public posts by a specific author (profile screens). */
+  async listUserPosts(authorId: string, limit = 20): Promise<PostListItem[]> {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        `
+        id, author_id, community_id, body, helpful_count, comment_count, image_paths, created_at,
+        profiles!posts_author_id_fkey (
+          username, display_name, avatar_path, current_status, is_verified
+        )
+      `
+      )
+      .eq("author_id", authorId)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return ((data as any[]) || []).map((p) => ({
+      id: p.id,
+      author_id: p.author_id,
+      author_username: p.profiles?.username ?? "",
+      author_display_name: p.profiles?.display_name ?? "User",
+      author_avatar_path: p.profiles?.avatar_path ?? null,
+      author_status: p.profiles?.current_status ?? "undergraduate",
+      author_is_verified: p.profiles?.is_verified ?? false,
+      community_id: p.community_id,
+      body: p.body,
+      helpful_count: p.helpful_count ?? 0,
+      comment_count: p.comment_count ?? 0,
+      image_paths: p.image_paths,
+      created_at: p.created_at,
+    }));
+  },
+
+  /** Discussion posts published inside a specific community. */
+  async listCommunityPosts(communityId: string, limit = 20): Promise<PostListItem[]> {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        `
+        id, author_id, community_id, body, helpful_count, comment_count, image_paths, created_at,
+        profiles!posts_author_id_fkey (
+          username, display_name, avatar_path, current_status, is_verified
+        )
+      `
+      )
+      .eq("community_id", communityId)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return ((data as any[]) || []).map((p) => ({
+      id: p.id,
+      author_id: p.author_id,
+      author_username: p.profiles?.username ?? "",
+      author_display_name: p.profiles?.display_name ?? "User",
+      author_avatar_path: p.profiles?.avatar_path ?? null,
+      author_status: p.profiles?.current_status ?? "undergraduate",
+      author_is_verified: p.profiles?.is_verified ?? false,
+      community_id: p.community_id,
+      body: p.body,
+      helpful_count: p.helpful_count ?? 0,
+      comment_count: p.comment_count ?? 0,
+      image_paths: p.image_paths,
+      created_at: p.created_at,
+    }));
   },
 };

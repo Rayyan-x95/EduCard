@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { View, Platform } from "react-native";
+import * as Application from "expo-application";
 import { Stack, useRouter, useSegments } from "expo-router";
 import Head from "expo-router/head";
 import { StatusBar } from "expo-status-bar";
@@ -16,6 +18,7 @@ import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { OfflineBanner } from "@/components/ui/OfflineBanner";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { readOnboardingFlag } from "@/lib/onboarding-cache";
+import { buildCspHeader } from "@/lib/csp";
 import "../../global.css";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -44,6 +47,8 @@ function AuthProtectedRoute({ children }: { children: React.ReactNode }) {
         const data = response.notification.request.content.data as Record<string, unknown>;
         if (data?.questionId) {
           router.push(`/question/${data.questionId}` as any);
+        } else if (data?.postId) {
+          router.push(`/post/${data.postId}` as any);
         } else if (data?.communitySlug) {
           router.push(`/community/${data.communitySlug}` as any);
         } else if (data?.profileId) {
@@ -58,18 +63,19 @@ function AuthProtectedRoute({ children }: { children: React.ReactNode }) {
     };
   }, [router]);
 
-  // Declared before the effects that call it (react-hooks rule: no
-  // use-before-declaration inside effect bodies).
-  const onAuthenticated = React.useCallback(async (uid: string) => {
+  // Unified user profile loader & push registration handler
+  const loadUserProfile = React.useCallback(async (uid: string) => {
+    if (profileLoadedForRef.current === uid) return;
     Analytics.identify(uid);
     NotificationsService.registerForPushNotifications(uid);
     try {
       const profile = await AuthService.getCurrentProfile(uid);
-      // Mark as loaded so the INITIAL_SESSION event that follows the
-      // getSession() call below does not duplicate this fetch.
       profileLoadedForRef.current = uid;
       setProfile(profile);
-    } catch {
+    } catch (err) {
+      Telemetry.recordError(err instanceof Error ? err : new Error(String(err)), {
+        source: "profileFetch",
+      });
       // Cold-start network failure: fall back to the locally cached
       // onboarding flag instead of demoting an onboarded user back into the
       // onboarding wizard (a re-run would insert duplicate education rows).
@@ -83,12 +89,15 @@ function AuthProtectedRoute({ children }: { children: React.ReactNode }) {
   // Initialize analytics + listen to Supabase auth state
   useEffect(() => {
     Analytics.track("app_opened");
-    Telemetry.init();
+    Telemetry.init({
+      appVersion: Application.nativeApplicationVersion ?? "1.0.0",
+      platform: Platform.OS,
+    });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
-        onAuthenticated(session.user.id);
+        loadUserProfile(session.user.id);
       }
       setLoading(false);
     });
@@ -107,30 +116,15 @@ function AuthProtectedRoute({ children }: { children: React.ReactNode }) {
 
       if (_event === "SIGNED_OUT") {
         setIsRecoveringPassword(false);
+        useAuthStore.getState().reset();
+        queryClient.clear();
       }
 
       if (session?.user) {
-        // Only fetch profile + push registration when the identity is new to
-        // this session. TOKEN_REFRESHED (hourly) and repeated events are
-        // skipped — the store already holds a valid profile.
-        if (profileLoadedForRef.current !== session.user.id) {
-          Analytics.identify(session.user.id);
-          NotificationsService.registerForPushNotifications(session.user.id);
-          try {
-            const profile = await AuthService.getCurrentProfile(session.user.id);
-            profileLoadedForRef.current = session.user.id;
-            setProfile(profile);
-          } catch (err) {
-            // Keep the previously-known profile so a transient network error
-            // doesn't demote an onboarded user back into onboarding. Leave
-            // the ref unset so the next auth event retries.
-            Telemetry.recordError(err instanceof Error ? err : new Error(String(err)), {
-              source: "profileFetch",
-            });
-          }
-        }
+        loadUserProfile(session.user.id);
       } else {
         Analytics.reset();
+        profileLoadedForRef.current = null;
         setProfile(null);
       }
       setLoading(false);
@@ -140,7 +134,7 @@ function AuthProtectedRoute({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadUserProfile]);
 
   // Handle navigation guard
   useEffect(() => {
@@ -181,7 +175,7 @@ function AuthProtectedRoute({ children }: { children: React.ReactNode }) {
   }, [isLoading]);
 
   if (isLoading) {
-    return null;
+    return <View className="flex-1 bg-surface" />;
   }
 
   return <>{children}</>;
@@ -191,25 +185,26 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <Head>
-        <title>EduCard — Academic Intelligence Network</title>
+        <title>EduCard — Student Knowledge Network</title>
         <meta
           name="description"
-          content="EduCard connects university students, alumni, and scholars across academic circles to solve inquiries, collaborate, and share knowledge."
+          content="EduCard connects university students and alumni to ask questions, share knowledge, and collaborate."
         />
-        <meta property="og:title" content="EduCard — Academic Intelligence Network" />
+        <meta property="og:title" content="EduCard — Student Knowledge Network" />
         <meta
           property="og:description"
-          content="Connect with verified peers, ask academic inquiries, and advance your scholarly journey."
+          content="Ask questions, connect with peers, and share knowledge across campus communities."
         />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="EduCard" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="EduCard — Academic Intelligence Network" />
+        <meta name="twitter:title" content="EduCard — Student Knowledge Network" />
         <meta
           name="twitter:description"
-          content="Connect with verified peers, ask academic inquiries, and advance your scholarly journey."
+          content="Ask questions, connect with peers, and share knowledge across campus communities."
         />
         <meta name="theme-color" content="#0B0F12" />
+        <meta httpEquiv="Content-Security-Policy" content={buildCspHeader()} />
       </Head>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>

@@ -202,4 +202,14 @@ export const StorageService = {
       .createSignedUrl(path, expiresIn);
     return error ? null : data?.signedUrl ?? null;
   },
+
+  /** Remove orphaned attachment paths (e.g. DB insert failed after upload). Best-effort. */
+  async removeAttachments(paths: string[]): Promise<void> {
+    if (!paths.length) return;
+    try {
+      await supabase.storage.from(ATTACHMENT_BUCKET).remove(paths);
+    } catch {
+      // Non-blocking cleanup — orphans are bounded by MAX_ATTACHMENTS and rate limits
+    }
+  },
 };

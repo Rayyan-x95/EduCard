@@ -1,9 +1,5 @@
-import React, { useCallback } from "react";
-import {
-  View,
-  RefreshControl,
-  TouchableOpacity,
-} from "react-native";
+import React, { useCallback, useMemo } from "react";
+import { View, RefreshControl, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -11,30 +7,35 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Typography } from "@/components/ui/Typography";
 import { FlashList } from "@shopify/flash-list";
-import {
-  QuestionCard,
-  QuestionCardData,
-} from "@/components/domain/QuestionCard";
+import { Typography } from "@/components/ui/Typography";
+import { Avatar } from "@/components/ui/Avatar";
+
+import { Button } from "@/components/ui/Button";
+import { QuestionCard, QuestionCardData } from "@/components/domain/QuestionCard";
 import { PostCard, PostCardData } from "@/components/domain/PostCard";
 import { QuestionCardSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { Avatar } from "@/components/ui/Avatar";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Logo } from "@/components/ui/Logo";
 import {
   QuestionsService,
   FeedRow,
+  FEED_PAGE_SIZE,
 } from "@/services/questions";
 import { queryKeys } from "@/lib/query-client";
 import { useUIStore, FeedFilter as UIFeedFilter } from "@/stores/uiStore";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore, Profile } from "@/stores/authStore";
 import { AppHaptics } from "@/lib/haptics";
-import { Search, Sparkles } from "lucide-react-native";
+import { Search, Inbox } from "lucide-react-native";
 
-const PAGE_SIZE = 20;
+const FILTERS = [
+  { label: "For You", value: "all" },
+  { label: "Unsolved", value: "unsolved" },
+  { label: "Following", value: "following" },
+  { label: "Campus", value: "university" },
+] as const;
 
 function feedRowToQuestion(row: FeedRow): QuestionCardData {
   return {
@@ -98,22 +99,19 @@ export default function HomeScreen() {
         pageParam?.cursorId
       ),
     initialPageParam: {} as { cursorCreatedAt?: string; cursorId?: string },
-    getNextPageParam: (lastPage) => {
-      if (!lastPage || lastPage.length < PAGE_SIZE) return undefined;
+    getNextPageParam: (lastPage: FeedRow[]) => {
+      if (!lastPage || lastPage.length < FEED_PAGE_SIZE) return undefined;
       const last = lastPage[lastPage.length - 1];
-      return {
-        cursorCreatedAt: last.created_at,
-        cursorId: last.id,
-      };
+      return { cursorCreatedAt: last.created_at, cursorId: last.id };
     },
   });
 
-  const questions = React.useMemo(
+  const questions = useMemo(
     () => (data?.pages.flat() ?? []) as FeedRow[],
     [data]
   );
 
-  // Optimistic helpful reaction across every cached page.
+  // Unified optimistic reaction toggle across questions and posts
   const reactionMutation = useMutation({
     mutationFn: (row: FeedRow) =>
       QuestionsService.toggleReaction(
@@ -147,21 +145,16 @@ export default function HomeScreen() {
       return { previous };
     },
     onError: (_err, _row, context) => {
+      AppHaptics.error();
       if (context?.previous) {
         queryClient.setQueryData(queryKeys.feed(activeFeedFilter), context.previous);
       }
-    },
-    onSettled: () => {
+      // Invalidate only on error so the feed reflects the true server state
+      // after a failed optimistic update. On success, onMutate already applied
+      // the correct state — no refetch needed.
       queryClient.invalidateQueries({ queryKey: queryKeys.feed(activeFeedFilter) });
     },
   });
-
-  const FILTERS = [
-    { label: "For You", value: "all" },
-    { label: "Unsolved", value: "unsolved" },
-    { label: "Following", value: "following" },
-    { label: "Campus", value: "university" },
-  ] as const;
 
   const renderItem = useCallback(
     ({ item }: { item: FeedRow }) =>
@@ -169,36 +162,33 @@ export default function HomeScreen() {
         <PostCard
           post={feedRowToPost(item)}
           onPress={() => router.push(`/post/${item.id}` as any)}
-          onHelpfulPress={(id) => {
-            // Non-idempotent toggle — ignore taps while one is in flight.
+          onHelpfulPress={() => {
             if (reactionMutation.isPending) return;
-            const row = questions.find((q) => q.id === id && q.item_type === "post");
-            if (row) reactionMutation.mutate(row);
+            reactionMutation.mutate(item);
           }}
         />
       ) : (
         <QuestionCard
           question={feedRowToQuestion(item)}
           onPress={() => router.push(`/question/${item.id}`)}
-          onHelpfulPress={(id) => {
+          onHelpfulPress={() => {
             if (reactionMutation.isPending) return;
-            const row = questions.find((q) => q.id === id && q.item_type === "question");
-            if (row) reactionMutation.mutate(row);
+            reactionMutation.mutate(item);
           }}
         />
       ),
-    [questions, reactionMutation, router]
+    [reactionMutation, router]
   );
 
   if (isError && questions.length === 0) {
     return (
       <SafeAreaView className="flex-1 bg-surface">
-        <HeaderBar profileName={profile?.display_name} avatarUri={profile?.avatar_path} />
+        <HeaderBar profile={profile} />
         <ErrorState
           title="Couldn't load your feed"
           message="We had trouble reaching the network. Check your connection and try again."
           errorCode="FEED_LOAD_FAILED"
-          onRetry={() => refetch()}
+          onRetry={refetch}
         />
       </SafeAreaView>
     );
@@ -206,40 +196,16 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      <HeaderBar profileName={profile?.display_name} avatarUri={profile?.avatar_path} />
+      <HeaderBar profile={profile} />
 
       {/* Apple-Style Segmented Control Filter */}
-      <View className="px-5 pt-3 pb-2">
-        <View className="flex-row bg-surface-container-low p-1 rounded-2xl border border-white/[0.06]">
-          {FILTERS.map((f) => {
-            const isActive = activeFeedFilter === (f.value as UIFeedFilter);
-            return (
-              <TouchableOpacity
-                key={f.value}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isActive }}
-                accessibilityLabel={`Feed filter: ${f.label}`}
-                onPress={() => {
-                  AppHaptics.selection();
-                  setActiveFeedFilter(f.value as UIFeedFilter);
-                }}
-                className={`flex-1 py-2 rounded-xl items-center justify-center transition-all ${
-                  isActive
-                    ? "bg-surface-container-high border border-white/[0.08] shadow-sm shadow-black/30"
-                    : "border border-transparent"
-                }`}
-              >
-                <Typography
-                  variant="label-md"
-                  className={
-                    isActive ? "text-primary font-bold" : "text-on-surface-variant font-medium"
-                  }
-                >
-                  {f.label}
-                </Typography>
-              </TouchableOpacity>
-            );
-          })}
+      <View className="w-full items-center">
+        <View className="w-full max-w-[720px] px-5 pt-3 pb-2">
+          <SegmentedControl
+            options={FILTERS}
+            value={activeFeedFilter}
+            onChange={(val) => setActiveFeedFilter(val as UIFeedFilter)}
+          />
         </View>
       </View>
 
@@ -249,7 +215,6 @@ export default function HomeScreen() {
         <FlashList<FeedRow>
           data={questions}
           keyExtractor={(item) => `${item.item_type}:${item.id}`}
-
           extraData={activeFeedFilter}
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 10, paddingBottom: 24 }}
           onEndReachedThreshold={0.4}
@@ -263,59 +228,79 @@ export default function HomeScreen() {
               tintColor="#818CF8"
             />
           }
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <View className="py-3">
-                <QuestionCardSkeleton />
-              </View>
-            ) : isError && questions.length > 0 ? (
-              // Mid-scroll failure: keep the loaded rows visible, but surface
-              // the problem instead of silently showing stale data forever.
-              <TouchableOpacity onPress={() => refetch()} accessibilityRole="button" accessibilityLabel="Retry loading more feed items">
-                <View className="mx-1 my-3 p-4 rounded-xl bg-error-container/30 border border-error/40 items-center">
-                  <Typography variant="label-sm" className="text-on-surface-variant text-center normal-case">
-                    Couldn't load newer content. Tap to retry.
-                  </Typography>
-                </View>
-              </TouchableOpacity>
-            ) : null
-          }
           ListHeaderComponent={
             <View className="mb-2">
-              {/* Quick Ask Prompt Card */}
-              <Card
-                onPress={() => {
-                  AppHaptics.light();
-                  router.push("/question/new");
-                }}
-                className="p-4 mb-4 bg-surface-container border border-outline-variant/60 flex-row items-center space-x-3.5 shadow-sm"
-              >
+              {/* Quick Ask / Post Prompt Card */}
+              <View className="p-3.5 mb-4 bg-surface-container border border-white/[0.08] border-t-white/[0.16] rounded-2xl flex-row items-center space-x-3 shadow-md shadow-black/30 backdrop-blur-sm">
                 <Avatar
-                  name={profile?.display_name || "Scholar"}
+                  name={profile?.display_name || "User"}
                   uri={profile?.avatar_path}
                   size="sm"
                   role={profile?.current_status || "undergraduate"}
                   isVerified={profile?.is_verified}
                 />
-                <View className="flex-1">
-                  <Typography variant="body-md" className="text-on-surface-variant/80">
-                    What are you trying to solve?
-                  </Typography>
-                </View>
-                <Button
-                  variant="primary"
-                  size="sm"
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Ask a question or share a thought"
+                  activeOpacity={0.85}
                   onPress={() => {
-                    // Haptics handled by Button for primary variant.
+                    AppHaptics.light();
                     router.push("/question/new");
                   }}
-                  className="px-4 py-1.5"
+                  className="flex-1 bg-surface-container-high/60 border border-white/[0.06] rounded-xl px-3.5 py-2.5 flex-row items-center web:cursor-pointer select-none active:bg-surface-container-high"
                 >
-                  Ask
-                </Button>
-              </Card>
+                  <Typography variant="body-md" className="text-on-surface-variant/80 text-[14px]">
+                    What are you trying to solve?
+                  </Typography>
+                </TouchableOpacity>
+                <View className="flex-row items-center space-x-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onPress={() => router.push("/post/new" as any)}
+                    className="px-3.5 py-2 min-h-[38px] rounded-xl"
+                  >
+                    Post
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onPress={() => router.push("/question/new")}
+                    className="px-4 py-2 min-h-[38px] rounded-xl"
+                  >
+                    Ask
+                  </Button>
+                </View>
+              </View>
             </View>
           }
+          ListFooterComponent={() => {
+            if (isFetchingNextPage) {
+              return (
+                <View className="py-3">
+                  <QuestionCardSkeleton />
+                </View>
+              );
+            }
+            if (isError && questions.length > 0) {
+              return (
+                <TouchableOpacity
+                  onPress={() => {
+                    refetch();
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Retry loading more feed items"
+                >
+                  <View className="mx-1 my-3 p-4 rounded-xl bg-error-container/30 border border-error/40 items-center">
+                    <Typography variant="label-sm" className="text-on-surface-variant text-center">
+                      Couldn't load newer content. Tap to retry.
+                    </Typography>
+                  </View>
+                </TouchableOpacity>
+              );
+            }
+            return null;
+          }}
           ListEmptyComponent={
             isLoading ? (
               <View className="space-y-4">
@@ -324,27 +309,16 @@ export default function HomeScreen() {
                 <QuestionCardSkeleton />
               </View>
             ) : (
-              <Card className="p-8 items-center justify-center my-6 bg-surface-container border border-outline-variant/60 shadow-lg shadow-black/30">
-                <View className="w-16 h-16 rounded-2xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-4 shadow-sm shadow-primary/20">
-                  <Sparkles size={32} color="#818CF8" />
-                </View>
-                <Typography variant="headline-md" className="text-lg text-on-surface text-center mb-1.5 font-bold">
-                  No inquiries in this feed yet
-                </Typography>
-                <Typography variant="body-md" className="text-on-surface-variant text-center max-w-[280px] mb-6 leading-relaxed">
-                  Be the first scholar to ask a question or explore our campus communities.
-                </Typography>
-                <Button
-                  variant="primary"
-                  size="md"
-                  onPress={() => {
-                    AppHaptics.medium();
-                    router.push("/question/new");
-                  }}
-                >
-                  Ask a Question
-                </Button>
-              </Card>
+              <EmptyState
+                icon={<Inbox size={32} color="#818CF8" />}
+                title="No questions in this feed yet"
+                description="Be the first to ask a question or join a community."
+                actionLabel="Ask a Question"
+                onAction={() => {
+                  AppHaptics.medium();
+                  router.push("/question/new");
+                }}
+              />
             )
           }
           renderItem={renderItem}
@@ -355,62 +329,60 @@ export default function HomeScreen() {
   );
 }
 
-function HeaderBar({
-  profileName,
-  avatarUri,
-}: {
-  profileName?: string | null;
-  avatarUri?: string | null;
-}) {
+function HeaderBar({ profile }: { profile: Profile | null }) {
   const router = useRouter();
-  const { profile } = useAuthStore();
 
   return (
-    <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-surface-container-high/80">
-      <View className="flex-row items-center space-x-3">
-        <View className="w-10 h-10 rounded-xl bg-primary-container/40 border border-primary/30 items-center justify-center shadow-sm shadow-primary/20">
-          <Logo variant="simple" size="sm" width={22} height={22} />
+    <View className="w-full items-center border-b border-white/[0.08] bg-surface/95 backdrop-blur-md z-10">
+      <View className="w-full max-w-[720px] flex-row items-center justify-between px-5 pt-3 pb-3">
+        <View className="flex-row items-center space-x-3">
+          <View className="w-10 h-10 rounded-xl bg-primary-container/40 border border-primary/40 items-center justify-center shadow-md shadow-primary/25">
+            <Logo variant="simple" size="sm" width={22} height={22} />
+          </View>
+          <View>
+            <Typography variant="headline-md" className="text-on-surface leading-tight font-bold tracking-tight">
+              EduCard
+            </Typography>
+            <Typography variant="label-sm" className="text-on-surface-variant/70 text-[12px]">
+              Student Knowledge Network
+            </Typography>
+          </View>
         </View>
-        <View>
-          <Typography variant="headline-md" className="text-on-surface leading-tight font-bold">
-            EduCard
-          </Typography>
-          <Typography variant="label-sm" className="text-on-surface-variant/70 normal-case">
-            Academic Intelligence Network
-          </Typography>
+
+        <View className="flex-row items-center space-x-2.5">
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Search"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            onPress={() => {
+              AppHaptics.light();
+              router.push("/search" as any);
+            }}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container-high/80 items-center justify-center border border-white/[0.08] web:hover:border-white/[0.18] active:bg-surface-container-highest web:cursor-pointer select-none active:scale-95 transition-all"
+          >
+            <Search size={18} color="#94A3B8" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Your profile"
+            accessibilityHint="Opens your profile"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            onPress={() => {
+              AppHaptics.light();
+              router.push("/(tabs)/profile" as any);
+            }}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] items-center justify-center web:cursor-pointer select-none active:scale-95 transition-transform"
+          >
+            <Avatar
+              name={profile?.display_name || "User"}
+              uri={profile?.avatar_path}
+              size="sm"
+              role={profile?.current_status || "undergraduate"}
+              isVerified={profile?.is_verified}
+            />
+          </TouchableOpacity>
         </View>
-      </View>
-
-      <View className="flex-row items-center space-x-2.5">
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="Search"
-          onPress={() => {
-            AppHaptics.light();
-            router.push("/search" as any);
-          }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
-        >
-          <Search size={18} color="#94A3B8" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="Your profile"
-          accessibilityHint="Opens your scholar profile"
-          onPress={() => {
-            AppHaptics.light();
-            router.push("/(tabs)/profile" as any);
-          }}
-        >
-          <Avatar
-            name={profileName || profile?.display_name || "Scholar"}
-            uri={avatarUri ?? profile?.avatar_path}
-            size="sm"
-            role={profile?.current_status || "undergraduate"}
-            isVerified={profile?.is_verified}
-          />
-        </TouchableOpacity>
       </View>
     </View>
   );

@@ -114,6 +114,36 @@ for every request; otherwise it requires `Authorization: Bearer <key>`. Configur
 that secret wherever the web output is hosted (e.g. EAS Hosting environment
 variables) or leave it unset to disable dispatch entirely.
 
+## Web deployment security headers
+
+When hosting the Expo web export on a static CDN or EAS Hosting, set the
+following HTTP response headers on every HTML/JS response. These complement
+the `<meta http-equiv="Content-Security-Policy">` tag rendered by the app.
+
+```
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: blob: https:;
+  connect-src 'self' https://*.supabase.co wss://*.supabase.co
+              https://exp.host https://us.i.posthog.com https://*.sentry.io;
+  font-src 'self' data:;
+  object-src 'none';
+  base-uri 'self';
+  frame-ancestors 'none';
+
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=()
+```
+
+For EAS Hosting, configure these in the project's hosting settings or via a
+`_headers` file in the export output directory.
+
+---
+
 ## Backups
 
 Enable automated database backups.
@@ -184,9 +214,10 @@ Supplementary expectations:
 ## Data retention
 
 Scheduled daily at 03:00 UTC via pg_cron (educard-retention-purge job),
-implemented by public.purge_expired_operational_data() in migration
-20260906000000_retention_and_abuse_guards.sql. If pg_cron is unavailable in
-an environment, invoke that function from any external scheduler.
+implemented by `public.purge_expired_operational_data()` consolidated inside
+`20260826000000_initial_schema.sql` (the single canonical migration). If
+pg_cron is unavailable in an environment, invoke that function from any
+external scheduler.
 
 | Table | Rule |
 | --- | --- |

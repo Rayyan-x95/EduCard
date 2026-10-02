@@ -6,14 +6,14 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { TextInput } from "@/components/ui/TextInput";
 import { ContributorBadge } from "./ContributorBadge";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PostsService, PostComment } from "@/services/posts";
+import { AuthorHeader } from "@/components/domain/AuthorHeader";
+import { HelpfulChip } from "@/components/domain/HelpfulChip";
+import { useAnswerComments } from "@/hooks/useAnswerComments";
+import { PostComment } from "@/services/posts";
 import { UserStatusEnum } from "@/types/database";
 import { AppHaptics } from "@/lib/haptics";
-import { normalizeError } from "@/lib/errors";
 import {
   CheckCircle2,
-  ThumbsUp,
   MessageSquare,
   Send,
   ChevronDown,
@@ -46,11 +46,10 @@ interface AnswerCardProps {
 }
 
 /**
- * Answer card with an expandable comment thread. Comments were previously
- * DB-supported (comments.answer_id) but unreachable — this completes the
- * workflow using the same pattern as question comments.
+ * Answer card with an expandable comment thread. Comments are fetched
+ * and submitted via the dedicated useAnswerComments hook.
  */
-export function AnswerCard({
+export const AnswerCard = React.memo(function AnswerCard({
   answer,
   isQuestionAuthor = false,
   currentUserId,
@@ -58,31 +57,27 @@ export function AnswerCard({
   onHelpfulPress,
   isAccepting = false,
 }: AnswerCardProps) {
-  const queryClient = useQueryClient();
   const [showComments, setShowComments] = useState(false);
   const isSelfAnswer = Boolean(currentUserId && answer.author_id === currentUserId);
   const [commentText, setCommentText] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Lazy: only fetched once expanded.
-  const { data: comments = [], refetch } = useQuery({
-    queryKey: ["answer-comments", answer.id],
-    queryFn: () => PostsService.listAnswerComments(answer.id),
-    enabled: showComments,
-  });
+  const { comments, submitComment, isSubmitting } = useAnswerComments(
+    answer.id,
+    answer.question_id,
+    showComments
+  );
 
-  const commentMutation = useMutation({
-    mutationFn: () =>
-      PostsService.createComment({ answerId: answer.id, body: commentText.trim() }),
-    onSuccess: () => {
-      AppHaptics.success();
+  const handleCommentSubmit = async () => {
+    if (!commentText.trim() || isSubmitting) return;
+    try {
+      setErrorMessage("");
+      await submitComment(commentText);
       setCommentText("");
-      refetch();
-      queryClient.invalidateQueries({ queryKey: ["answers", answer.question_id] });
-    },
-    onError: () => {
-      AppHaptics.error();
-    },
-  });
+    } catch {
+      setErrorMessage("Could not post comment. Please try again.");
+    }
+  };
 
   return (
     <Card
@@ -104,30 +99,21 @@ export function AnswerCard({
       )}
 
       {/* Author Header with Role Ring & Contextual Metadata */}
-      <View className="flex-row items-center justify-between mb-4">
-        <View className="flex-row items-center space-x-3.5 flex-1 mr-3">
-          <Avatar
-            name={answer.author_display_name}
-            uri={answer.author_avatar_path}
-            size="md"
-            role={answer.author_status}
+      <AuthorHeader
+        displayName={answer.author_display_name}
+        avatarPath={answer.author_avatar_path}
+        status={answer.author_status}
+        isVerified={answer.author_is_verified}
+        avatarSize="md"
+        subtitle={answer.institution_name || "Academic Contributor"}
+        rightAccessory={
+          <ContributorBadge
+            status={answer.author_status}
             isVerified={answer.author_is_verified}
           />
-          <View className="flex-1">
-            <Typography variant="label-md" className="text-on-surface font-semibold" numberOfLines={1}>
-              {answer.author_display_name}
-            </Typography>
-            <Typography variant="label-sm" className="text-on-surface-variant/70 mt-0.5 normal-case">
-              {answer.institution_name ? answer.institution_name : "Academic Contributor"}
-            </Typography>
-          </View>
-        </View>
-
-        <ContributorBadge
-          status={answer.author_status}
-          isVerified={answer.author_is_verified}
-        />
-      </View>
+        }
+        className="mb-4"
+      />
 
       {/* Long-form Answer Body with Generous Line Height */}
       <Typography variant="body-lg" className="text-on-surface leading-[28px] mb-5">
@@ -136,56 +122,30 @@ export function AnswerCard({
 
       {/* Footer Actions */}
       <View className="flex-row items-center justify-between pt-3 border-t border-outline-variant/30">
-        {/* Violet Helpful Reaction Toggle with Subtle Glow Effect */}
-        <TouchableOpacity
-          accessibilityRole="button"
+        {/* Helpful Reaction */}
+        <HelpfulChip
+          count={answer.helpful_count}
+          isHelpful={answer.is_helpful}
+          disabled={isSelfAnswer}
+          label="Helpful"
+          onPress={() => onHelpfulPress?.(answer.id)}
           accessibilityLabel={
             isSelfAnswer
               ? `Your answer, ${answer.helpful_count} marks`
               : `Mark answer helpful, ${answer.helpful_count} marks`
           }
-          accessibilityState={{ selected: Boolean(answer.is_helpful), disabled: isSelfAnswer }}
-          disabled={isSelfAnswer}
-          onPress={() => {
-            AppHaptics.medium();
-            onHelpfulPress?.(answer.id);
-          }}
-          className={`flex-row items-center space-x-2 px-3.5 py-1.5 rounded-full border ${
-            isSelfAnswer
-              ? "bg-surface-container-high/40 border-outline-variant/30 opacity-70"
-              : answer.is_helpful
-              ? "bg-secondary-container/50 border-secondary/60"
-              : "bg-surface-container-high border-outline-variant/40 active:bg-surface-container-highest"
-          }`}
-        >
-          <ThumbsUp
-            size={14}
-            color={isSelfAnswer ? "#64748B" : answer.is_helpful ? "#C084FC" : "#94A3B8"}
-            fill={!isSelfAnswer && answer.is_helpful ? "#C084FC" : "none"}
-          />
-          <Typography
-            variant="label-md"
-            className={
-              isSelfAnswer
-                ? "text-on-surface-variant/60 font-medium"
-                : answer.is_helpful
-                ? "text-secondary font-bold"
-                : "text-on-surface-variant"
-            }
-          >
-            Helpful ({answer.helpful_count})
-          </Typography>
-        </TouchableOpacity>
+        />
 
         {/* Comments toggle */}
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={`${showComments ? "Hide" : "Show"} comments on this answer`}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           onPress={() => {
             AppHaptics.light();
             setShowComments((v) => !v);
           }}
-          className="flex-row items-center space-x-1.5 px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/40 active:bg-surface-container-highest"
+          className="flex-row items-center space-x-1.5 px-3.5 py-2 min-h-[44px] rounded-full bg-surface-container-high border border-outline-variant/40 web:cursor-pointer select-none active:bg-surface-container-highest"
         >
           {showComments ? (
             <ChevronUp size={14} color="#94A3B8" />
@@ -194,7 +154,7 @@ export function AnswerCard({
           )}
           <MessageSquare size={13} color="#94A3B8" />
           <Typography variant="label-md" className="text-on-surface-variant">
-            {comments.length > 0 ? `(${comments.length})` : ""}
+            ({comments.length})
           </Typography>
         </TouchableOpacity>
 
@@ -212,11 +172,11 @@ export function AnswerCard({
         )}
       </View>
 
-      {/* Comment thread — same pattern as question discussion */}
+      {/* Comment thread */}
       {showComments && (
         <View className="mt-4 pt-4 border-t border-outline-variant/25">
           {comments.length === 0 ? (
-            <Typography variant="body-sm" className="text-on-surface-variant/70 normal-case mb-2 pl-1">
+            <Typography variant="body-sm" className="text-on-surface-variant/70 mb-2 pl-1">
               No comments yet.
             </Typography>
           ) : (
@@ -254,27 +214,38 @@ export function AnswerCard({
             <TouchableOpacity
               accessibilityRole="button"
               accessibilityLabel="Post comment on answer"
-              disabled={commentText.trim().length < 1 || commentMutation.isPending}
-              onPress={() => commentMutation.mutate()}
-              className={`w-9 h-9 rounded-full items-center justify-center ${
+              disabled={commentText.trim().length < 1 || isSubmitting}
+              onPress={handleCommentSubmit}
+              className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-full items-center justify-center web:cursor-pointer select-none active:scale-95 transition-transform ${
                 commentText.trim().length >= 1
-                  ? "bg-primary"
+                  ? "bg-primary shadow-sm shadow-primary/30"
                   : "bg-surface-container-high border border-outline-variant/40"
               }`}
             >
               <Send
-                size={15}
+                size={17}
                 color={commentText.trim().length >= 1 ? "#0F172A" : "#64748B"}
               />
             </TouchableOpacity>
           </View>
-          {commentMutation.isError && (
-            <Typography variant="label-sm" className="text-error mt-1.5 normal-case">
-              {normalizeError(commentMutation.error).message}
+          {errorMessage ? (
+            <Typography variant="label-sm" className="text-error mt-1.5">
+              {errorMessage}
             </Typography>
-          )}
+          ) : null}
         </View>
       )}
     </Card>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.answer.id === nextProps.answer.id &&
+    prevProps.answer.is_accepted === nextProps.answer.is_accepted &&
+    prevProps.answer.is_helpful === nextProps.answer.is_helpful &&
+    prevProps.answer.helpful_count === nextProps.answer.helpful_count &&
+    prevProps.answer.body === nextProps.answer.body &&
+    prevProps.isQuestionAuthor === nextProps.isQuestionAuthor &&
+    prevProps.currentUserId === nextProps.currentUserId &&
+    prevProps.isAccepting === nextProps.isAccepting
+  );
+});

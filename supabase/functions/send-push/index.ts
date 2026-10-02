@@ -55,6 +55,28 @@ function timingSafeEqual(a: string, b: string): boolean {
 }
 
 Deno.serve(async (req) => {
+  // Authenticated health/readiness probe for operational verification
+  if (req.method === "GET") {
+    const requiredSecret = Deno.env.get("SEND_PUSH_WEBHOOK_SECRET");
+    if (!requiredSecret) {
+      return new Response(
+        JSON.stringify({ error: "send-push is not configured (missing webhook secret).", configured: false }),
+        { status: 503, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    const providedSecret = req.headers.get("x-send-push-secret") ?? "";
+    if (!timingSafeEqual(providedSecret, requiredSecret)) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return new Response(
+      JSON.stringify({ status: "ok", configured: true, service: "send-push" }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   }
@@ -259,11 +281,27 @@ function compose(row: NotificationRow, actorName: string) {
         bodyText: `${actorName} is now following your work.`,
         data: { profileId: row.entity_id },
       };
+    case "comment_created":
+      return {
+        title: "New Comment",
+        bodyText: `${actorName} commented on your post.`,
+        data: row.entity_type === "post" ? { postId: row.entity_id } : { questionId: row.entity_id },
+      };
+    case "helpful_voted":
+      return {
+        title: "Reputation Boost",
+        bodyText: `${actorName} marked your answer as helpful (+5 rep).`,
+        data: { questionId: row.entity_id },
+      };
     default:
       return {
         title: "EduCard Update",
         bodyText: "You have a new academic notification.",
-        data: {},
+        data: row.entity_type === "post"
+          ? { postId: row.entity_id }
+          : row.entity_type === "question"
+          ? { questionId: row.entity_id }
+          : {},
       };
   }
 }

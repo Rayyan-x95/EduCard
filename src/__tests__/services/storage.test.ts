@@ -82,4 +82,18 @@ describe("StorageService", () => {
     await expect(StorageService.getSignedAttachmentUrls([])).resolves.toEqual([]);
     expect(mockFromBucket).not.toHaveBeenCalled();
   });
+
+  it("removes orphaned attachments in a single batched delete", async () => {
+    const remove = vi.fn().mockResolvedValue({ error: null });
+    mockFromBucket.mockReturnValue({ remove });
+    await StorageService.removeAttachments(["u/a.jpg", "u/b.jpg"]);
+    expect(mockFromBucket).toHaveBeenCalledWith("attachments");
+    expect(remove).toHaveBeenCalledWith(["u/a.jpg", "u/b.jpg"]);
+  });
+
+  it("no-ops removeAttachments when list empty", async () => {
+    mockFromBucket.mockClear();
+    await StorageService.removeAttachments([]);
+    expect(mockFromBucket).not.toHaveBeenCalled();
+  });
 });

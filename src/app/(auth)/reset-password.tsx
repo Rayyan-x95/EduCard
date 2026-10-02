@@ -92,7 +92,7 @@ export default function ResetPasswordScreen() {
                 Set a New Password
               </Typography>
               <Typography variant="body-md" className="text-on-surface-variant mb-6 leading-relaxed">
-                Choose a strong new password for your scholar account.
+                Choose a strong new password for your account.
               </Typography>
 
               {error ? (

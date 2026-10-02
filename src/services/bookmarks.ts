@@ -74,33 +74,24 @@ export const BookmarksService = {
     return Boolean(data);
   },
 
-  async toggleBookmark(targetType: "question" | "post", targetId: string, userId: string): Promise<boolean> {
-    if (!userId || !targetId) throw new Error("Authentication required");
-    
-    const query = supabase.from("bookmarks").select("id").eq("user_id", userId);
-    const filteredQuery = targetType === "question"
-      ? query.eq("question_id", targetId)
-      : query.eq("post_id", targetId);
-    
-    const { data: existing } = await filteredQuery.maybeSingle<{ id: string }>();
+  /**
+   * Atomically toggles a bookmark via the `toggle_bookmark` RPC.
+   *
+   * Previously performed a SELECT then INSERT or DELETE — two round-trips with
+   * a race window between them. The RPC executes the check and write in a single
+   * DB transaction, matching the pattern of `toggle_reaction`.
+   *
+   * Returns true if the bookmark is now active, false if it was removed.
+   */
+  async toggleBookmark(targetType: "question" | "post", targetId: string, _userId: string): Promise<boolean> {
+    if (!targetId) throw new Error("Authentication required");
 
-    if (existing) {
-      const { error } = await supabase
-        .from("bookmarks")
-        .delete()
-        .eq("id", existing.id);
-      if (error) throw error;
-      return false;
-    } else {
-      const { error } = await supabase
-        .from("bookmarks")
-        .insert({
-          user_id: userId,
-          question_id: targetType === "question" ? targetId : null,
-          post_id: targetType === "post" ? targetId : null,
-        });
-      if (error) throw error;
-      return true;
-    }
+    const { data, error } = await supabase.rpc("toggle_bookmark", {
+      p_target_type: targetType,
+      p_target_id: targetId,
+    });
+
+    if (error) throw error;
+    return Boolean((data as { is_active: boolean } | null)?.is_active);
   },
 };

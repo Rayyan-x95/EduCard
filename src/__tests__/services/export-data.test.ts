@@ -79,12 +79,14 @@ describe("DataExportService.buildExport", () => {
       "topics_followed",
       "questions",
       "answers",
+      "posts",
       "bookmarks",
       "reactions",
       "follows",
       "blocks",
       "reports_filed",
       "communities_created",
+      "community_memberships",
       "verification_requests",
       "notifications_recent",
       "devices",
@@ -124,7 +126,7 @@ describe("DataExportService.buildExport", () => {
     const { File } = (await import("expo-file-system")) as any;
     const written = File.created.find((f: any) => f.name.includes("sarah"));
     expect(written).toBeTruthy();
-    expect(JSON.parse(written.contents).format_version).toBe(1);
+    expect(JSON.parse(written.contents).format_version).toBe(2);
     expect(ShareService.shareFile).toHaveBeenCalledWith(
       fileUri,
       "Your EduCard data export is ready."

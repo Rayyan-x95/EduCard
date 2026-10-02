@@ -102,8 +102,8 @@ export default function ForgotPasswordScreen() {
               ) : null}
 
               <TextInput
-                label="Registered Email"
-                placeholder="scholar@university.edu"
+                label="Email"
+                placeholder="student@university.edu"
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"

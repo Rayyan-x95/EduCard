@@ -86,23 +86,23 @@ export default function LoginScreen() {
         className="px-6 py-8"
         keyboardShouldPersistTaps="handled"
       >
-        {/* Brand Header with Official EduCard 3D Logo */}
+        {/* Brand Header with Official EduCard Logo */}
         <View className="items-center mb-8">
           <View className="p-3.5 rounded-3xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-3 shadow-lg shadow-primary/20">
-            <Logo variant="full" size="xl" />
+            <Logo variant="simple" size="xl" />
           </View>
           <Typography variant="headline-lg" className="text-on-surface text-center mb-1.5 font-extrabold text-3xl">
             EduCard
           </Typography>
           <Typography variant="body-md" className="text-center text-on-surface-variant max-w-[280px] leading-relaxed">
-            Ask questions, share what you know, and learn from scholars, alumni, and mentors worldwide.
+            Ask questions, share knowledge, and connect with students and alumni.
           </Typography>
         </View>
 
         {/* Login Card */}
         <Card className="mb-6 p-6 border border-white/[0.08] shadow-xl shadow-black/40">
           <Typography variant="headline-md" className="text-on-surface mb-5 text-xl font-bold">
-            Scholar Sign In
+            Sign In
           </Typography>
 
           {error ? (
@@ -114,8 +114,8 @@ export default function LoginScreen() {
           ) : null}
 
           <TextInput
-            label="Institutional Email"
-            placeholder="scholar@university.edu"
+            label="Email"
+            placeholder="student@university.edu"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"

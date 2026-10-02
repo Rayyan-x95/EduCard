@@ -136,12 +136,13 @@ export default function ModerationScreen() {
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Go back"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => {
             AppHaptics.light();
             if (router.canGoBack()) router.back();
             else router.replace("/(tabs)" as any);
           }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 mr-3 active:bg-surface-container-high"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 mr-3 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <ArrowLeft size={20} color="#F8FAFC" />
         </TouchableOpacity>
@@ -223,12 +224,12 @@ export default function ModerationScreen() {
                 {r.reporter && (
                   <View className="flex-row items-center space-x-2 mb-2">
                     <Avatar
-                      name={r.reporter.display_name || "Scholar"}
+                      name={r.reporter.display_name || "User"}
                       uri={r.reporter.avatar_path}
                       size="sm"
                     />
                     <Typography variant="label-sm" className="text-on-surface-variant/80 normal-case">
-                      Reported by @{r.reporter.username || "scholar"} ·{" "}
+                      Reported by @{r.reporter.username || "user"} ·{" "}
                       {new Date(r.created_at).toLocaleDateString(undefined, {
                         month: "short",
                         day: "numeric",

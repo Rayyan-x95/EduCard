@@ -6,14 +6,22 @@ export type AnalyticsEvent =
   | "signup_completed"
   | "onboarding_completed"
   | "question_created"
+  | "post_created"
   | "answer_created"
   | "answer_accepted"
+  | "comment_created"
   | "helpful_voted"
+  | "bookmark_added"
   | "community_created"
   | "community_joined"
   | "search_performed"
   | "report_submitted"
-  | "user_blocked";
+  | "user_blocked"
+  | "duplicate_suggestions_shown"
+  | "duplicate_suggestion_clicked"
+  | "study_mode_entered"
+  | "content_shared"
+  | "learning_interaction";
 
 const POSTHOG_HOST = "https://us.i.posthog.com";
 

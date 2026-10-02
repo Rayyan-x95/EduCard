@@ -19,6 +19,7 @@ import {
   clearQuestionDraft,
 } from "@/lib/question-drafts";
 import { AppHaptics } from "@/lib/haptics";
+import { Analytics } from "@/lib/analytics";
 import {
   X,
   Lightbulb,
@@ -30,6 +31,8 @@ import {
   List,
   Image as ImageIcon,
   Users,
+  Sparkles,
+  CheckCircle2,
 } from "lucide-react-native";
 
 const MAX_ATTACHMENTS = 8;
@@ -40,7 +43,7 @@ export default function NewQuestionModal() {
   // is filed under that community instead of the global feed.
   const { communityId } = useLocalSearchParams<{ communityId?: string }>();
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -75,9 +78,30 @@ export default function NewQuestionModal() {
   });
 
   const [title, setTitle] = useState("");
+  const [debouncedTitle, setDebouncedTitle] = useState("");
   const [body, setBody] = useState("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedTitle(title.trim());
+    }, 450);
+    return () => clearTimeout(handler);
+  }, [title]);
+
+  const { data: similarQuestions = [] } = useQuery({
+    queryKey: ["similar-questions", debouncedTitle],
+    queryFn: async () => {
+      const res = await QuestionsService.findSimilarQuestions(debouncedTitle, 3);
+      if (res.length > 0) {
+        Analytics.track("duplicate_suggestions_shown", { count: res.length });
+      }
+      return res;
+    },
+    enabled: debouncedTitle.length >= 6,
+    staleTime: 60 * 1000,
+  });
   const [uploadingImage, setUploadingImage] = useState(false);
   // Rebuilt media pipeline: storage paths collected here and persisted via
   // p_image_paths. The detail screen signs these for display — no markdown
@@ -112,6 +136,39 @@ export default function NewQuestionModal() {
   const removeAttachment = (path: string) => {
     AppHaptics.light();
     setMediaPaths((prev) => prev.filter((p) => p !== path));
+    // Best-effort immediate cleanup of the orphaned object
+    void StorageService.removeAttachments([path]);
+  };
+
+  const navigateAway = () => {
+    AppHaptics.light();
+    if (router.canGoBack()) router.back();
+    else router.replace("/(tabs)" as any);
+  };
+
+  const handleClose = async () => {
+    const isDirty = Boolean(title.trim() || body.trim() || mediaPaths.length > 0);
+    if (isDirty && user?.id) {
+      Alert.alert(
+        "Discard question?",
+        "You have unsaved changes. You can keep your draft for later or discard it now.",
+        [
+          { text: "Keep Draft", onPress: navigateAway },
+          {
+            text: "Discard",
+            style: "destructive",
+            onPress: async () => {
+              await clearQuestionDraft(user.id);
+              if (mediaPaths.length > 0) void StorageService.removeAttachments(mediaPaths);
+              navigateAway();
+            },
+          },
+        ]
+      );
+      return;
+    }
+    if (mediaPaths.length > 0) void StorageService.removeAttachments(mediaPaths);
+    navigateAway();
   };
 
   // --- Draft auto-save -----------------------------------------------------
@@ -126,7 +183,7 @@ export default function NewQuestionModal() {
     void (async () => {
       const draft = await readQuestionDraft(user.id);
       if (cancelled || !draft) return;
-      const hasContent = draft.title.trim() || draft.body.trim();
+      const hasContent = draft.title.trim() || draft.body.trim() || (draft.mediaPaths && draft.mediaPaths.length > 0);
       if (!hasContent) return;
       Alert.alert(
         "Resume draft?",
@@ -143,6 +200,9 @@ export default function NewQuestionModal() {
               setTitle(draft.title);
               setBody(draft.body);
               setSelectedTopics(draft.topicIds);
+              if (draft.mediaPaths && Array.isArray(draft.mediaPaths)) {
+                setMediaPaths(draft.mediaPaths);
+              }
             },
           },
         ]
@@ -160,10 +220,12 @@ export default function NewQuestionModal() {
         title,
         body,
         topicIds: selectedTopics,
+        mediaPaths,
+        communityId: communityId ?? undefined,
       });
-    }, 800);
+    }, 1000);
     return () => clearTimeout(t);
-  }, [user?.id, title, body, selectedTopics]);
+  }, [title, body, selectedTopics, mediaPaths, communityId, user?.id]);
 
   const toggleTopic = (id: string) => {
     AppHaptics.selection();
@@ -204,6 +266,7 @@ export default function NewQuestionModal() {
   });
 
   const handleSubmit = () => {
+    if (createMutation.isPending) return;
     if (communityId) {
       if (isCommunityLoading) return;
       if (isCommunityError || !targetCommunity) {
@@ -228,12 +291,11 @@ export default function NewQuestionModal() {
       {/* Top Header */}
       <View className="flex-row items-center justify-between px-5 py-3.5 border-b border-surface-container-high/80">
         <TouchableOpacity
-          onPress={() => {
-            AppHaptics.light();
-            if (router.canGoBack()) router.back();
-            else router.replace("/(tabs)" as any);
-          }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          onPress={handleClose}
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <X size={20} color="#F8FAFC" />
         </TouchableOpacity>
@@ -244,7 +306,7 @@ export default function NewQuestionModal() {
           variant="primary"
           size="sm"
           loading={createMutation.isPending}
-          disabled={Boolean(communityId && isCommunityLoading)}
+          disabled={Boolean(communityId && isCommunityLoading) || createMutation.isPending}
           onPress={handleSubmit}
           className="px-5 py-2"
         >
@@ -277,10 +339,10 @@ export default function NewQuestionModal() {
         )}
 
         <Typography variant="headline-lg" className="text-on-surface mb-1 font-bold text-2xl">
-          Frame Your Inquiry
+          What is your question?
         </Typography>
         <Typography variant="body-md" className="text-on-surface-variant mb-6 leading-relaxed">
-          Frame your question clearly to get the best answers from our global academic community.
+          Provide details and context so other students can help you.
         </Typography>
 
         {/* Title Input */}
@@ -292,9 +354,64 @@ export default function NewQuestionModal() {
           maxLength={200}
         />
 
+        {/* Pre-ask similarity suggestions */}
+        {similarQuestions.length > 0 && (
+          <View className="mb-6 p-4 rounded-2xl bg-surface-container-high/90 border border-primary/40 shadow-sm">
+            <View className="flex-row items-center justify-between mb-2">
+              <View className="flex-row items-center space-x-2">
+                <Sparkles size={16} color="#818CF8" />
+                <Typography variant="label-md" className="text-on-surface font-bold">
+                  Similar questions already asked
+                </Typography>
+              </View>
+              <Typography variant="label-sm" className="text-primary font-semibold normal-case">
+                Instant help
+              </Typography>
+            </View>
+            <Typography variant="body-sm" className="text-on-surface-variant mb-3 leading-relaxed">
+              Check if your question has already been answered before posting:
+            </Typography>
+            <View className="space-y-2">
+              {similarQuestions.map((sq) => {
+                const hasSolution = sq.status === "solved";
+                return (
+                  <TouchableOpacity
+                    key={sq.id}
+                    accessibilityRole="button"
+                    accessibilityLabel={`View similar question: ${sq.title}`}
+                    onPress={() => {
+                      AppHaptics.light();
+                      Analytics.track("duplicate_suggestion_clicked", { question_id: sq.id });
+                      router.push(`/question/${sq.id}` as any);
+                    }}
+                    className="p-3 rounded-xl bg-surface-container border border-outline-variant/60 active:bg-surface-container-low flex-row items-center justify-between"
+                  >
+                    <View className="flex-1 mr-2">
+                      <Typography variant="label-sm" className="text-on-surface font-semibold" numberOfLines={1}>
+                        {sq.title}
+                      </Typography>
+                      <Typography variant="label-sm" className="text-on-surface-variant/70 normal-case">
+                        {sq.answer_count} {sq.answer_count === 1 ? "answer" : "answers"}
+                      </Typography>
+                    </View>
+                    {hasSolution && (
+                      <View className="flex-row items-center space-x-1 px-2 py-1 rounded-md bg-tertiary-container/40 border border-tertiary/40">
+                        <CheckCircle2 size={12} color="#34D399" />
+                        <Typography variant="label-sm" className="text-tertiary font-bold text-[11px] normal-case">
+                          Solved
+                        </Typography>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
         {/* Topic Category Chips */}
         <Typography variant="label-md" className="text-on-surface font-bold mb-2.5">
-          Select Academic Topics
+          Select Topics
         </Typography>
         <View className="flex-row flex-wrap gap-2.5 mb-6">
           {availableTopics.map((topic: any) => {
@@ -302,8 +419,11 @@ export default function NewQuestionModal() {
             return (
               <TouchableOpacity
                 key={topic.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Topic: ${topic.name}`}
+                accessibilityState={{ selected: isSelected }}
                 onPress={() => toggleTopic(topic.id)}
-                className={`flex-row items-center px-4 py-2 rounded-full border ${
+                className={`flex-row items-center px-4 py-2 min-h-[44px] rounded-full border web:cursor-pointer select-none active:scale-95 transition-transform ${
                   isSelected
                     ? "bg-primary-container/60 border-primary shadow-sm shadow-primary/20"
                     : "bg-surface-container border-outline-variant/60 active:bg-surface-container-high"
@@ -338,23 +458,60 @@ export default function NewQuestionModal() {
 
           <View className="bg-surface-container rounded-2xl border border-outline-variant/60 overflow-hidden shadow-sm">
             {/* Formatting Toolbar */}
-            <View className="bg-surface-container-high flex-row items-center space-x-4 px-4 py-2.5 border-b border-outline-variant/40">
-              <TouchableOpacity onPress={() => setBody((prev) => prev + " **bold** ")} className="p-1">
+            <View className="bg-surface-container-high flex-row items-center gap-1.5 px-3 py-2 border-b border-outline-variant/40">
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Format bold"
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                onPress={() => setBody((prev) => prev + " **bold** ")}
+                className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+              >
                 <Bold size={16} color="#818CF8" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setBody((prev) => prev + " *italic* ")} className="p-1">
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Format italic"
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                onPress={() => setBody((prev) => prev + " *italic* ")}
+                className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+              >
                 <Italic size={16} color="#818CF8" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setBody((prev) => prev + " `code` ")} className="p-1">
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Insert code snippet"
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                onPress={() => setBody((prev) => prev + " `code` ")}
+                className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+              >
                 <Code size={16} color="#818CF8" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setBody((prev) => prev + "\n- ")} className="p-1">
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Insert bullet list"
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                onPress={() => setBody((prev) => prev + "\n- ")}
+                className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+              >
                 <List size={16} color="#818CF8" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setBody((prev) => prev + " [link](url) ")} className="p-1">
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Insert link"
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                onPress={() => setBody((prev) => prev + " [link](url) ")}
+                className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+              >
                 <Link2 size={16} color="#818CF8" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleAttachImage} disabled={uploadingImage} className="p-1">
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Attach image"
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                onPress={handleAttachImage}
+                disabled={uploadingImage}
+                className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+              >
                 <ImageIcon size={16} color={uploadingImage ? "#64748B" : "#818CF8"} />
               </TouchableOpacity>
             </View>
@@ -420,7 +577,7 @@ export default function NewQuestionModal() {
             </Typography>
           </View>
           <Typography variant="body-sm" className="text-on-surface-variant leading-relaxed">
-            Your question will be routed to verified alumni, scholars, and research mentors in your selected academic fields.
+            Your question will be visible to students, alumni, and peers in these topics.
           </Typography>
         </Card>
       </ScrollView>

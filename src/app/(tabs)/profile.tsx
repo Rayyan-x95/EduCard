@@ -8,12 +8,18 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ContributorBadge } from "@/components/domain/ContributorBadge";
 import { useAuthStore } from "@/stores/authStore";
 import { AuthService } from "@/services/auth";
-import { QuestionsService } from "@/services/questions";
+import { QuestionsService, QuestionListItem } from "@/services/questions";
+import { PostsService, PostListItem } from "@/services/posts";
+import { SafetyService } from "@/services/safety";
+import { queryKeys, CACHE_TTL } from "@/lib/query-client";
 import { normalizeError } from "@/lib/errors";
 import { AppHaptics } from "@/lib/haptics";
+import { ShareService } from "@/lib/sharing";
+import { getBadgesForProfile } from "@/lib/reputation-badges";
 import {
   Award,
   BookOpen,
@@ -23,19 +29,41 @@ import {
   Bookmark,
   Edit3,
   Settings,
-  Sparkles,
   MessageSquare,
+  PenSquare,
+  ChevronRight,
+  Sparkles,
+  Share2,
 } from "lucide-react-native";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { profile, reset } = useAuthStore();
+  const profile = useAuthStore((s) => s.profile);
+  const reset = useAuthStore((s) => s.reset);
+  const [activeTab, setActiveTab] = React.useState<"questions" | "posts">("questions");
 
-  // My recent questions — surfaces the scholar's own contributions on their profile.
+  const badges = profile ? getBadgesForProfile(profile) : [];
+
+  // My recent questions — surfaces the user's own contributions on their profile.
   const { data: myQuestions = [] } = useQuery({
-    queryKey: ["my-questions", profile?.id],
+    queryKey: queryKeys.myQuestions(profile?.id),
     queryFn: () => QuestionsService.listUserQuestions(profile!.id, 10),
     enabled: Boolean(profile?.id),
+  });
+
+  // My recent discussion posts
+  const { data: myPosts = [] } = useQuery({
+    queryKey: queryKeys.userPosts(profile?.id),
+    queryFn: () => PostsService.listUserPosts(profile!.id, 10),
+    enabled: Boolean(profile?.id),
+  });
+
+  const { data: isModerator = false } = useQuery({
+    queryKey: queryKeys.isModerator(),
+    queryFn: () => SafetyService.amIModerator(),
+    enabled: Boolean(profile?.id),
+    // Moderator role changes only on admin promotion — safe to cache for 30 min
+    staleTime: CACHE_TTL.MODERATOR_ROLE,
   });
 
   const handleSignOut = () => {
@@ -64,207 +92,368 @@ export default function ProfileScreen() {
       <View className="flex-1 w-full max-w-2xl mx-auto">
         {/* Top Header */}
         <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-surface-container-high/80">
-        <Typography variant="headline-md" className="text-on-surface font-bold">
-          Scholar Profile
-        </Typography>
-
-        <View className="flex-row items-center space-x-2">
-          <TouchableOpacity
-            onPress={() => {
-              AppHaptics.light();
-              router.push("/bookmarks" as any);
-            }}
-            className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
-          >
-            <Bookmark size={18} color="#818CF8" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              AppHaptics.light();
-              router.push("/settings/privacy" as any);
-            }}
-            className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
-          >
-            <Settings size={18} color="#94A3B8" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <ScrollView className="flex-1 px-5 py-5" contentContainerStyle={{ paddingBottom: 32 }}>
-        {/* Scholar Identity Card (Apple ID Card Style) */}
-        <Card className="mb-5 p-6 items-center border border-white/[0.08] shadow-lg shadow-black/30">
-          <Avatar
-            name={profile?.display_name || "Scholar"}
-            uri={profile?.avatar_path}
-            size="xl"
-            role={profile?.current_status || "undergraduate"}
-            isVerified={profile?.is_verified}
-            className="mb-4 shadow-md"
-          />
-          <Typography variant="headline-md" className="text-on-surface text-center font-bold">
-            {profile?.display_name || "Academic Scholar"}
-          </Typography>
-          <Typography variant="label-md" className="text-primary font-bold mb-3">
-            @{profile?.username || "scholar"}
+          <Typography variant="headline-md" className="text-on-surface font-bold">
+            Profile
           </Typography>
 
-          <ContributorBadge
-            status={profile?.current_status || "undergraduate"}
-            isVerified={profile?.is_verified}
-            className="mb-4"
-          />
-
-          <TouchableOpacity
-            onPress={() => {
-              AppHaptics.light();
-              router.push("/settings/edit-profile" as any);
-            }}
-            className="flex-row items-center space-x-1.5 px-4 py-2 rounded-xl bg-surface-container-high border border-outline-variant/60 active:bg-surface-container-highest"
-          >
-            <Edit3 size={14} color="#818CF8" />
-            <Typography variant="label-md" className="text-primary font-bold normal-case">
-              Edit Scholar Profile
-            </Typography>
-          </TouchableOpacity>
-        </Card>
-
-        {/* Bento Stats Grid */}
-        <View className="flex-row space-x-3 mb-5">
-          {/* Reputation Tile */}
-          <Card className="flex-1 p-4 mb-0 items-center justify-center border border-outline-variant/60">
-            <View className="w-10 h-10 rounded-xl bg-amber-container/40 border border-amber/40 items-center justify-center mb-2 shadow-sm shadow-amber/20">
-              <Award size={20} color="#FBBF24" />
-            </View>
-            <Typography variant="headline-md" className="text-on-surface font-extrabold">
-              {profile?.reputation_score || 0}
-            </Typography>
-            <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold normal-case">
-              Reputation
-            </Typography>
-          </Card>
-
-          {/* Institutional Trust Tile */}
-          <Card className="flex-1 p-4 mb-0 items-center justify-center border border-outline-variant/60">
-            <View className="w-10 h-10 rounded-xl bg-tertiary-container/40 border border-tertiary/40 items-center justify-center mb-2 shadow-sm shadow-tertiary/20">
-              <ShieldCheck size={20} color="#34D399" />
-            </View>
-            <Typography variant="headline-md" className="text-tertiary font-extrabold">
-              {profile?.is_verified ? "Verified" : "Active"}
-            </Typography>
-            <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold normal-case">
-              Scholar Status
-            </Typography>
-          </Card>
-
-          {/* Answers Contributed Tile */}
-          <Card className="flex-1 p-4 mb-0 items-center justify-center border border-outline-variant/60">
-            <View className="w-10 h-10 rounded-xl bg-primary-container/40 border border-primary/40 items-center justify-center mb-2 shadow-sm shadow-primary/20">
-              <MessageSquare size={20} color="#818CF8" />
-            </View>
-            <Typography variant="headline-md" className="text-primary font-extrabold">
-              {profile?.total_answers || 0}
-            </Typography>
-            <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold normal-case">
-              Answers
-            </Typography>
-          </Card>
-        </View>
-
-        {/* Academic Credentials Section */}
-        <View className="mb-6">
-          <View className="flex-row items-center space-x-2 mb-3">
-            <Sparkles size={16} color="#818CF8" />
-            <Typography variant="label-lg" className="text-on-surface font-bold">
-              Academic Background
-            </Typography>
-          </View>
-
-          {profile?.bio && (
-            <Card className="mb-3.5 p-4 bg-surface-container border border-outline-variant/60">
-              <Typography variant="body-md" className="text-on-surface leading-relaxed">
-                {profile.bio}
-              </Typography>
-            </Card>
-          )}
-
-          {profile?.education && profile.education.length > 0 ? (
-            profile.education.map((edu: any, idx: number) => (
-              <Card key={edu.id || idx} className="p-4 mb-3 space-y-2 border border-outline-variant/60">
-                <View className="flex-row items-center space-x-3">
-                  <View className="p-2 rounded-lg bg-primary-container/40 border border-primary/30">
-                    <School size={16} color="#818CF8" />
-                  </View>
-                  <Typography variant="label-lg" className="text-on-surface font-bold flex-1">
-                    {edu.institution_name}
-                  </Typography>
-                </View>
-                <View className="flex-row items-center space-x-3 pl-1">
-                  <BookOpen size={15} color="#94A3B8" />
-                  <Typography variant="body-sm" className="text-on-surface-variant flex-1">
-                    {edu.degree} in {edu.field} ({edu.start_year}{edu.end_year ? ` – ${edu.end_year}` : " – Present"})
-                  </Typography>
-                </View>
-              </Card>
-            ))
-          ) : (
-            <Card className="p-4 space-y-2 border border-outline-variant/60">
-              <View className="flex-row items-center space-x-3">
-                <School size={18} color="#818CF8" />
-                <Typography variant="body-md" className="text-on-surface-variant italic">
-                  Academic details completed in onboarding
-                </Typography>
-              </View>
-            </Card>
-          )}
-        </View>
-
-        {/* My Recent Questions */}
-        {myQuestions.length > 0 && (
-          <View className="mb-6">
-            <View className="flex-row items-center space-x-2 mb-3">
-              <Sparkles size={16} color="#818CF8" />
-              <Typography variant="label-lg" className="text-on-surface font-bold">
-                My Recent Inquiries
-              </Typography>
-            </View>
-            {myQuestions.map((q: any) => (
-              <Card
-                key={q.id}
-                className="p-4 mb-3 border border-outline-variant/60"
+          <View className="flex-row items-center space-x-2">
+            {isModerator && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Moderation Dashboard"
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                 onPress={() => {
                   AppHaptics.light();
-                  router.push(`/question/${q.id}` as any);
+                  router.push("/moderation" as any);
                 }}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-secondary/40 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
               >
-                <View className="flex-row items-start justify-between mb-2">
-                  <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
-                  <View className="flex-row items-center space-x-1">
-                    <MessageSquare size={12} color="#94A3B8" />
-                    <Typography variant="label-sm" className="text-on-surface-variant/70">
-                      {q.answer_count ?? 0}
+                <ShieldCheck size={18} color="#C084FC" />
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Saved Bookmarks"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => {
+                AppHaptics.light();
+                router.push("/bookmarks" as any);
+              }}
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+            >
+              <Bookmark size={18} color="#818CF8" />
+            </TouchableOpacity>
+
+            {profile?.username && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Share Profile"
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                onPress={() => {
+                  AppHaptics.light();
+                  ShareService.shareProfile(profile.username!, profile.display_name);
+                }}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+              >
+                <Share2 size={18} color="#818CF8" />
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Settings and Privacy"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => {
+                AppHaptics.light();
+                router.push("/settings/privacy" as any);
+              }}
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+            >
+              <Settings size={18} color="#94A3B8" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <ScrollView className="flex-1 px-5 py-5" contentContainerStyle={{ paddingBottom: 32 }}>
+          {/* Identity Card */}
+          <Card className="mb-5 p-6 items-center border border-white/[0.08] shadow-lg shadow-black/30">
+            <Avatar
+              name={profile?.display_name || "User"}
+              uri={profile?.avatar_path}
+              size="xl"
+              role={profile?.current_status || "undergraduate"}
+              isVerified={profile?.is_verified}
+              className="mb-4 shadow-md"
+            />
+            <Typography variant="headline-md" className="text-on-surface text-center font-bold">
+              {profile?.display_name || "User"}
+            </Typography>
+            <Typography variant="label-md" className="text-primary font-bold mb-3">
+              @{profile?.username || "user"}
+            </Typography>
+
+            <ContributorBadge
+              status={profile?.current_status || "undergraduate"}
+              isVerified={profile?.is_verified}
+              className="mb-4"
+            />
+
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Edit Profile"
+              onPress={() => {
+                AppHaptics.light();
+                router.push("/settings/edit-profile" as any);
+              }}
+              className="flex-row items-center space-x-1.5 px-4 py-2 rounded-xl bg-surface-container-high border border-outline-variant/60 active:bg-surface-container-highest"
+            >
+              <Edit3 size={14} color="#818CF8" />
+              <Typography variant="label-md" className="text-primary font-bold">
+                Edit Profile
+              </Typography>
+            </TouchableOpacity>
+          </Card>
+
+          {/* Moderator Access Tile */}
+          {isModerator && (
+            <Card
+              className="p-4 mb-5 border border-secondary/40 bg-secondary-container/10"
+              onPress={() => {
+                AppHaptics.light();
+                router.push("/moderation" as any);
+              }}
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center space-x-3">
+                  <View className="p-2 rounded-lg bg-secondary-container/40 border border-secondary/30">
+                    <ShieldCheck size={18} color="#C084FC" />
+                  </View>
+                  <View>
+                    <Typography variant="label-lg" className="text-secondary font-bold">
+                      Moderation Dashboard
+                    </Typography>
+                    <Typography variant="body-sm" className="text-on-surface-variant/70">
+                      Review flagged questions and moderation queue
                     </Typography>
                   </View>
                 </View>
-                <Typography variant="label-md" className="text-on-surface font-bold mb-1" numberOfLines={2}>
-                  {q.title}
+                <ChevronRight size={18} color="#C084FC" />
+              </View>
+            </Card>
+          )}
+
+          {/* Bento Stats Grid */}
+          <View className="flex-row space-x-3 mb-5">
+            {/* Reputation Tile */}
+            <Card className="flex-1 p-4 mb-0 items-center justify-center border border-outline-variant/60">
+              <View className="w-10 h-10 rounded-xl bg-amber-container/40 border border-amber/40 items-center justify-center mb-2 shadow-sm shadow-amber/20">
+                <Award size={20} color="#FBBF24" />
+              </View>
+              <Typography variant="headline-md" className="text-on-surface font-extrabold">
+                {profile?.reputation_score || 0}
+              </Typography>
+              <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold">
+                Reputation
+              </Typography>
+            </Card>
+
+            {/* Institutional Trust Tile */}
+            <Card className="flex-1 p-4 mb-0 items-center justify-center border border-outline-variant/60">
+              <View className="w-10 h-10 rounded-xl bg-tertiary-container/40 border border-tertiary/40 items-center justify-center mb-2 shadow-sm shadow-tertiary/20">
+                <ShieldCheck size={20} color="#34D399" />
+              </View>
+              <Typography variant="headline-md" className="text-tertiary font-extrabold">
+                {profile?.is_verified ? "Verified" : "Active"}
+              </Typography>
+              <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold">
+                Status
+              </Typography>
+            </Card>
+
+            {/* Answers Contributed Tile */}
+            <Card className="flex-1 p-4 mb-0 items-center justify-center border border-outline-variant/60">
+              <View className="w-10 h-10 rounded-xl bg-primary-container/40 border border-primary/30 items-center justify-center mb-2 shadow-sm shadow-primary/20">
+                <MessageSquare size={20} color="#818CF8" />
+              </View>
+              <Typography variant="headline-md" className="text-primary font-extrabold">
+                {profile?.total_answers || 0}
+              </Typography>
+              <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold">
+                Answers
+              </Typography>
+            </Card>
+          </View>
+
+          {/* Academic Credentials & Badges (Reputation 2.0) */}
+          {badges.length > 0 && (
+            <View className="mb-6">
+              <View className="flex-row items-center space-x-2 mb-3">
+                <Sparkles size={16} color="#818CF8" />
+                <Typography variant="label-lg" className="text-on-surface font-bold">
+                  Academic Credentials
+                </Typography>
+              </View>
+              <View className="flex-row flex-wrap gap-2.5">
+                {badges.map((b) => (
+                  <View
+                    key={b.id}
+                    className="flex-row items-center space-x-2.5 px-3.5 py-2.5 rounded-xl bg-surface-container border border-outline-variant/60"
+                  >
+                    <Award
+                      size={16}
+                      color={
+                        b.variant === "tertiary"
+                          ? "#34D399"
+                          : b.variant === "accent"
+                          ? "#F59E0B"
+                          : "#818CF8"
+                      }
+                    />
+                    <View>
+                      <Typography variant="label-sm" className="text-on-surface font-bold">
+                        {b.name}
+                      </Typography>
+                      <Typography
+                        variant="label-sm"
+                        className="text-on-surface-variant/70 text-[11px] normal-case"
+                        numberOfLines={1}
+                      >
+                        {b.description}
+                      </Typography>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Academic Background Section */}
+          <View className="mb-6">
+            <View className="flex-row items-center space-x-2 mb-3">
+              <School size={16} color="#818CF8" />
+              <Typography variant="label-lg" className="text-on-surface font-bold">
+                Academic Background
+              </Typography>
+            </View>
+
+            {profile?.bio && (
+              <Card className="mb-3.5 p-4 bg-surface-container border border-outline-variant/60">
+                <Typography variant="body-md" className="text-on-surface leading-relaxed">
+                  {profile.bio}
                 </Typography>
               </Card>
-            ))}
-          </View>
-        )}
+            )}
 
-        {/* Sign Out Button */}
-        <Button
-          variant="danger"
-          size="md"
-          leftIcon={<LogOut size={16} color="#F87171" />}
-          onPress={handleSignOut}
-          className="w-full mb-6"
-        >
-          Sign Out of Account
-        </Button>
-      </ScrollView>
+            {profile?.education && profile.education.length > 0 ? (
+              profile.education.map((edu, idx) => (
+                <Card key={edu.id || idx} className="p-4 mb-3 space-y-2 border border-outline-variant/60">
+                  <View className="flex-row items-center space-x-3">
+                    <View className="p-2 rounded-lg bg-primary-container/40 border border-primary/30">
+                      <School size={16} color="#818CF8" />
+                    </View>
+                    <Typography variant="label-lg" className="text-on-surface font-bold flex-1">
+                      {edu.institution_name}
+                    </Typography>
+                  </View>
+                  <View className="flex-row items-center space-x-3 pl-1">
+                    <BookOpen size={15} color="#94A3B8" />
+                    <Typography variant="body-sm" className="text-on-surface-variant flex-1">
+                      {edu.degree} in {edu.field} ({edu.start_year}{edu.end_year ? ` – ${edu.end_year}` : " – Present"})
+                    </Typography>
+                  </View>
+                </Card>
+              ))
+            ) : (
+              <Card className="p-4 space-y-2 border border-outline-variant/60">
+                <View className="flex-row items-center space-x-3">
+                  <School size={18} color="#818CF8" />
+                  <Typography variant="body-md" className="text-on-surface-variant italic">
+                    No academic records listed. You can update your educational background in Edit Profile.
+                  </Typography>
+                </View>
+              </Card>
+            )}
+          </View>
+
+          {/* Contribution History — Questions & Discussions */}
+          <View className="mb-6">
+            <View className="mb-3">
+              <SegmentedControl
+                options={[
+                  { label: `Questions (${myQuestions.length})`, value: "questions" },
+                  { label: `Posts (${myPosts.length})`, value: "posts" },
+                ]}
+                value={activeTab}
+                onChange={(val) => setActiveTab(val as "questions" | "posts")}
+              />
+            </View>
+
+            {activeTab === "questions" ? (
+              myQuestions.length > 0 ? (
+                myQuestions.map((q: QuestionListItem) => (
+                  <Card
+                    key={q.id}
+                    className="p-4 mb-3 border border-outline-variant/60"
+                    onPress={() => {
+                      AppHaptics.light();
+                      router.push(`/question/${q.id}` as any);
+                    }}
+                  >
+                    <View className="flex-row items-start justify-between mb-2">
+                      <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
+                      <View className="flex-row items-center space-x-1">
+                        <MessageSquare size={12} color="#94A3B8" />
+                        <Typography variant="label-sm" className="text-on-surface-variant/70">
+                          {q.answer_count ?? 0}
+                        </Typography>
+                      </View>
+                    </View>
+                    <Typography variant="label-md" className="text-on-surface font-bold mb-1" numberOfLines={2}>
+                      {q.title}
+                    </Typography>
+                  </Card>
+                ))
+              ) : (
+                <Card className="p-5 items-center border border-outline-variant/60">
+                  <MessageSquare size={20} color="#94A3B8" className="mb-1.5" />
+                  <Typography variant="body-sm" className="text-on-surface-variant text-center">
+                    No questions asked yet.
+                  </Typography>
+                </Card>
+              )
+            ) : (
+              myPosts.length > 0 ? (
+                myPosts.map((p: PostListItem) => (
+                  <Card
+                    key={p.id}
+                    className="p-4 mb-3 border border-outline-variant/60"
+                    onPress={() => {
+                      AppHaptics.light();
+                      router.push(`/post/${p.id}` as any);
+                    }}
+                  >
+                    <View className="flex-row items-start justify-between mb-2">
+                      <Badge variant="category" label="Discussion" />
+                      <View className="flex-row items-center space-x-3">
+                        <Typography variant="label-sm" className="text-on-surface-variant/70">
+                          {p.helpful_count ?? 0} helpful
+                        </Typography>
+                        <View className="flex-row items-center space-x-1">
+                          <MessageSquare size={12} color="#94A3B8" />
+                          <Typography variant="label-sm" className="text-on-surface-variant/70">
+                            {p.comment_count ?? 0}
+                          </Typography>
+                        </View>
+                      </View>
+                    </View>
+                    <Typography variant="body-md" className="text-on-surface leading-relaxed mb-1" numberOfLines={3}>
+                      {p.body}
+                    </Typography>
+                  </Card>
+                ))
+              ) : (
+                <Card className="p-5 items-center border border-outline-variant/60">
+                  <PenSquare size={20} color="#94A3B8" className="mb-1.5" />
+                  <Typography variant="body-sm" className="text-on-surface-variant text-center">
+                    No discussion posts shared yet.
+                  </Typography>
+                </Card>
+              )
+            )}
+          </View>
+
+          {/* Sign Out Button */}
+          <Button
+            variant="danger"
+            size="md"
+            leftIcon={<LogOut size={16} color="#F87171" />}
+            onPress={handleSignOut}
+            className="w-full mb-6"
+          >
+            Sign Out of Account
+          </Button>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );

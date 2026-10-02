@@ -5,44 +5,66 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Typography } from "@/components/ui/Typography";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { FlashList } from "@shopify/flash-list";
-import { Bell, Compass, CheckCircle2, MessageSquare, CheckCheck, UserPlus } from "lucide-react-native";
+import { Bell, CheckCircle2, MessageSquare, CheckCheck, UserPlus, ThumbsUp } from "lucide-react-native";
 import {
   NotificationsService,
-  NotificationRecord,
+  GroupedNotification,
+  groupNotifications,
   NOTIFICATION_TYPES,
 } from "@/services/notifications";
 import { useAuthStore } from "@/stores/authStore";
 import { queryKeys } from "@/lib/query-client";
 import { AppHaptics } from "@/lib/haptics";
+import { formatDate } from "@/lib/date";
 
-function describe(item: NotificationRecord, actorName: string) {
+function describe(item: GroupedNotification) {
+  const count = item.count;
+  const firstActor = item.actors[0]?.display_name || "Someone";
+  const othersCount = count - 1;
+  const actorText =
+    othersCount > 0
+      ? `${firstActor} and ${othersCount === 1 ? "1 other" : `${othersCount} others`}`
+      : firstActor;
+
   switch (item.type) {
     case NOTIFICATION_TYPES.ANSWER_ACCEPTED:
       return {
         title: "Solution Accepted",
-        body: `${actorName} marked your answer as the accepted solution (+15 Rep).`,
+        body: `${firstActor} marked your answer as the accepted solution (+15 Rep).`,
         tone: "accepted" as const,
       };
     case NOTIFICATION_TYPES.ANSWER_CREATED:
       return {
-        title: "New Scholarly Answer",
-        body: `${actorName} contributed an answer to your inquiry.`,
+        title: count > 1 ? "New Answers" : "New Answer",
+        body: `${actorText} answered your question.`,
         tone: "answer" as const,
       };
     case NOTIFICATION_TYPES.FOLLOW:
       return {
-        title: "New Follower",
-        body: `${actorName} is now following your work.`,
+        title: count > 1 ? "New Followers" : "New Follower",
+        body: `${actorText} started following you.`,
         tone: "follow" as const,
+      };
+    case "helpful_voted":
+      return {
+        title: "Reputation Boost",
+        body: `${actorText} marked your answer as helpful (+${count * 5} Rep).`,
+        tone: "helpful" as const,
+      };
+    case "comment_created":
+      return {
+        title: count > 1 ? "New Comments" : "New Comment",
+        body: `${actorText} commented on your post.`,
+        tone: "comment" as const,
       };
     default:
       return {
-        title: "Academic Update",
-        body: "You have a new update.",
+        title: count > 1 ? "Notifications" : "Notification",
+        body: count > 1 ? `You have ${count} new updates.` : "You have a new update.",
         tone: "generic" as const,
       };
   }
@@ -51,7 +73,7 @@ function describe(item: NotificationRecord, actorName: string) {
 export default function NotificationsScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
 
   // NOTE: realtime updates are handled by the ROOT-level
   // useRealtimeNotifications subscription (src/app/_layout.tsx). Subscribing
@@ -77,24 +99,31 @@ export default function NotificationsScreen() {
   });
 
   const notifications = React.useMemo(
-    () => data?.pages.flat() ?? [],
+    () => groupNotifications(data?.pages.flat() ?? []),
     [data]
   );
 
   const markAllMutation = useMutation({
-    mutationFn: () => NotificationsService.markAllAsRead(user!.id!),
+    mutationFn: () => {
+      if (!user?.id) {
+        throw Object.assign(new Error("Authentication required"), { code: "APP_ERROR" });
+      }
+      return NotificationsService.markAllAsRead(user.id);
+    },
     onSuccess: () => {
       AppHaptics.success();
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.unreadNotificationsCount() });
     },
   });
 
-  const handleNotificationPress = async (item: NotificationRecord) => {
+  const handleNotificationPress = async (item: GroupedNotification) => {
     AppHaptics.light();
-    if (!item.read_at && item.id) {
+    if (!item.read_at && item.ids.length > 0) {
       try {
-        await NotificationsService.markAsRead(item.id);
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        await NotificationsService.markMultipleAsRead(item.ids);
+        queryClient.invalidateQueries({ queryKey: queryKeys.notifications() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.unreadNotificationsCount() });
       } catch {
         // Read-state sync is best-effort; navigation still proceeds.
       }
@@ -102,16 +131,17 @@ export default function NotificationsScreen() {
 
     if (item.entity_type === "question") {
       router.push(`/question/${item.entity_id}` as any);
+    } else if (item.entity_type === "post") {
+      router.push(`/post/${item.entity_id}` as any);
+    } else if (item.entity_type === "community") {
+      router.push(`/community/${item.entity_id}` as any);
     } else if (item.entity_type === "profile") {
       // Follow notifications carry the actor's profile id as entity_id.
       router.push(`/user/${item.entity_id}` as any);
     }
   };
 
-  // Server-computed count (keyed under ["notifications", …] so every
-  // invalidateQueries({ queryKey: ["notifications"] }) — realtime inserts,
-  // mark-as-read, mark-all — also refreshes it). The old client-side
-  // filter only saw loaded pages and undercounted beyond page one.
+  // Server-computed count
   const { data: unreadCount = 0 } = useQuery({
     queryKey: queryKeys.unreadNotificationsCount(),
     queryFn: () => NotificationsService.getUnreadCount(),
@@ -128,7 +158,7 @@ export default function NotificationsScreen() {
             Alerts
           </Typography>
           <Typography variant="body-sm" className="text-on-surface-variant/80">
-            Academic alerts and verified solutions
+            Answers, replies, and activity updates
           </Typography>
         </View>
 
@@ -136,11 +166,12 @@ export default function NotificationsScreen() {
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel={`Mark ${unreadCount} notifications as read`}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             onPress={() => markAllMutation.mutate()}
-            className="flex-row items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-surface-container border border-outline-variant/60 active:bg-surface-container-high"
+            className="flex-row items-center space-x-1.5 px-3.5 py-2.5 min-h-[44px] rounded-xl bg-surface-container border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
           >
             <CheckCheck size={15} color="#818CF8" />
-            <Typography variant="label-sm" className="text-primary font-bold normal-case">
+            <Typography variant="label-sm" className="text-primary font-bold">
               Mark all read
             </Typography>
           </TouchableOpacity>
@@ -148,12 +179,19 @@ export default function NotificationsScreen() {
       </View>
 
       {isError ? (
-        <ErrorState
-          title="Couldn't load alerts"
-          message="Please check your connection and try again."
-          errorCode="NOTIFICATIONS_LOAD_FAILED"
-          onRetry={() => refetch()}
-        />
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: 20 }}
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#818CF8" />
+          }
+        >
+          <ErrorState
+            title="Couldn't load alerts"
+            message="Please check your connection and pull down or tap retry."
+            errorCode="NOTIFICATIONS_LOAD_FAILED"
+            onRetry={refetch}
+          />
+        </ScrollView>
       ) : isLoading ? (
         <View className="p-5 space-y-3.5">
           <Skeleton height={80} className="w-full rounded-2xl bg-surface-container" />
@@ -161,10 +199,9 @@ export default function NotificationsScreen() {
           <Skeleton height={80} className="w-full rounded-2xl bg-surface-container" />
         </View>
       ) : notifications.length > 0 ? (
-        <FlashList<NotificationRecord>
+        <FlashList<GroupedNotification>
           data={notifications}
           keyExtractor={(item) => item.id}
-
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24 }}
           onEndReachedThreshold={0.4}
           onEndReached={() => {
@@ -174,8 +211,7 @@ export default function NotificationsScreen() {
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#818CF8" />
           }
           renderItem={({ item }) => {
-            const actorName = item.actor?.display_name || "A scholar";
-            const { title, body, tone } = describe(item, actorName);
+            const { title, body, tone } = describe(item);
             const isUnread = !item.read_at;
 
             return (
@@ -201,6 +237,8 @@ export default function NotificationsScreen() {
                           ? "bg-tertiary-container/50 border border-tertiary/50"
                           : tone === "follow"
                           ? "bg-secondary-container/40 border border-secondary/50"
+                          : tone === "helpful"
+                          ? "bg-secondary-container/30 border border-secondary/40"
                           : "bg-primary-container/50 border border-primary/50"
                       }`}
                     >
@@ -208,6 +246,8 @@ export default function NotificationsScreen() {
                         <CheckCircle2 size={18} color="#34D399" />
                       ) : tone === "follow" ? (
                         <UserPlus size={16} color="#C084FC" />
+                      ) : tone === "helpful" ? (
+                        <ThumbsUp size={16} color="#C084FC" />
                       ) : (
                         <MessageSquare size={16} color="#818CF8" />
                       )}
@@ -215,14 +255,20 @@ export default function NotificationsScreen() {
 
                     <View className="flex-1">
                       <View className="flex-row items-center justify-between mb-1">
-                        <Typography variant="label-md" className="text-on-surface font-bold">
-                          {title}
-                        </Typography>
-                        <Typography variant="label-sm" className="text-on-surface-variant/60 font-medium normal-case">
-                          {new Date(item.created_at).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                          })}
+                        <View className="flex-row items-center space-x-1.5 flex-1 mr-2">
+                          <Typography variant="label-md" className="text-on-surface font-bold">
+                            {title}
+                          </Typography>
+                          {item.count > 1 && (
+                            <View className="px-1.5 py-0.5 rounded-full bg-primary/20 border border-primary/40">
+                              <Typography variant="label-sm" className="text-primary text-[10px] font-bold">
+                                ×{item.count}
+                              </Typography>
+                            </View>
+                          )}
+                        </View>
+                        <Typography variant="label-sm" className="text-on-surface-variant/60 font-medium">
+                          {formatDate(item.created_at)}
                         </Typography>
                       </View>
                       <Typography variant="body-sm" className="text-on-surface-variant/90 leading-relaxed">
@@ -240,36 +286,23 @@ export default function NotificationsScreen() {
           }}
         />
       ) : (
-        /* Empty State */
+        /* Empty State with pull-to-refresh */
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, alignItems: "center", justifyContent: "center" }}
-          className="px-6 py-12"
+          contentContainerStyle={{ flexGrow: 1, alignItems: "center", justifyContent: "center", padding: 20 }}
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#818CF8" />
           }
         >
-          <View className="w-20 h-20 rounded-2xl bg-surface-container-high border border-outline-variant/60 items-center justify-center mb-6 shadow-sm">
-            <Bell size={36} color="#818CF8" />
-          </View>
-
-          <Typography variant="headline-md" className="text-on-surface text-center mb-2 font-bold">
-            You're all caught up!
-          </Typography>
-          <Typography variant="body-md" className="text-on-surface-variant text-center max-w-xs mb-8 leading-relaxed">
-            No new alerts yet. Check back later for updates on your questions.
-          </Typography>
-
-          <Button
-            variant="primary"
-            size="lg"
-            leftIcon={<Compass size={18} color="#0F172A" />}
-            onPress={() => {
+          <EmptyState
+            icon={<Bell size={32} color="#818CF8" />}
+            title="You're all caught up!"
+            description="No new alerts yet. Check back later for updates on your questions."
+            actionLabel="Explore Spaces"
+            onAction={() => {
               AppHaptics.medium();
               router.push("/(tabs)/communities" as any);
             }}
-          >
-            Explore Spaces
-          </Button>
+          />
         </ScrollView>
       )}
       </View>

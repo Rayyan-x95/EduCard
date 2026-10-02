@@ -15,21 +15,24 @@ import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Typography } from "@/components/ui/Typography";
-import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { TextInput } from "@/components/ui/TextInput";
 import { AnswerCard, AnswerCardData } from "@/components/domain/AnswerCard";
+import { AuthorHeader } from "@/components/domain/AuthorHeader";
 import { ContributorBadge } from "@/components/domain/ContributorBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { useQuestionDetail } from "@/hooks/useQuestionDetail";
+import { useSmartBack } from "@/hooks/useSmartBack";
 import { StorageService } from "@/services/storage";
 import { PostsService, PostComment } from "@/services/posts";
 import { QuestionsService } from "@/services/questions";
 import { CommunitiesService } from "@/services/communities";
 import { useAuthStore } from "@/stores/authStore";
+import { queryKeys } from "@/lib/query-client";
+import { formatDate } from "@/lib/date";
 import { AppHaptics } from "@/lib/haptics";
 import { ShareService } from "@/lib/sharing";
 import { normalizeError } from "@/lib/errors";
@@ -38,7 +41,6 @@ import {
   CheckCircle2,
   MessageSquare,
   Send,
-  Sparkles,
   Bold,
   Italic,
   Code,
@@ -58,8 +60,10 @@ import {
 export default function QuestionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const handleBack = useSmartBack("/(tabs)");
   const queryClient = useQueryClient();
-  const { user, profile } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const profile = useAuthStore((state) => state.profile);
   const [commentText, setCommentText] = useState("");
 
   const {
@@ -89,7 +93,7 @@ export default function QuestionDetailScreen() {
     mutationFn: () => QuestionsService.deleteQuestion(id as string),
     onSuccess: () => {
       AppHaptics.success();
-      queryClient.invalidateQueries({ queryKey: ["feed"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.feed() });
       router.replace("/(tabs)" as any);
     },
     onError: (err) => {
@@ -100,7 +104,7 @@ export default function QuestionDetailScreen() {
 
   const handleDelete = () => {
     Alert.alert(
-      "Delete Inquiry",
+      "Delete Question",
       "Are you sure you want to delete this question? This action cannot be undone.",
       [
         { text: "Cancel", style: "cancel" },
@@ -113,9 +117,9 @@ export default function QuestionDetailScreen() {
     );
   };
 
-  // Question comments thread (listQuestionComments existed but was never wired up)
+  // Question comments thread (listQuestionComments wired to standardized query key)
   const { data: comments = [] } = useQuery({
-    queryKey: ["question-comments", id as string],
+    queryKey: queryKeys.questionComments(id as string),
     queryFn: () => PostsService.listQuestionComments(id as string),
     enabled: Boolean(id),
   });
@@ -125,15 +129,15 @@ export default function QuestionDetailScreen() {
     onSuccess: () => {
       AppHaptics.success();
       setCommentText("");
-      queryClient.invalidateQueries({ queryKey: ["question-comments", id as string] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.questionComments(id as string) });
     },
     onError: (err) => setError(normalizeError(err).message),
   });
 
   // Community name resolution — surfaces the Space a question belongs to.
-  const communityId = (question as any)?.community_id as string | null | undefined;
+  const communityId = question?.community_id;
   const { data: communityName } = useQuery({
-    queryKey: ["community-name", communityId],
+    queryKey: queryKeys.communityName(communityId),
     queryFn: () => CommunitiesService.getCommunityById(communityId as string),
     enabled: Boolean(communityId),
   });
@@ -141,16 +145,16 @@ export default function QuestionDetailScreen() {
   // "Students also asked" — deterministic shared-topic ranking. Fails soft
   // to [] so the rail simply disappears if the RPC is unavailable.
   const { data: relatedQuestions = [] } = useQuery({
-    queryKey: ["related-questions", id],
+    queryKey: queryKeys.relatedQuestions(id as string),
     queryFn: () => QuestionsService.getRelatedQuestions(id as string, 4),
     enabled: Boolean(id),
     staleTime: 5 * 60 * 1000,
   });
 
   // Signed URLs for private attachment images (attachments bucket is private).
-  const attachmentImagePaths = (question as any)?.image_paths as string[] | null | undefined;
+  const attachmentImagePaths = question?.image_paths;
   const { data: imageUrls = [] } = useQuery({
-    queryKey: ["question-image-urls", attachmentImagePaths],
+    queryKey: queryKeys.questionImageUrls(attachmentImagePaths),
     queryFn: () => StorageService.getSignedAttachmentUrls(attachmentImagePaths ?? []),
     enabled: Boolean(Array.isArray(attachmentImagePaths) && attachmentImagePaths.length > 0),
     staleTime: 50 * 60 * 1000,
@@ -160,7 +164,7 @@ export default function QuestionDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-surface">
         <HeaderBar
-          onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)" as any))}
+          onBack={handleBack}
           questionTitle={undefined}
           id={id}
           isBookmarked={false}
@@ -178,7 +182,7 @@ export default function QuestionDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-surface">
         <HeaderBar
-          onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)" as any))}
+          onBack={handleBack}
           questionTitle={undefined}
           id={id}
           isBookmarked={isBookmarked}
@@ -186,11 +190,11 @@ export default function QuestionDetailScreen() {
         />
         <View className="flex-1 px-5">
           <ErrorState
-            title="Couldn't load this inquiry"
+            title="Couldn't load this question"
             message="It may have been removed, or the connection dropped."
             errorCode="QUESTION_LOAD_FAILED"
             onRetry={() => qRefetch()}
-            onGoHome={() => router.replace("/(tabs)" as any)}
+            onGoHome={handleBack}
           />
         </View>
       </SafeAreaView>
@@ -204,7 +208,7 @@ export default function QuestionDetailScreen() {
         className="flex-1"
       >
         <HeaderBar
-          onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)" as any))}
+          onBack={handleBack}
           questionTitle={question.title}
           id={id}
           isBookmarked={isBookmarked}
@@ -216,7 +220,6 @@ export default function QuestionDetailScreen() {
         <FlashList<AnswerCardData>
           data={aLoading || aIsError ? [] : ((answers as AnswerCardData[]) || [])}
           keyExtractor={(item) => item.id}
-
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16 }}
           keyboardShouldPersistTaps="handled"
           refreshControl={
@@ -234,41 +237,31 @@ export default function QuestionDetailScreen() {
                   <CheckCircle2 size={20} color="#34D399" />
                   <View className="flex-1">
                     <Typography variant="label-md" className="font-bold text-tertiary">
-                      Verified Scholarly Solution
+                      Accepted Answer
                     </Typography>
                     <Typography variant="label-sm" className="text-on-surface-variant/90 normal-case">
-                      The author and community have verified the accepted solution below.
+                      The author marked this answer as accepted.
                     </Typography>
                   </View>
                 </View>
               )}
 
               {/* Question Author Context */}
-              <View className="flex-row items-center space-x-3 mb-4">
-                <Avatar
-                  name={question.profiles?.display_name || "Scholar"}
-                  uri={question.profiles?.avatar_path}
-                  size="md"
-                  role={question.profiles?.current_status || "undergraduate"}
-                  isVerified={question.profiles?.is_verified}
-                />
-                <View className="flex-1">
-                  <Typography variant="label-md" className="text-on-surface font-bold">
-                    {question.profiles?.display_name || "Scholar"}
-                  </Typography>
-                  <Typography variant="label-sm" className="text-on-surface-variant/70 font-medium normal-case mt-0.5">
-                    {new Date(question.created_at).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </Typography>
-                </View>
-
-                <ContributorBadge
-                  status={question.profiles?.current_status || "undergraduate"}
-                  isVerified={question.profiles?.is_verified}
-                />
-              </View>
+              <AuthorHeader
+                displayName={question.profiles?.display_name || "User"}
+                avatarPath={question.profiles?.avatar_path}
+                status={question.profiles?.current_status || "undergraduate"}
+                isVerified={question.profiles?.is_verified}
+                avatarSize="md"
+                subtitle={formatDate(question.created_at)}
+                rightAccessory={
+                  <ContributorBadge
+                    status={question.profiles?.current_status || "undergraduate"}
+                    isVerified={question.profiles?.is_verified}
+                  />
+                }
+                className="mb-4"
+              />
 
               {/* Question Title & Body */}
               <Typography variant="headline-lg" className="text-on-surface mb-3.5 leading-snug font-bold">
@@ -325,10 +318,9 @@ export default function QuestionDetailScreen() {
                 <View className="flex-row items-center space-x-2">
                   <MessageSquare size={18} color="#818CF8" />
                   <Typography variant="headline-sm" className="text-on-surface font-bold">
-                    {answers?.length || 0} {answers?.length === 1 ? "Scholarly Answer" : "Scholarly Answers"}
+                    {answers?.length || 0} {answers?.length === 1 ? "Answer" : "Answers"}
                   </Typography>
                 </View>
-                <Badge variant="category" label="Verified Peers" />
               </View>
 
               {aLoading && (
@@ -348,12 +340,11 @@ export default function QuestionDetailScreen() {
                 </Card>
               )}
 
-              {/* Related questions — "students also asked", ranked by
-                  shared-topic overlap. Omitted silently when empty. */}
+              {/* Related questions */}
               {relatedQuestions.length > 0 && (
                 <View className="mt-6 pt-5 border-t border-surface-container-high/80">
                   <Typography variant="label-lg" className="text-on-surface font-bold mb-3">
-                    Students also asked
+                    Related questions
                   </Typography>
                   {relatedQuestions.map((rq: any) => (
                     <TouchableOpacity
@@ -382,7 +373,7 @@ export default function QuestionDetailScreen() {
                 </View>
               )}
 
-              {/* Discussion Thread — clarifying questions & follow-ups on the inquiry itself */}
+              {/* Discussion Thread — clarifying questions & follow-ups on the question itself */}
               <View className="mt-6 pt-5 border-t border-surface-container-high/80">
                 <View className="flex-row items-center space-x-2 mb-3">
                   <MessageSquare size={16} color="#94A3B8" />
@@ -398,21 +389,19 @@ export default function QuestionDetailScreen() {
                 ) : (
                   comments.map((c: PostComment) => (
                     <Card key={c.id} className="p-3.5 mb-2.5 bg-surface-container-low border border-outline-variant/50">
-                      <View className="flex-row items-center space-x-2 mb-1.5">
-                        <Avatar
-                          name={c.author_display_name}
-                          uri={c.author_avatar_path}
-                          size="sm"
-                          role={c.author_status}
-                          isVerified={c.author_is_verified}
-                        />
-                        <Typography variant="label-sm" className="text-on-surface font-bold flex-1" numberOfLines={1}>
-                          {c.author_display_name}
-                        </Typography>
-                        <Typography variant="label-sm" className="text-on-surface-variant/60">
-                          {new Date(c.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                        </Typography>
-                      </View>
+                      <AuthorHeader
+                        displayName={c.author_display_name}
+                        avatarPath={c.author_avatar_path}
+                        status={c.author_status}
+                        isVerified={c.author_is_verified}
+                        avatarSize="sm"
+                        rightAccessory={
+                          <Typography variant="label-sm" className="text-on-surface-variant/60">
+                            {formatDate(c.created_at)}
+                          </Typography>
+                        }
+                        className="mb-1.5"
+                      />
                       <Typography variant="body-sm" className="text-on-surface leading-relaxed pl-9">
                         {c.body}
                       </Typography>
@@ -456,8 +445,14 @@ export default function QuestionDetailScreen() {
                 answer={ans}
                 isQuestionAuthor={isAuthor}
                 currentUserId={user?.id}
-                onAcceptPress={(ansId) => acceptAnswerMutation.mutate(ansId)}
-                onHelpfulPress={(ansId) => reactionMutation.mutate(ansId)}
+                onAcceptPress={(ansId) => {
+                  if (acceptAnswerMutation.isPending) return;
+                  acceptAnswerMutation.mutate(ansId);
+                }}
+                onHelpfulPress={(ansId) => {
+                  if (reactionMutation.isPending) return;
+                  reactionMutation.mutate(ansId);
+                }}
                 isAccepting={acceptAnswerMutation.isPending}
               />
             </View>
@@ -465,12 +460,12 @@ export default function QuestionDetailScreen() {
           ListEmptyComponent={
             !aLoading && !aIsError ? (
               <Card className="p-8 items-center my-4 bg-surface-container border border-outline-variant/60 shadow-md">
-                <Sparkles size={32} color="#818CF8" className="mb-2" />
+                <MessageSquare size={32} color="#818CF8" className="mb-2" />
                 <Typography variant="label-lg" className="text-on-surface text-center mb-1 font-bold">
-                  No answers recorded yet
+                  No answers yet
                 </Typography>
                 <Typography variant="body-sm" className="text-on-surface-variant text-center max-w-[280px] leading-relaxed">
-                  Share your experience or domain expertise below to guide this scholar.
+                  Be the first to answer this question.
                 </Typography>
               </Card>
             ) : null
@@ -486,32 +481,62 @@ export default function QuestionDetailScreen() {
           ) : null}
 
           {/* Mini Formatting Toolbar */}
-          <View className="flex-row items-center space-x-3.5 mb-2.5 px-1">
-            <TouchableOpacity onPress={() => setAnswerText((prev) => prev + " **bold** ")} className="p-1">
+          <View className="flex-row items-center gap-1.5 mb-2.5 px-1">
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Format bold"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => setAnswerText((prev) => prev + " **bold** ")}
+              className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+            >
               <Bold size={16} color="#94A3B8" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setAnswerText((prev) => prev + " *italic* ")} className="p-1">
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Format italic"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => setAnswerText((prev) => prev + " *italic* ")}
+              className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+            >
               <Italic size={16} color="#94A3B8" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setAnswerText((prev) => prev + " `code` ")} className="p-1">
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Insert code snippet"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => setAnswerText((prev) => prev + " `code` ")}
+              className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+            >
               <Code size={16} color="#94A3B8" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setAnswerText((prev) => prev + "\n- ")} className="p-1">
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Insert bullet list"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => setAnswerText((prev) => prev + "\n- ")}
+              className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+            >
               <List size={16} color="#94A3B8" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setAnswerText((prev) => prev + "\n> ")} className="p-1">
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Insert quote"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => setAnswerText((prev) => prev + "\n> ")}
+              className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
+            >
               <Quote size={16} color="#94A3B8" />
             </TouchableOpacity>
 
             <View className="flex-1" />
             <Typography variant="label-sm" className="text-on-surface-variant/70 normal-case font-medium">
-              @{profile?.username || "scholar"}
+              @{profile?.username || "user"}
             </Typography>
           </View>
 
           <View className="flex-row items-center space-x-3">
             <TextInput
-              placeholder="Provide experienced academic guidance..."
+              placeholder="Write your answer..."
               value={answerText}
               onChangeText={setAnswerText}
               containerClassName="flex-1 mb-0"
@@ -523,8 +548,11 @@ export default function QuestionDetailScreen() {
               variant="primary"
               size="md"
               loading={createAnswerMutation.isPending}
-              disabled={answerText.trim().length < 10}
-              onPress={() => createAnswerMutation.mutate()}
+              disabled={answerText.trim().length < 10 || createAnswerMutation.isPending}
+              onPress={() => {
+                if (createAnswerMutation.isPending) return;
+                createAnswerMutation.mutate();
+              }}
               accessibilityLabel="Post answer"
               className="px-4"
             >
@@ -562,16 +590,17 @@ function HeaderBar({
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel="Go back"
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         onPress={() => {
           AppHaptics.light();
           onBack();
         }}
-        className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
       >
         <ArrowLeft size={20} color="#F8FAFC" />
       </TouchableOpacity>
       <Typography variant="label-lg" className="text-on-surface font-bold">
-        Academic Inquiry
+        Question
       </Typography>
       <View className="flex-row items-center space-x-2">
         {isAuthor && (
@@ -579,24 +608,28 @@ function HeaderBar({
             accessibilityRole="button"
             accessibilityLabel="Delete this question"
             disabled={isDeleting}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             onPress={() => {
               AppHaptics.medium();
               onDelete?.();
             }}
-            className="w-10 h-10 rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20 web:cursor-pointer select-none active:scale-95 transition-transform"
           >
             <Trash2 size={18} color="#F87171" />
           </TouchableOpacity>
         )}
 
         <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Share this question"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => {
             AppHaptics.light();
             if (questionTitle && id) {
               ShareService.shareQuestion(questionTitle, id);
             }
           }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <Share2 size={18} color="#818CF8" />
         </TouchableOpacity>
@@ -605,11 +638,12 @@ function HeaderBar({
           accessibilityRole="button"
           accessibilityLabel={isBookmarked ? "Remove bookmark" : "Bookmark question"}
           accessibilityState={{ selected: !!isBookmarked }}
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => {
             AppHaptics.light();
             if (bookmarkMutation && !bookmarkMutation.isPending) bookmarkMutation.mutate();
           }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <Bookmark
             size={18}
@@ -621,6 +655,7 @@ function HeaderBar({
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Report this question"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => {
             AppHaptics.light();
             router.push({
@@ -628,7 +663,7 @@ function HeaderBar({
               params: { targetType: "question", targetId: id || "", targetUserId: "" },
             } as any);
           }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <Flag size={18} color="#94A3B8" />
         </TouchableOpacity>

@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Animated, View } from "react-native";
+import React, { useEffect } from "react";
+import { View } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Network from "expo-network";
 import { Typography } from "./Typography";
@@ -11,8 +12,9 @@ import { useUIStore } from "@/stores/uiStore";
  * instantaneous event-driven online/offline detection with initial probe on mount.
  */
 export function OfflineBanner() {
-  const { isOffline, setOffline } = useUIStore();
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const isOffline = useUIStore((state) => state.isOffline);
+  const setOffline = useUIStore((state) => state.setOffline);
+  const opacity = useSharedValue(0);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -48,12 +50,14 @@ export function OfflineBanner() {
   }, [setOffline]);
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: isOffline ? 1 : 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  }, [isOffline, fadeAnim]);
+    opacity.value = withTiming(isOffline ? 1 : 0, { duration: 300 });
+  }, [isOffline, opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    };
+  });
 
   if (!isOffline) return null;
 
@@ -73,7 +77,7 @@ export function OfflineBanner() {
       <Animated.View
         accessibilityLiveRegion="polite"
         accessibilityRole="alert"
-        style={{ opacity: fadeAnim }}
+        style={[animatedStyle]}
         className="bg-error-container border-b border-error px-4 py-2 flex-row items-center justify-center space-x-2"
       >
         <WifiOff size={16} color="#ffb4ab" />

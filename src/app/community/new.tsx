@@ -17,7 +17,7 @@ import { X, Users, Shield, Check } from "lucide-react-native";
 export default function NewCommunityModal() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (Platform.OS !== "web") return;
@@ -79,7 +79,7 @@ export default function NewCommunityModal() {
     },
     onError: (err: any) => {
       AppHaptics.error();
-      setError(err.message || "Failed to create academic community. Please try again.");
+      setError(err.message || "Failed to create community. Please try again.");
     },
   });
 
@@ -101,7 +101,7 @@ export default function NewCommunityModal() {
         </TouchableOpacity>
 
         <Typography variant="label-lg" className="text-on-surface font-bold">
-          Create Academic Space
+          Create Community
         </Typography>
 
         <Button
@@ -132,10 +132,10 @@ export default function NewCommunityModal() {
           </View>
           <View className="flex-1">
             <Typography variant="label-md" className="text-on-surface font-bold">
-              Scholarly Circles & Labs
+              Study Groups & Communities
             </Typography>
             <Typography variant="label-sm" className="text-on-surface-variant/80 normal-case mt-0.5">
-              Create a dedicated hub for peer reviews, department notes, and research collaboration.
+              Create a space for your study group, campus club, or department.
             </Typography>
           </View>
         </Card>
@@ -166,7 +166,7 @@ export default function NewCommunityModal() {
 
         {/* Topic Category Selection */}
         <Typography variant="label-md" className="text-on-surface mb-2.5 font-bold">
-          Primary Field / Academic Discipline
+          Topic / Category
         </Typography>
         <View className="flex-row flex-wrap gap-2.5 mb-6">
           {topics.map((topic: any) => {
@@ -215,8 +215,8 @@ export default function NewCommunityModal() {
 
         {/* Rules & Guidelines */}
         <TextInput
-          label="Community Conduct & Rules (Optional)"
-          placeholder="e.g. 1. Respect scholarly debate. 2. Cite academic papers. 3. No plagiarism."
+          label="Community Rules (Optional)"
+          placeholder="e.g. 1. Be respectful. 2. Stay on topic. 3. No spam."
           value={rules}
           onChangeText={setRules}
           multiline

@@ -1,5 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Animated, View, StyleProp, ViewStyle } from "react-native";
+import React, { useEffect } from "react";
+import { View, StyleProp, ViewStyle } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  cancelAnimation,
+} from "react-native-reanimated";
 import { Card } from "./Card";
 
 interface SkeletonProps {
@@ -17,28 +25,27 @@ export function Skeleton({
   className = "",
   style,
 }: SkeletonProps) {
-  // Render-stable Animated.Value via lazy useState — the react-hooks/refs
-  // rule (correctly) flags reading .current of a ref during render.
-  const [opacity] = useState(() => new Animated.Value(0.25));
+  const opacity = useSharedValue(0.25);
 
   useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 0.65,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 0.25,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ])
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(0.65, { duration: 800 }),
+        withTiming(0.25, { duration: 800 })
+      ),
+      -1, // infinite loop
+      false // don't reverse, the sequence does it
     );
-    animation.start();
-    return () => animation.stop();
+    return () => {
+      cancelAnimation(opacity);
+    };
   }, [opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    };
+  });
 
   return (
     <Animated.View
@@ -47,8 +54,8 @@ export function Skeleton({
           width: width as any,
           height: height as any,
           borderRadius,
-          opacity,
         },
+        animatedStyle,
         style,
       ]}
       className={`bg-surface-container-highest ${className}`}

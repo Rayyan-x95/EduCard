@@ -1,13 +1,15 @@
 import React from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { Card } from "@/components/ui/Card";
 import { Typography } from "@/components/ui/Typography";
-import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
+import { AuthorHeader } from "@/components/domain/AuthorHeader";
+import { HelpfulChip } from "@/components/domain/HelpfulChip";
 import { UserStatusEnum, QuestionStatusEnum } from "@/types/database";
 import { AppHaptics } from "@/lib/haptics";
-import { MessageSquare, ThumbsUp, CheckCircle2 } from "lucide-react-native";
+import { formatDate } from "@/lib/date";
+import { MessageSquare, CheckCircle2 } from "lucide-react-native";
 
 export interface QuestionCardData {
   id: string;
@@ -33,7 +35,11 @@ interface QuestionCardProps {
   onHelpfulPress?: (id: string) => void;
 }
 
-export function QuestionCard({ question, onPress, onHelpfulPress }: QuestionCardProps) {
+export const QuestionCard = React.memo(function QuestionCard({
+  question,
+  onPress,
+  onHelpfulPress,
+}: QuestionCardProps) {
   const router = useRouter();
   const isSolved = question.status === "solved";
 
@@ -53,108 +59,97 @@ export function QuestionCard({ question, onPress, onHelpfulPress }: QuestionCard
       className="mb-4"
     >
       {/* Top Header: Author Context & Status */}
-      <View className="flex-row items-center justify-between mb-3.5">
-        <View className="flex-row items-center space-x-3 flex-1 mr-3">
-          <Avatar
-            name={question.author_display_name}
-            uri={question.author_avatar_path}
-            size="sm"
-            role={question.author_status}
-            isVerified={question.author_is_verified}
-          />
-          <View className="flex-1">
-            <Typography variant="label-md" className="text-on-surface font-semibold" numberOfLines={1}>
-              {question.author_display_name}
-            </Typography>
-            <Typography variant="label-sm" className="text-on-surface-variant/70 mt-0.5 normal-case">
-              {question.institution_name ? question.institution_name : "Student Scholar"}
-            </Typography>
-          </View>
-        </View>
-
-        {isSolved ? (
-          <Badge
-            variant="solved"
-            label="Solved"
-            icon={<CheckCircle2 size={13} color="#34D399" />}
-          />
-        ) : (
-          <Badge variant="open" label="Open" />
-        )}
-      </View>
+      <AuthorHeader
+        displayName={question.author_display_name}
+        avatarPath={question.author_avatar_path}
+        status={question.author_status}
+        isVerified={question.author_is_verified}
+        subtitle={question.institution_name || "Student"}
+        rightAccessory={
+          isSolved ? (
+            <Badge
+              variant="solved"
+              label="Solved"
+              icon={<CheckCircle2 size={13} color="#34D399" />}
+            />
+          ) : (
+            <Badge variant="open" label="Open" />
+          )
+        }
+      />
 
       {/* Question Title & Body */}
-      <Typography variant="headline-sm" className="text-on-surface mb-2 font-bold leading-snug">
+      <Typography variant="headline-sm" className="text-on-surface mb-2 font-bold leading-snug tracking-tight">
         {question.title}
       </Typography>
       <Typography
         variant="body-md"
-        className="text-on-surface-variant leading-relaxed mb-4"
+        className="text-on-surface-variant leading-relaxed mb-4 text-[15px]"
         numberOfLines={3}
       >
         {question.body}
       </Typography>
 
       {/* Footer Metrics with Tactile Interactive Chips */}
-      <View className="flex-row items-center justify-between pt-3 border-t border-outline-variant/40">
+      <View className="flex-row items-center justify-between pt-3 border-t border-white/[0.08]">
         <View className="flex-row items-center space-x-2.5">
-          {/* Answers Chip */}
+          {/* Answers Chip with Solved Indicator */}
           <View
-            className={`flex-row items-center space-x-1.5 px-3 py-1.5 rounded-full border ${
-              question.answer_count > 0
-                ? "bg-primary-container/30 border-primary/30"
-                : "bg-surface-container-high border-outline-variant/40"
+            className={`flex-row items-center space-x-1.5 min-h-[38px] px-3.5 py-1.5 rounded-full border ${
+              isSolved
+                ? "bg-tertiary-container/35 border-tertiary/50 shadow-sm shadow-tertiary/20"
+                : question.answer_count > 0
+                ? "bg-primary-container/35 border-primary/40 shadow-sm shadow-primary/20"
+                : "bg-surface-container-high/80 border-white/[0.08]"
             }`}
           >
-            <MessageSquare
-              size={14}
-              color={question.answer_count > 0 ? "#818CF8" : "#94A3B8"}
-            />
+            {isSolved ? (
+              <CheckCircle2 size={14} color="#34D399" />
+            ) : (
+              <MessageSquare
+                size={14}
+                color={question.answer_count > 0 ? "#818CF8" : "#94A3B8"}
+              />
+            )}
             <Typography
               variant="label-md"
-              className={question.answer_count > 0 ? "text-primary font-bold" : "text-on-surface-variant/80"}
+              className={
+                isSolved
+                  ? "text-tertiary font-bold tracking-tight"
+                  : question.answer_count > 0
+                  ? "text-primary font-bold tracking-tight"
+                  : "text-on-surface-variant/80 font-medium"
+              }
             >
               {question.answer_count} {question.answer_count === 1 ? "answer" : "answers"}
             </Typography>
           </View>
 
           {/* Helpful Upvote Chip */}
-          <TouchableOpacity
-            accessibilityRole="button"
+          <HelpfulChip
+            count={question.helpful_count}
+            isHelpful={question.is_helpful}
+            onPress={() => onHelpfulPress?.(question.id)}
             accessibilityLabel={`Mark question as helpful, ${question.helpful_count} marks`}
-            accessibilityState={{ selected: Boolean(question.is_helpful) }}
-            onPress={(e) => {
-              e.stopPropagation();
-              AppHaptics.medium();
-              onHelpfulPress?.(question.id);
-            }}
-            className={`flex-row items-center space-x-1.5 px-3 py-1.5 rounded-full border ${
-              question.is_helpful
-                ? "bg-secondary-container/40 border-secondary/50"
-                : "bg-surface-container-high border-outline-variant/40 active:bg-surface-container-highest"
-            }`}
-          >
-            <ThumbsUp
-              size={14}
-              color={question.is_helpful ? "#C084FC" : "#94A3B8"}
-              fill={question.is_helpful ? "#C084FC" : "none"}
-            />
-            <Typography
-              variant="label-md"
-              className={question.is_helpful ? "text-secondary font-bold" : "text-on-surface-variant/80"}
-            >
-              {question.helpful_count}
-            </Typography>
-          </TouchableOpacity>
+          />
         </View>
 
-        <Typography variant="label-sm" className="text-on-surface-variant/60 font-medium normal-case">
-          {new Date(question.created_at).toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-          })}
+        <Typography variant="label-sm" className="text-on-surface-variant/60 font-medium">
+          {formatDate(question.created_at)}
         </Typography>
       </View>
     </Card>
   );
-}
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.question.id === nextProps.question.id &&
+    prevProps.question.is_helpful === nextProps.question.is_helpful &&
+    prevProps.question.helpful_count === nextProps.question.helpful_count &&
+    prevProps.question.answer_count === nextProps.question.answer_count &&
+    prevProps.question.status === nextProps.question.status &&
+    prevProps.question.title === nextProps.question.title &&
+    prevProps.question.body === nextProps.question.body &&
+    prevProps.question.author_avatar_path === nextProps.question.author_avatar_path &&
+    prevProps.question.author_display_name === nextProps.question.author_display_name
+  );
+});

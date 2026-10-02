@@ -29,7 +29,10 @@ export function useRealtimeQuestion(questionId?: string) {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: queryKeys.question(questionId) });
-          queryClient.invalidateQueries({ queryKey: ["feed"] });
+          // NOTE: Do NOT invalidate ["feed"] here. A question counter update
+          // (e.g. new answer) is only relevant to the question detail view.
+          // Feed freshness is governed by staleTime (2 min) and explicit
+          // mutation-level invalidation in the accept-answer flow.
         }
       )
       .on(

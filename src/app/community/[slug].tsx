@@ -10,9 +10,12 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { PostCard } from "@/components/domain/PostCard";
 import { CommunitiesService } from "@/services/communities";
 import { ShareService } from "@/lib/sharing";
 import { useAuthStore } from "@/stores/authStore";
+import { queryKeys } from "@/lib/query-client";
 import { normalizeError } from "@/lib/errors";
 import { AppHaptics } from "@/lib/haptics";
 import { Alert } from "react-native";
@@ -24,14 +27,16 @@ import {
   UserPlus,
   Share2,
   MessageSquare,
+  PenSquare,
 } from "lucide-react-native";
 
 export default function CommunityDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const [actionError, setActionError] = useState("");
+  const [activeTab, setActiveTab] = useState<"questions" | "discussions">("questions");
 
   const { data: community, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ["community", slug],
@@ -51,6 +56,12 @@ export default function CommunityDetailScreen() {
   const { data: questions = [] } = useQuery({
     queryKey: ["community-questions", communityId],
     queryFn: () => CommunitiesService.listCommunityQuestions(communityId!, 20),
+    enabled: Boolean(communityId),
+  });
+
+  const { data: posts = [] } = useQuery({
+    queryKey: queryKeys.communityPosts(communityId),
+    queryFn: () => CommunitiesService.listCommunityPosts(communityId!, 20),
     enabled: Boolean(communityId),
   });
 
@@ -121,13 +132,23 @@ export default function CommunityDetailScreen() {
             if (comm.rules) {
               items.push({ type: "rules", data: comm.rules });
             }
-            items.push({ type: "questions_title" });
-            if (questions.length === 0) {
-              items.push({ type: "empty_state" });
+            items.push({ type: "tabs" });
+            if (activeTab === "questions") {
+              if (questions.length === 0) {
+                items.push({ type: "empty_questions" });
+              } else {
+                questions.forEach((q: any) => {
+                  items.push({ type: "question", data: q });
+                });
+              }
             } else {
-              questions.forEach((q: any) => {
-                items.push({ type: "question", data: q });
-              });
+              if (posts.length === 0) {
+                items.push({ type: "empty_posts" });
+              } else {
+                posts.forEach((p: any) => {
+                  items.push({ type: "post", data: p });
+                });
+              }
             }
             return items;
           })()}
@@ -142,6 +163,7 @@ export default function CommunityDetailScreen() {
                 if (communityId) {
                   queryClient.invalidateQueries({ queryKey: ["community-member", communityId, user?.id] });
                   queryClient.invalidateQueries({ queryKey: ["community-questions", communityId] });
+                  queryClient.invalidateQueries({ queryKey: queryKeys.communityPosts(communityId) });
                 }
               }}
               tintColor="#818CF8"
@@ -153,11 +175,11 @@ export default function CommunityDetailScreen() {
               return (
                 <Card className="p-6 mb-5 border border-white/[0.08] shadow-lg shadow-black/30">
                   <View className="flex-row items-center space-x-2.5 mb-3">
-                    <Badge variant="category" label="Verified Space" />
+                    <Badge variant="category" label="Community" />
                     <View className="flex-row items-center space-x-1 px-2.5 py-1 rounded-full bg-surface-container-high border border-outline-variant/40">
                       <Users size={12} color="#94A3B8" />
                       <Typography variant="label-sm" className="text-on-surface-variant/80 font-medium normal-case">
-                        {(communityData.member_count || 1).toLocaleString()} scholars
+                        {(communityData.member_count || 1).toLocaleString()} members
                       </Typography>
                     </View>
                   </View>
@@ -198,23 +220,44 @@ export default function CommunityDetailScreen() {
                         {isMember ? "Leave Space" : "Join Space"}
                       </Button>
         
-                      {/* Ask scoped to this Space — composer pre-locked via communityId */}
+                      {/* Community actions — Ask and Post */}
                       {isMember && (
-                        <Button
-                          variant="primary"
-                          size="md"
-                          leftIcon={<MessageSquare size={16} color="#0F172A" />}
-                          onPress={() => {
-                            AppHaptics.medium();
-                            router.push({
-                              pathname: "/question/new",
-                              params: { communityId: communityId as string },
-                            } as any);
-                          }}
-                          className="w-full"
-                        >
-                          Ask in this Space
-                        </Button>
+                        <View className="flex-row space-x-2">
+                          <View className="flex-1">
+                            <Button
+                              variant="primary"
+                              size="md"
+                              leftIcon={<MessageSquare size={16} color="#0F172A" />}
+                              onPress={() => {
+                                AppHaptics.medium();
+                                router.push({
+                                  pathname: "/question/new",
+                                  params: { communityId: communityId as string },
+                                } as any);
+                              }}
+                              className="w-full"
+                            >
+                              Ask
+                            </Button>
+                          </View>
+                          <View className="flex-1">
+                            <Button
+                              variant="secondary"
+                              size="md"
+                              leftIcon={<PenSquare size={16} color="#818CF8" />}
+                              onPress={() => {
+                                AppHaptics.medium();
+                                router.push({
+                                  pathname: "/post/new",
+                                  params: { communityId: communityId as string },
+                                } as any);
+                              }}
+                              className="w-full"
+                            >
+                              Post
+                            </Button>
+                          </View>
+                        </View>
                       )}
                     </View>
                   )}
@@ -240,24 +283,62 @@ export default function CommunityDetailScreen() {
               );
             }
 
-            if (item.type === "questions_title") {
+            if (item.type === "tabs") {
               return (
-                <View className="mb-3">
-                  <Typography variant="label-lg" className="text-on-surface font-bold">
-                    Recent Inquiries in this Space
-                  </Typography>
+                <View className="mb-4">
+                  <SegmentedControl
+                    options={[
+                      { label: `Questions (${questions.length})`, value: "questions" },
+                      { label: `Discussions (${posts.length})`, value: "discussions" },
+                    ]}
+                    value={activeTab}
+                    onChange={(val) => setActiveTab(val as "questions" | "discussions")}
+                  />
                 </View>
               );
             }
 
-            if (item.type === "empty_state") {
+            if (item.type === "empty_questions") {
               return (
                 <Card className="p-6 items-center border border-outline-variant/60">
                   <MessageSquare size={24} color="#94A3B8" className="mb-2" />
                   <Typography variant="body-sm" className="text-on-surface-variant text-center">
-                    No questions posted here yet.
+                    No questions asked in this Space yet.
                   </Typography>
                 </Card>
+              );
+            }
+
+            if (item.type === "empty_posts") {
+              return (
+                <Card className="p-6 items-center border border-outline-variant/60">
+                  <PenSquare size={24} color="#94A3B8" className="mb-2" />
+                  <Typography variant="body-sm" className="text-on-surface-variant text-center">
+                    No discussion posts in this Space yet.
+                  </Typography>
+                </Card>
+              );
+            }
+
+            if (item.type === "post") {
+              const post = item.data;
+              return (
+                <PostCard
+                  post={{
+                    id: post.id,
+                    author_id: post.author_id,
+                    author_display_name: post.author_display_name,
+                    author_avatar_path: post.author_avatar_path,
+                    author_status: post.author_status,
+                    author_is_verified: post.author_is_verified,
+                    community_name: comm.name,
+                    body: post.body,
+                    helpful_count: post.helpful_count,
+                    comment_count: post.comment_count,
+                    created_at: post.created_at,
+                  }}
+                  onPress={() => router.push(`/post/${post.id}` as any)}
+                />
               );
             }
 
@@ -301,31 +382,33 @@ function Header({ onBack, onShare }: { onBack: () => void; onShare?: () => void 
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel="Go back"
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         onPress={() => {
           AppHaptics.light();
           onBack();
         }}
-        className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
       >
         <ArrowLeft size={20} color="#F8FAFC" />
       </TouchableOpacity>
       <Typography variant="label-lg" className="text-on-surface font-bold">
-        Academic Space
+        Community
       </Typography>
       {onShare ? (
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel="Share this Space"
+          accessibilityLabel="Share this Community"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => {
             AppHaptics.light();
             onShare();
           }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <Share2 size={18} color="#818CF8" />
         </TouchableOpacity>
       ) : (
-        <View className="w-10" />
+        <View className="w-11" />
       )}
     </View>
   );

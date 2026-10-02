@@ -49,7 +49,10 @@ const VERIFICATION_OPTIONS: { id: VerificationType; label: string; needsEmail: b
 export default function PrivacyAccountScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user, profile, setProfile, reset } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const profile = useAuthStore((state) => state.profile);
+  const setProfile = useAuthStore((state) => state.setProfile);
+  const reset = useAuthStore((state) => state.reset);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportMessage, setExportMessage] = useState("");
@@ -130,7 +133,7 @@ export default function PrivacyAccountScreen() {
   const handleDeleteAccount = () => {
     AppHaptics.error();
     Alert.alert(
-      "Delete Scholar Account",
+      "Delete Account",
       "Are you sure you wish to permanently delete your account and all associated reputation points? This action cannot be undone.",
       [
         { text: "Cancel", style: "cancel" },
@@ -233,7 +236,7 @@ export default function PrivacyAccountScreen() {
           Privacy & Account
         </Typography>
         <Typography variant="body-md" className="text-on-surface-variant mb-6 leading-relaxed">
-          Manage your academic data, discovery visibility, and communication preferences.
+          Manage your profile visibility, data, and notification preferences.
         </Typography>
 
         {/* Visibility Section */}
@@ -241,7 +244,7 @@ export default function PrivacyAccountScreen() {
           <SectionHeader icon={<Eye size={18} color="#818CF8" />} title="Visibility" subtitle="Control who can view your credentials and activity." />
 
           <SettingRow
-            title="Public Scholar Profile"
+            title="Public Profile"
             subtitle="Allow anyone to view your verified answers and badges."
             value={publicProfile}
             onChange={(v) => handleToggle("is_public_profile", v, setPublicProfile)}
@@ -250,7 +253,7 @@ export default function PrivacyAccountScreen() {
           <SettingRow
             last
             title="Show Activity Status"
-            subtitle="Let scholars know when you are actively contributing."
+            subtitle="Let other students know when you are active."
             value={activityStatus}
             onChange={(v) => handleToggle("activity_status", v, setActivityStatus)}
           />
@@ -261,15 +264,15 @@ export default function PrivacyAccountScreen() {
           <SectionHeader icon={<Bell size={18} color="#818CF8" />} title="Notification Preferences" subtitle="Select which alerts reach your device." />
 
           <SettingRow
-            title="Answer & Solution Alerts"
-            subtitle="Immediate push when your inquiries receive answers or solutions."
+            title="Answer Alerts"
+            subtitle="Get notified when your questions receive answers."
             value={answerNotifications}
             onChange={(v) => handleToggle("answer_notifications", v, setAnswerNotifications)}
           />
 
           <SettingRow
-            title="Direct Inquiries & Mentorship"
-            subtitle="Alerts when scholars reach out to you directly."
+            title="Direct Messages & Mentorship"
+            subtitle="Alerts when students reach out to you directly."
             value={dmNotifications}
             onChange={(v) => handleToggle("dm_notifications", v, setDmNotifications)}
           />
@@ -277,8 +280,8 @@ export default function PrivacyAccountScreen() {
           <SettingRow
             last
             disabled
-            title="Weekly Academic Digest"
-            subtitle="Coming soon — a summary of top discussions in your spaces."
+            title="Weekly Digest"
+            subtitle="Coming soon — a summary of top discussions in your communities."
             value={weeklyDigest}
             onChange={(v) => handleToggle("weekly_digest", v, setWeeklyDigest)}
           />
@@ -288,12 +291,12 @@ export default function PrivacyAccountScreen() {
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
           <SectionHeader
             icon={<BadgeCheck size={18} color="#34D399" />}
-            title="Scholar Verification"
+            title="Student Verification"
             subtitle="Verify your status for the verified badge."
           />
 
           {profile?.is_verified ? (
-            <Badge variant="solved" label="Verified Scholar" />
+            <Badge variant="solved" label="Verified Student" />
           ) : (
             <>
               <View className="space-y-2">
@@ -379,8 +382,11 @@ export default function PrivacyAccountScreen() {
                 variant="secondary"
                 size="md"
                 loading={submitVerificationMutation.isPending}
-                disabled={!selectedVerification}
-                onPress={() => submitVerificationMutation.mutate()}
+                disabled={!selectedVerification || submitVerificationMutation.isPending}
+                onPress={() => {
+                  if (submitVerificationMutation.isPending) return;
+                  submitVerificationMutation.mutate();
+                }}
                 className="mt-3"
               >
                 Submit Verification Request
@@ -453,7 +459,7 @@ export default function PrivacyAccountScreen() {
 
         {/* Blocked Users */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <SectionHeader icon={<UserX size={18} color="#F87171" />} title="Blocked Scholars" subtitle="People you have blocked across the network." />
+          <SectionHeader icon={<UserX size={18} color="#F87171" />} title="Blocked Users" subtitle="People you have blocked." />
 
           {blockedUsers.length === 0 ? (
             <Typography variant="body-sm" className="text-on-surface-variant normal-case">
@@ -462,10 +468,10 @@ export default function PrivacyAccountScreen() {
           ) : (
             blockedUsers.map((b: BlockedUser) => (
               <View key={b.blocked_id} className="flex-row items-center justify-between py-2">
-                <Avatar name={b.display_name || "Scholar"} uri={b.avatar_path} size="sm" />
+                <Avatar name={b.display_name || "User"} uri={b.avatar_path} size="sm" />
                 <View className="flex-1 ml-3 mr-2">
                   <Typography variant="label-md" className="text-on-surface font-semibold" numberOfLines={1}>
-                    {b.display_name || "Scholar"}
+                    {b.display_name || "User"}
                   </Typography>
                   <Typography variant="label-sm" className="text-on-surface-variant/70 normal-case">
                     {b.username ? `@${b.username}` : ""}
@@ -473,7 +479,7 @@ export default function PrivacyAccountScreen() {
                 </View>
                 <TouchableOpacity
                   accessibilityRole="button"
-                  accessibilityLabel={`Unblock ${b.display_name || "scholar"}`}
+                  accessibilityLabel={`Unblock ${b.display_name || "user"}`}
                   onPress={() => unblockMutation.mutate(b.blocked_id)}
                   className="px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/50"
                 >
@@ -513,7 +519,7 @@ export default function PrivacyAccountScreen() {
             className="flex-row items-center justify-between py-3"
           >
             <Typography variant="label-md" className="text-on-surface font-bold normal-case">
-              Terms of Academic Conduct
+              Terms of Service
             </Typography>
             <ExternalLink size={16} color="#818CF8" />
           </TouchableOpacity>

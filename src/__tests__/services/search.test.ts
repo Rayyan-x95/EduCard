@@ -38,6 +38,7 @@ describe("SearchService", () => {
     for (const q of ["", "   ", "a", "  b  "]) {
       const res = await SearchService.searchAll(q);
       expect(res.questions).toHaveLength(0);
+      expect(res.posts).toHaveLength(0);
       expect(res.communities).toHaveLength(0);
       expect(res.profiles).toHaveLength(0);
     }
@@ -150,5 +151,29 @@ describe("SearchService", () => {
     expect(profilesChain.or).toHaveBeenCalledWith("username.ilike.%ana%,display_name.ilike.%ana%");
     expect(res.profiles).toHaveLength(1);
     expect(res.profiles[0].id).toBe("u-1");
+  });
+
+  it("queries posts matching body with ilike filter and excludes deleted posts", async () => {
+    vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: [], error: null } as any);
+
+    const postRow = {
+      id: "p-42",
+      body: "Let us discuss qubits in quantum computing",
+      helpful_count: 7,
+      comment_count: 3,
+      created_at: "2026-09-12T00:00:00Z",
+    };
+    const postsChain = makeChain({ data: [postRow], error: null });
+
+    vi.mocked(supabase.from).mockImplementation(((table: string) => {
+      if (table === "posts") return postsChain;
+      return makeChain({ data: [], error: null });
+    }) as any);
+
+    const res = await SearchService.searchAll("quantum");
+    expect(postsChain.ilike).toHaveBeenCalledWith("body", "%quantum%");
+    expect(postsChain.is).toHaveBeenCalledWith("deleted_at", null);
+    expect(res.posts).toHaveLength(1);
+    expect(res.posts[0].id).toBe("p-42");
   });
 });

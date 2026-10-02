@@ -14,10 +14,10 @@ export interface RoleOption {
 }
 
 export const ROLE_IDS: RoleOption[] = [
-  { id: "undergraduate", title: "Student", subtitle: "Currently enrolled in an academic program, seeking knowledge and guidance." },
-  { id: "alumni", title: "Alumni", subtitle: "Graduated scholars looking to reconnect, share experiences, and network." },
-  { id: "professional", title: "Professional", subtitle: "Industry experts contributing insights and bridging academia and career." },
-  { id: "mentor", title: "Mentor / Faculty", subtitle: "Experienced individuals dedicated to guiding and advising the next generation." },
+  { id: "undergraduate", title: "Student", subtitle: "Currently enrolled in school or university." },
+  { id: "alumni", title: "Alumni", subtitle: "Graduates looking to reconnect, share advice, and network." },
+  { id: "professional", title: "Professional", subtitle: "Working professionals sharing industry insights." },
+  { id: "mentor", title: "Mentor / Faculty", subtitle: "Faculty and mentors advising students." },
 ];
 
 export interface EducationStepInput {

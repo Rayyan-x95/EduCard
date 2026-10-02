@@ -6,6 +6,11 @@
  */
 export function GET() {
   const timestamp = new Date().toISOString();
+  const uptime = typeof process.uptime === "function" ? Math.floor(process.uptime()) : 0;
+  const memory = typeof process.memoryUsage === "function" ? {
+    heapUsedMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 10) / 10,
+    rssMb: Math.round(process.memoryUsage().rss / 1024 / 1024 * 10) / 10,
+  } : undefined;
 
   return Response.json(
     {
@@ -13,7 +18,12 @@ export function GET() {
       service: "educard-api",
       version: process.env.EXPO_PUBLIC_APP_VERSION || "1.0.0",
       timestamp,
+      uptimeSeconds: uptime,
       environment: process.env.NODE_ENV || "production",
+      diagnostics: {
+        memory,
+        nodeVersion: process.version,
+      },
     },
     {
       status: 200,

@@ -59,7 +59,7 @@ export default function ReportModal() {
     targetId: string;
     targetUserId?: string;
   }>();
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (Platform.OS !== "web") return;
@@ -84,6 +84,7 @@ export default function ReportModal() {
   const validTarget = Boolean(targetId);
 
   const handleSubmit = async () => {
+    if (loading) return;
     if (!user?.id) {
       Alert.alert("Authentication Required", "Please sign in to submit a report.");
       return;
@@ -113,7 +114,7 @@ export default function ReportModal() {
       AppHaptics.success();
       Alert.alert(
         "Report Submitted",
-        "Thank you for helping keep EduCard a safe and trustworthy academic environment.",
+        "Thank you for helping keep EduCard a safe and helpful community.",
         [{ text: "OK", onPress: () => { if (router.canGoBack()) router.back(); else router.replace("/(tabs)" as any); } }]
       );
     } catch (err) {
@@ -129,16 +130,17 @@ export default function ReportModal() {
       {/* Modal Header */}
       <View className="px-5 py-3.5 border-b border-surface-container-high/80 flex-row items-center justify-between">
         <Typography variant="label-lg" className="text-on-surface font-bold">
-          Report Content or Scholar
+          Report Content or User
         </Typography>
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Close report form"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => {
             AppHaptics.light();
             if (router.canGoBack()) router.back(); else router.replace('/(tabs)' as any);
           }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <X size={20} color="#F8FAFC" />
         </TouchableOpacity>
@@ -219,14 +221,14 @@ export default function ReportModal() {
         <Card className="p-4 mb-8 flex-row items-center justify-between bg-surface-container border border-outline-variant/60 shadow-sm">
           <View className="flex-1 mr-4">
             <Typography variant="label-md" className="text-on-surface font-bold">
-              Block this scholar
+              Block this user
             </Typography>
             <Typography variant="label-sm" className="text-on-surface-variant/80 mt-0.5 normal-case">
               Their questions and posts will be hidden from your feeds. You can unblock later in Privacy & Account.
             </Typography>
           </View>
           <Switch
-            accessibilityLabel="Also block this scholar"
+            accessibilityLabel="Also block this user"
             value={blockUser}
             onValueChange={(val) => {
               AppHaptics.selection();
@@ -242,7 +244,7 @@ export default function ReportModal() {
           variant="danger"
           size="lg"
           loading={loading}
-          disabled={!validTarget}
+          disabled={!validTarget || loading}
           leftIcon={<Flag size={18} color="#F87171" />}
           onPress={handleSubmit}
           className="mb-6"

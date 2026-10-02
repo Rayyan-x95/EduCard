@@ -55,7 +55,7 @@ export function ErrorState({
         )}
 
         {/* Action Buttons */}
-        <View className="w-full space-y-3">
+        <View className="w-full gap-3">
           {onRetry && (
             <Button
               variant="primary"

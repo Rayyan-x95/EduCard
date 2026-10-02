@@ -7,8 +7,15 @@ vi.mock("@/lib/supabase", () => ({
     rpc: vi.fn(),
     from: vi.fn(),
     auth: {
-      signOut: vi.fn(),
+      signOut: vi.fn().mockResolvedValue({ error: null }),
+      getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-test-id" } }, error: null }),
     },
+  },
+}));
+
+vi.mock("@/services/notifications", () => ({
+  NotificationsService: {
+    unregisterPushToken: vi.fn().mockResolvedValue(undefined),
   },
 }));
 

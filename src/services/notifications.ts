@@ -40,6 +40,75 @@ export interface NotificationRecord {
   } | null;
 }
 
+export interface GroupedNotification {
+  id: string;
+  ids: string[];
+  recipient_id: string;
+  type: string;
+  entity_type: string;
+  entity_id: string;
+  read_at: string | null;
+  created_at: string;
+  actors: {
+    id: string;
+    display_name: string;
+    username: string;
+    avatar_path?: string | null;
+  }[];
+  count: number;
+}
+
+/**
+ * Consolidates repeated notifications of the same type on the same target entity
+ * into an intelligent, consolidated group (e.g., "Alice and 2 others answered your question").
+ * Preserves descending chronological order by latest activity.
+ */
+export function groupNotifications(records: NotificationRecord[]): GroupedNotification[] {
+  if (!records || records.length === 0) return [];
+
+  const groups: GroupedNotification[] = [];
+  const groupMap = new Map<string, GroupedNotification>();
+
+  for (const record of records) {
+    const key = record.entity_id
+      ? `${record.type}:${record.entity_type}:${record.entity_id}`
+      : `single:${record.id}`;
+
+    const existing = groupMap.get(key);
+    if (!existing) {
+      const newGroup: GroupedNotification = {
+        id: record.id,
+        ids: [record.id],
+        recipient_id: record.recipient_id,
+        type: record.type,
+        entity_type: record.entity_type,
+        entity_id: record.entity_id,
+        read_at: record.read_at || null,
+        created_at: record.created_at,
+        actors: record.actor ? [record.actor] : [],
+        count: 1,
+      };
+      groupMap.set(key, newGroup);
+      groups.push(newGroup);
+    } else {
+      existing.ids.push(record.id);
+      existing.count += 1;
+      if (!record.read_at) {
+        existing.read_at = null;
+      }
+      if (record.actor && !existing.actors.some((a) => a.id === record.actor?.id)) {
+        existing.actors.push(record.actor);
+      }
+      if (new Date(record.created_at) > new Date(existing.created_at)) {
+        existing.created_at = record.created_at;
+        existing.id = record.id;
+      }
+    }
+  }
+
+  return groups;
+}
+
 export const NotificationsService = {
   /**
    * Request push notification permission and register the Expo token.
@@ -89,6 +158,30 @@ export const NotificationsService = {
       return token;
     } catch {
       return null;
+    }
+  },
+
+  /**
+   * Cleans up the device push token on sign-out to prevent cross-account delivery bleed.
+   */
+  async unregisterPushToken(userId: string): Promise<void> {
+    if (Platform.OS === "web" || !Device.isDevice) {
+      return;
+    }
+
+    try {
+      const tokenResponse = await Notifications.getExpoPushTokenAsync();
+      const token = tokenResponse.data;
+
+      if (token && userId) {
+        await supabase
+          .from("push_tokens")
+          .delete()
+          .eq("user_id", userId)
+          .eq("expo_push_token", token);
+      }
+    } catch {
+      // Best-effort cleanup on logout: failures must not block sign out
     }
   },
 
@@ -181,6 +274,21 @@ export const NotificationsService = {
 
     if (error) throw error;
   },
+
+  /**
+   * Batch mark multiple notification IDs as read in a single query.
+   */
+  async markMultipleAsRead(notificationIds: string[]) {
+    if (!notificationIds || notificationIds.length === 0) return;
+    const { error } = await supabase
+      .from("notifications")
+      .update({ read_at: new Date().toISOString() })
+      .in("id", notificationIds);
+
+    if (error) throw error;
+  },
+
+  groupNotifications,
 
   async markAllAsRead(userId: string) {
     const { error } = await supabase

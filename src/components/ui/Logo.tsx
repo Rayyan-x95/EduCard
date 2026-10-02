@@ -17,7 +17,7 @@ const SIZE_MAP = {
 };
 
 export function Logo({
-  variant = "full",
+  variant = "simple",
   size = "md",
   width,
   height,
@@ -28,9 +28,9 @@ export function Logo({
   const h = height || dimension;
 
   const source =
-    variant === "simple"
-      ? require("@/../assets/Simple logo.png")
-      : require("@/../assets/LOGO.png");
+    variant === "full"
+      ? require("@/../assets/LOGO.png")
+      : require("@/../assets/Simple logo.png");
 
   return (
     <Image

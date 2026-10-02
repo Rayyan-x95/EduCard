@@ -16,7 +16,7 @@ The EduCard database is built on **PostgreSQL 15+** managed via Supabase. It imp
 
 ---
 
-## 2. Table Catalog (21 Entities)
+## 2. Table Catalog (23 Entities)
 
 | Table | Primary Key | Description | Key Constraints / Relationships |
 |---|---|---|---|
@@ -28,6 +28,7 @@ The EduCard database is built on **PostgreSQL 15+** managed via Supabase. It imp
 | `communities` | `id UUID` | Peer learning groups | `slug CITEXT UNIQUE`, `member_count INT` |
 | `community_members` | `(community_id, user_id)`| Community membership & roles | Role: `member`, `moderator`, `admin` |
 | `posts` | `id UUID` | Scholarly discussions & updates | `visibility`, `helpful_count`, `comment_count` |
+| `post_topics` | `(post_id, topic_id)` | Post categorization bridge | Natural Composite PK, FK `topics` ON RESTRICT |
 | `questions` | `id UUID` | Structured academic questions | `status`, `fts` (tsvector), `accepted_answer_id` |
 | `question_topics` | `(question_id, topic_id)`| Question categorization bridge | Natural Composite PK, FK `topics` ON RESTRICT |
 | `answers` | `id UUID` | Question responses | `is_accepted`, `helpful_count`, FK `questions` |
@@ -41,6 +42,7 @@ The EduCard database is built on **PostgreSQL 15+** managed via Supabase. It imp
 | `reports` | `id UUID` | Trust & safety reporting | Mutually exclusive target FK constraint |
 | `verification_requests` | `id UUID` | Academic badge verification | `evidence_path`, `institutional_email` |
 | `moderation_audit_logs`| `id UUID` | Immutable moderation actions | Admin/Mod only RLS |
+| `client_error_reports` | `id UUID` | Client-side error telemetry | Rate-limited by trigger (20/10 min per user); purged after 30 days |
 
 ---
 

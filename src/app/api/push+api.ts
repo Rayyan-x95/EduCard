@@ -45,6 +45,34 @@ export function OPTIONS() {
   return new Response(null, { headers: corsHeaders });
 }
 
+export async function GET(request: Request) {
+  const authHeader = request.headers.get("Authorization");
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!serviceRoleKey) {
+    return Response.json(
+      { error: "Push dispatch is not configured.", configured: false },
+      { status: 503, headers: corsHeaders }
+    );
+  }
+
+  const expected = `Bearer ${serviceRoleKey}`;
+  if (
+    typeof authHeader !== "string" ||
+    !timingSafeEqual(authHeader, expected)
+  ) {
+    return Response.json(
+      { error: "Unauthorized" },
+      { status: 401, headers: corsHeaders }
+    );
+  }
+
+  return Response.json(
+    { status: "ok", configured: true, service: "push-api" },
+    { status: 200, headers: corsHeaders }
+  );
+}
+
 export async function POST(request: Request) {
   const authHeader = request.headers.get("Authorization");
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

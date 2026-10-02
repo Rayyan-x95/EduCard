@@ -17,7 +17,9 @@ import { ArrowLeft, User, FileText, Camera, Globe } from "lucide-react-native";
 
 export default function EditProfileScreen() {
   const router = useRouter();
-  const { profile, setProfile, user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const profile = useAuthStore((state) => state.profile);
+  const setProfile = useAuthStore((state) => state.setProfile);
   const insets = useSafeAreaInsets();
 
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
@@ -46,7 +48,7 @@ export default function EditProfileScreen() {
         avatar_path: result.url,
       });
       if (profile) setProfile({ ...profile, avatar_path: result.url });
-      Alert.alert("Photo Updated", "Your scholar profile photo has been updated.");
+      Alert.alert("Photo Updated", "Your profile photo has been updated.");
     } catch (err) {
       Alert.alert("Avatar Upload Failed", normalizeError(err).message);
     } finally {
@@ -82,7 +84,7 @@ export default function EditProfileScreen() {
           country_code: normalizedCountry,
         });
       }
-      Alert.alert("Profile Updated", "Your academic credentials have been saved.", [
+      Alert.alert("Profile Updated", "Your profile has been saved.", [
         { text: "OK", onPress: () => { if (router.canGoBack()) router.back(); else router.replace("/(tabs)" as any); } },
       ]);
     } catch (err) {
@@ -98,11 +100,14 @@ export default function EditProfileScreen() {
       <View className="px-5 py-3 border-b border-surface-container-high/80 flex-row items-center justify-between">
         <View className="flex-row items-center space-x-3">
           <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             onPress={() => {
               AppHaptics.light();
               if (router.canGoBack()) router.back(); else router.replace('/(tabs)' as any);
             }}
-            className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
           >
             <ArrowLeft size={20} color="#F8FAFC" />
           </TouchableOpacity>
@@ -127,7 +132,7 @@ export default function EditProfileScreen() {
         <View className="items-center mb-8">
           <View className="relative">
             <Avatar
-              name={profile?.display_name || "Scholar"}
+              name={profile?.display_name || "User"}
               uri={profile?.avatar_path}
               size="xl"
               role={profile?.current_status || "undergraduate"}
@@ -161,7 +166,7 @@ export default function EditProfileScreen() {
               <User size={16} color="#818CF8" />
             </View>
             <Typography variant="headline-sm" className="text-on-surface font-bold">
-              Scholar Information
+              Profile Information
             </Typography>
           </View>
 
@@ -173,8 +178,8 @@ export default function EditProfileScreen() {
           />
 
           <TextInput
-            label="Academic Biography"
-            placeholder="Share your research interests, coursework, or focus areas..."
+            label="Bio"
+            placeholder="Tell other students a bit about yourself..."
             value={bio}
             onChangeText={setBio}
             multiline

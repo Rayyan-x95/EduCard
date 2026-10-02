@@ -56,7 +56,7 @@ export function TextInput({
         <RNTextInput
           className={clsx("flex-1 text-on-surface text-base font-body", className)}
           style={[{ paddingVertical: Platform.OS === 'android' ? 8 : 12, minHeight: 48 }, props.style as any]}
-          placeholderTextColor="#64748B"
+          placeholderTextColor="#94A3B8"
           selectionColor="#818CF8"
           accessibilityLabel={accessibilityLabel ?? label}
           accessibilityHint={error ?? helperText}

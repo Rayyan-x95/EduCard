@@ -10,15 +10,19 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ContributorBadge } from "@/components/domain/ContributorBadge";
 import { AuthService } from "@/services/auth";
 import { QuestionsService } from "@/services/questions";
+import { PostsService, PostListItem } from "@/services/posts";
 import { FollowsService } from "@/services/follows";
 import { SafetyService } from "@/services/safety";
 import { ShareService } from "@/lib/sharing";
 import { normalizeError } from "@/lib/errors";
 import { useAuthStore } from "@/stores/authStore";
+import { queryKeys } from "@/lib/query-client";
 import { AppHaptics } from "@/lib/haptics";
+import { getBadgesForProfile } from "@/lib/reputation-badges";
 import {
   ArrowLeft,
   School,
@@ -30,10 +34,13 @@ import {
   Share2,
   Flag,
   Ban,
+  MessageSquare,
+  PenSquare,
+  Sparkles,
 } from "lucide-react-native";
 
 /**
- * Public scholar profile viewer. Shows another user's profile with
+ * Public profile viewer. Shows another user's profile with
  * follow / share / report / block actions. Own profile redirects to the
  * tabbed profile screen.
  */
@@ -41,7 +48,8 @@ export default function UserProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user: me } = useAuthStore();
+  const me = useAuthStore((state) => state.user);
+  const [activeTab, setActiveTab] = useState<"questions" | "posts">("questions");
 
   const isOwnProfile = Boolean(me?.id && me.id === id);
 
@@ -54,6 +62,12 @@ export default function UserProfileScreen() {
   const { data: questions = [] } = useQuery({
     queryKey: ["profile-questions", id as string],
     queryFn: () => QuestionsService.listUserQuestions(id as string, 10),
+    enabled: Boolean(id) && !isOwnProfile,
+  });
+
+  const { data: posts = [] } = useQuery({
+    queryKey: queryKeys.userPosts(id as string),
+    queryFn: () => PostsService.listUserPosts(id as string, 10),
     enabled: Boolean(id) && !isOwnProfile,
   });
 
@@ -94,7 +108,7 @@ export default function UserProfileScreen() {
     mutationFn: () => SafetyService.blockUser(id as string, me!.id!),
     onSuccess: () => {
       AppHaptics.medium();
-      Alert.alert("Scholar Blocked", "Their content will no longer appear in your feeds.", [
+      Alert.alert("User Blocked", "Their content will no longer appear in your feed.", [
         { text: "OK", onPress: () => router.back() },
       ]);
     },
@@ -137,7 +151,7 @@ export default function UserProfileScreen() {
       <SafeAreaView className="flex-1 bg-surface">
         <Header onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)" as any))} />
         <ErrorState
-          title="Couldn't load this scholar"
+          title="Couldn't load profile"
           message="The profile may be private or the connection dropped."
           errorCode="PROFILE_LOAD_FAILED"
           onRetry={() => refetch()}
@@ -153,7 +167,7 @@ export default function UserProfileScreen() {
         onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)" as any))}
         onShare={
           profile.username
-            ? () => ShareService.copyToClipboard(`@${profile.username}`, "Username")
+            ? () => ShareService.shareProfile(profile.username, profile.display_name)
             : undefined
         }
       />
@@ -162,7 +176,7 @@ export default function UserProfileScreen() {
         {/* Identity Card */}
         <Card className="mb-5 p-6 items-center border border-white/[0.08] shadow-lg shadow-black/30">
           <Avatar
-            name={profile.display_name || "Scholar"}
+            name={profile.display_name || "User"}
             uri={profile.avatar_path}
             size="xl"
             role={profile.current_status}
@@ -170,10 +184,10 @@ export default function UserProfileScreen() {
             className="mb-4"
           />
           <Typography variant="headline-md" className="text-on-surface text-center font-bold">
-            {profile.display_name || "Academic Scholar"}
+            {profile.display_name || "User"}
           </Typography>
           <Typography variant="label-md" className="text-primary font-bold mb-3">
-            @{profile.username || "scholar"}
+            @{profile.username || "user"}
           </Typography>
           <ContributorBadge status={profile.current_status} isVerified={profile.is_verified} />
 
@@ -228,7 +242,7 @@ export default function UserProfileScreen() {
                   onPress={() => followMutation.mutate()}
                   className="w-full"
                 >
-                  {isFollowing ? "Following" : "Follow Scholar"}
+                  {isFollowing ? "Following" : "Follow"}
                 </Button>
 
                 <View className="flex-row space-x-2.5">
@@ -321,6 +335,53 @@ export default function UserProfileScreen() {
           />
         </View>
 
+        {/* Academic Credentials & Badges (Reputation 2.0) */}
+        {(() => {
+          const badges = getBadgesForProfile(profile);
+          if (badges.length === 0) return null;
+          return (
+            <View className="mb-6">
+              <View className="flex-row items-center space-x-2 mb-3">
+                <Sparkles size={16} color="#818CF8" />
+                <Typography variant="label-lg" className="text-on-surface font-bold">
+                  Academic Credentials
+                </Typography>
+              </View>
+              <View className="flex-row flex-wrap gap-2.5">
+                {badges.map((b) => (
+                  <View
+                    key={b.id}
+                    className="flex-row items-center space-x-2.5 px-3.5 py-2.5 rounded-xl bg-surface-container border border-outline-variant/60"
+                  >
+                    <Award
+                      size={16}
+                      color={
+                        b.variant === "tertiary"
+                          ? "#34D399"
+                          : b.variant === "accent"
+                          ? "#F59E0B"
+                          : "#818CF8"
+                      }
+                    />
+                    <View>
+                      <Typography variant="label-sm" className="text-on-surface font-bold">
+                        {b.name}
+                      </Typography>
+                      <Typography
+                        variant="label-sm"
+                        className="text-on-surface-variant/70 text-[11px] normal-case"
+                        numberOfLines={1}
+                      >
+                        {b.description}
+                      </Typography>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          );
+        })()}
+
         {/* Education */}
         {Array.isArray((profile as any).education) && (profile as any).education.length > 0 && (
           <View className="mb-6">
@@ -349,40 +410,86 @@ export default function UserProfileScreen() {
           </View>
         )}
 
-        {/* Recent Questions */}
-        <Typography variant="label-lg" className="text-on-surface font-bold mb-3">
-          Recent Inquiries
-        </Typography>
-        {questions.length === 0 ? (
-          <Card className="p-6 items-center border border-outline-variant/60">
-            <Typography variant="body-sm" className="text-on-surface-variant text-center">
-              No public questions yet.
-            </Typography>
-          </Card>
-        ) : (
-          questions.map((q: any) => (
-            <Card
-              key={q.id}
-              className="p-4 mb-3 border border-outline-variant/60"
-              onPress={() => router.push(`/question/${q.id}` as any)}
-            >
-              <View className="flex-row items-start justify-between mb-2">
-                <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
-                <View className="flex-row items-center space-x-1">
-                  <Award size={12} color="#94A3B8" />
-                  <Typography variant="label-sm" className="text-on-surface-variant/70">
-                    {q.helpful_count ?? 0}
-                  </Typography>
-                </View>
-              </View>
-              <Typography variant="label-md" className="text-on-surface font-bold mb-1" numberOfLines={2}>
-                {q.title}
-              </Typography>
-              <Typography variant="body-sm" className="text-on-surface-variant" numberOfLines={2}>
-                {q.body}
+        {/* Contributions — Questions & Discussions */}
+        <View className="mb-3">
+          <SegmentedControl
+            options={[
+              { label: `Questions (${questions.length})`, value: "questions" },
+              { label: `Posts (${posts.length})`, value: "posts" },
+            ]}
+            value={activeTab}
+            onChange={(val) => setActiveTab(val as "questions" | "posts")}
+          />
+        </View>
+
+        {activeTab === "questions" ? (
+          questions.length === 0 ? (
+            <Card className="p-6 items-center border border-outline-variant/60">
+              <MessageSquare size={20} color="#94A3B8" className="mb-1.5" />
+              <Typography variant="body-sm" className="text-on-surface-variant text-center">
+                No public questions asked yet.
               </Typography>
             </Card>
-          ))
+          ) : (
+            questions.map((q: any) => (
+              <Card
+                key={q.id}
+                className="p-4 mb-3 border border-outline-variant/60"
+                onPress={() => router.push(`/question/${q.id}` as any)}
+              >
+                <View className="flex-row items-start justify-between mb-2">
+                  <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
+                  <View className="flex-row items-center space-x-1">
+                    <Award size={12} color="#94A3B8" />
+                    <Typography variant="label-sm" className="text-on-surface-variant/70">
+                      {q.helpful_count ?? 0}
+                    </Typography>
+                  </View>
+                </View>
+                <Typography variant="label-md" className="text-on-surface font-bold mb-1" numberOfLines={2}>
+                  {q.title}
+                </Typography>
+                <Typography variant="body-sm" className="text-on-surface-variant" numberOfLines={2}>
+                  {q.body}
+                </Typography>
+              </Card>
+            ))
+          )
+        ) : (
+          posts.length === 0 ? (
+            <Card className="p-6 items-center border border-outline-variant/60">
+              <PenSquare size={20} color="#94A3B8" className="mb-1.5" />
+              <Typography variant="body-sm" className="text-on-surface-variant text-center">
+                No public discussion posts shared yet.
+              </Typography>
+            </Card>
+          ) : (
+            posts.map((p: PostListItem) => (
+              <Card
+                key={p.id}
+                className="p-4 mb-3 border border-outline-variant/60"
+                onPress={() => router.push(`/post/${p.id}` as any)}
+              >
+                <View className="flex-row items-start justify-between mb-2">
+                  <Badge variant="category" label="Discussion" />
+                  <View className="flex-row items-center space-x-3">
+                    <Typography variant="label-sm" className="text-on-surface-variant/70">
+                      {p.helpful_count ?? 0} helpful
+                    </Typography>
+                    <View className="flex-row items-center space-x-1">
+                      <MessageSquare size={12} color="#94A3B8" />
+                      <Typography variant="label-sm" className="text-on-surface-variant/70">
+                        {p.comment_count ?? 0}
+                      </Typography>
+                    </View>
+                  </View>
+                </View>
+                <Typography variant="body-md" className="text-on-surface leading-relaxed mb-1" numberOfLines={3}>
+                  {p.body}
+                </Typography>
+              </Card>
+            ))
+          )
         )}
       </ScrollView>
     </SafeAreaView>
@@ -395,31 +502,33 @@ function Header({ onBack, onShare }: { onBack: () => void; onShare?: () => void 
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel="Go back"
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         onPress={() => {
           AppHaptics.light();
           onBack();
         }}
-        className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
       >
         <ArrowLeft size={20} color="#F8FAFC" />
       </TouchableOpacity>
       <Typography variant="label-lg" className="text-on-surface font-bold">
-        Scholar Profile
+        Profile
       </Typography>
       {onShare ? (
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Copy username"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => {
             AppHaptics.light();
             onShare();
           }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <Share2 size={18} color="#818CF8" />
         </TouchableOpacity>
       ) : (
-        <View className="w-10" />
+        <View className="w-11" />
       )}
     </View>
   );

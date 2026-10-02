@@ -62,5 +62,26 @@ describe("normalizeError", () => {
   it("handles null/undefined safely", () => {
     expect(normalizeError(null).message).toBeTruthy();
     expect(normalizeError(undefined).message).toBeTruthy();
+    expect(normalizeError(null).category).toBe("UNKNOWN_ERROR");
+  });
+
+  it("classifies error categories, severity, and retryable flag", () => {
+    const authErr = normalizeError(new Error("Invalid login credentials"));
+    expect(authErr.category).toBe("AUTH_ERROR");
+    expect(authErr.severity).toBe("info");
+    expect(authErr.retryable).toBe(false);
+
+    const rateErr = normalizeError(new Error("rate limit exceeded"));
+    expect(rateErr.category).toBe("RATE_LIMIT_ERROR");
+    expect(rateErr.severity).toBe("warning");
+    expect(rateErr.retryable).toBe(true);
+
+    const netErr = normalizeError(new Error("Network request failed"));
+    expect(netErr.category).toBe("NETWORK_ERROR");
+    expect(netErr.retryable).toBe(true);
+
+    const rlsErr = normalizeError(new Error("violates row-level security policy"));
+    expect(rlsErr.category).toBe("RLS_ERROR");
+    expect(rlsErr.retryable).toBe(false);
   });
 });

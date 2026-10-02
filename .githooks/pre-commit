@@ -36,7 +36,7 @@ if [ -n "$STAGED" ]; then
         [/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/, "Private key"],
         [/sk_live_[A-Za-z0-9]{20,}/, "Stripe live secret key"],
         [/\beyJhbGciOi[A-Za-z0-9._-]{50,}\b/, "JWT token"],
-        [/expo_[A-Za-z0-9_-]{20,}/i, "Expo access token"],
+        [/\bexpo_(?!public)[A-Za-z0-9_-]{20,}\b/i, "Expo access token"],
         [/gh[pousr]_[A-Za-z0-9_]{36,}/, "GitHub token"],
         [/(api[_-]?key|secret|password|passwd|token)\s*[:=]\s*["\x27][^"\x27\s]{16,}["\x27]/i, "Hardcoded credential"],
       ];
@@ -71,7 +71,7 @@ fi
 # ---------------------------------------------------------------------------
 # 3. ESLint on staged JS/TS files only
 # ---------------------------------------------------------------------------
-STAGED_TS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx)$' || true)
+STAGED_TS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^src/.*\.(js|jsx|ts|tsx)$' || true)
 
 if [ -n "$STAGED_TS" ]; then
   echo "==> Lint (staged files)"

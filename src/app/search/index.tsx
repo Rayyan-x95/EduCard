@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/query-client";
 import { Typography } from "@/components/ui/Typography";
 import { TextInput } from "@/components/ui/TextInput";
 import { Button } from "@/components/ui/Button";
@@ -28,9 +29,9 @@ import {
   WifiOff,
 } from "lucide-react-native";
 
-type SearchFilterTab = "top" | "questions" | "people" | "spaces";
+type SearchFilterTab = "top" | "questions" | "posts" | "people" | "spaces";
 
-const EMPTY: SearchResults = { questions: [], communities: [], profiles: [], topics: [] };
+const EMPTY: SearchResults = { questions: [], posts: [], communities: [], profiles: [], topics: [] };
 
 export default function GlobalSearchScreen() {
   const router = useRouter();
@@ -61,7 +62,7 @@ export default function GlobalSearchScreen() {
     isError: failed,
     refetch,
   } = useQuery({
-    queryKey: ["search", debouncedQuery],
+    queryKey: queryKeys.search(debouncedQuery),
     queryFn: async () => {
       const trimmed = debouncedQuery.trim();
       const res = await SearchService.searchAll(trimmed);
@@ -78,8 +79,43 @@ export default function GlobalSearchScreen() {
   const results = searchResults ?? EMPTY;
 
   const showQuestions = activeTab === "top" || activeTab === "questions";
+  const showPosts = activeTab === "top" || activeTab === "posts";
   const showPeople = activeTab === "top" || activeTab === "people";
   const showCommunities = activeTab === "top" || activeTab === "spaces";
+
+  const listData = useMemo(() => {
+    if (loading || failed) return [];
+    const items: any[] = [];
+    if (activeTab === "top" && (results.topics?.length ?? 0) > 0) {
+      items.push({ type: "topics_header", count: results.topics!.length });
+      items.push({ type: "topics", items: results.topics });
+    }
+    if (showCommunities && results.communities.length > 0) {
+      items.push({ type: "communities_header", count: results.communities.length });
+      results.communities.forEach((c, i) =>
+        items.push({ type: "community", item: c, isLast: i === results.communities.length - 1 })
+      );
+    }
+    if (showQuestions && results.questions.length > 0) {
+      items.push({ type: "questions_header", count: results.questions.length });
+      results.questions.forEach((q, i) =>
+        items.push({ type: "question", item: q, isLast: i === results.questions.length - 1 })
+      );
+    }
+    if (showPosts && (results.posts?.length ?? 0) > 0) {
+      items.push({ type: "posts_header", count: results.posts!.length });
+      results.posts!.forEach((p, i) =>
+        items.push({ type: "post", item: p, isLast: i === results.posts!.length - 1 })
+      );
+    }
+    if (showPeople && results.profiles.length > 0) {
+      items.push({ type: "people_header", count: results.profiles.length });
+      results.profiles.forEach((p, i) =>
+        items.push({ type: "profile", item: p, isLast: i === results.profiles.length - 1 })
+      );
+    }
+    return items;
+  }, [loading, failed, activeTab, results, showCommunities, showQuestions, showPosts, showPeople]);
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
@@ -88,11 +124,12 @@ export default function GlobalSearchScreen() {
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Go back"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => {
             AppHaptics.light();
             if (router.canGoBack()) router.back(); else router.replace('/(tabs)' as any);
           }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <ArrowLeft size={20} color="#F8FAFC" />
         </TouchableOpacity>
@@ -155,7 +192,7 @@ export default function GlobalSearchScreen() {
 
       {/* Filter Tabs */}
       <View className="flex-row px-5 py-3 border-b border-surface-container-high/80 space-x-2">
-        {(["top", "questions", "people", "spaces"] as const).map((tab) => {
+        {(["top", "questions", "posts", "people", "spaces"] as const).map((tab) => {
           const isSelected = activeTab === tab;
           return (
             <TouchableOpacity
@@ -189,27 +226,7 @@ export default function GlobalSearchScreen() {
 
       <View style={{ flex: 1, width: "100%" }}>
         <FlashList<any>
-          data={(() => {
-            if (loading || failed) return [];
-            const items: any[] = [];
-            if (activeTab === "top" && (results.topics?.length ?? 0) > 0) {
-              items.push({ type: "topics_header", count: results.topics!.length });
-              items.push({ type: "topics", items: results.topics });
-            }
-          if (showCommunities && results.communities.length > 0) {
-            items.push({ type: "communities_header", count: results.communities.length });
-            results.communities.forEach((c, i) => items.push({ type: "community", item: c, isLast: i === results.communities.length - 1 }));
-          }
-          if (showQuestions && results.questions.length > 0) {
-            items.push({ type: "questions_header", count: results.questions.length });
-            results.questions.forEach((q, i) => items.push({ type: "question", item: q, isLast: i === results.questions.length - 1 }));
-          }
-          if (showPeople && results.profiles.length > 0) {
-            items.push({ type: "people_header", count: results.profiles.length });
-            results.profiles.forEach((p, i) => items.push({ type: "profile", item: p, isLast: i === results.profiles.length - 1 }));
-          }
-          return items;
-        })()}
+          data={listData}
         {...{ estimatedItemSize: 100 } as any}
         getItemType={(item: any) => item.type}
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: Math.max(24, insets.bottom + 24) }}
@@ -252,7 +269,7 @@ export default function GlobalSearchScreen() {
                   No results found
                 </Typography>
                 <Typography variant="body-md" className="text-on-surface-variant text-center max-w-xs leading-relaxed">
-                  No matching scholars, inquiries, or spaces found for "{query}"
+                  No matching questions, people, or communities found for "{query}"
                 </Typography>
               </View>
             );
@@ -280,7 +297,7 @@ export default function GlobalSearchScreen() {
                   ))}
                 </View>
                 <Typography variant="label-sm" className="text-on-surface-variant/60 mt-2.5 normal-case">
-                  Tip: use topics when asking a question to reach the right scholars.
+                  Tip: add relevant topics to help the right people find your question.
                 </Typography>
               </View>
             );
@@ -288,7 +305,7 @@ export default function GlobalSearchScreen() {
           if (item.type === "communities_header") {
             return (
               <Typography variant="label-lg" className="text-tertiary mb-3 font-bold mt-2">
-                Academic Spaces ({item.count})
+                Communities ({item.count})
               </Typography>
             );
           }
@@ -359,10 +376,36 @@ export default function GlobalSearchScreen() {
               </Card>
             );
           }
+          if (item.type === "posts_header") {
+            return (
+              <Typography variant="label-lg" className="text-secondary mb-3 font-bold mt-2">
+                Discussions ({item.count})
+              </Typography>
+            );
+          }
+          if (item.type === "post") {
+            const p = item.item;
+            return (
+              <Card
+                onPress={() => {
+                  AppHaptics.light();
+                  router.push(`/post/${p.id}` as any);
+                }}
+                className={`p-4 ${item.isLast ? 'mb-6' : 'mb-3'} bg-surface-container border border-outline-variant/60 shadow-sm`}
+              >
+                <Typography variant="label-lg" className="text-on-surface mb-1.5 font-bold leading-snug">
+                  {p.title}
+                </Typography>
+                <Typography variant="body-sm" className="text-on-surface-variant/90 leading-relaxed" numberOfLines={2}>
+                  {p.body}
+                </Typography>
+              </Card>
+            );
+          }
           if (item.type === "people_header") {
             return (
               <Typography variant="label-lg" className="text-secondary mb-3 font-bold mt-2">
-                Scholars & Mentors ({item.count})
+                People ({item.count})
               </Typography>
             );
           }

@@ -115,6 +115,52 @@ export const CommunitiesService = {
     return data || [];
   },
 
+  /** Discussion posts published inside a community, newest first. */
+  async listCommunityPosts(communityId: string, limit = 20) {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        `
+        id,
+        author_id,
+        community_id,
+        body,
+        helpful_count,
+        comment_count,
+        image_paths,
+        created_at,
+        profiles!posts_author_id_fkey (
+          username,
+          display_name,
+          avatar_path,
+          current_status,
+          is_verified
+        )
+      `
+      )
+      .eq("community_id", communityId)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return ((data as any[]) || []).map((p) => ({
+      id: p.id,
+      author_id: p.author_id,
+      author_username: p.profiles?.username ?? "",
+      author_display_name: p.profiles?.display_name ?? "User",
+      author_avatar_path: p.profiles?.avatar_path ?? null,
+      author_status: p.profiles?.current_status ?? "undergraduate",
+      author_is_verified: p.profiles?.is_verified ?? false,
+      community_id: p.community_id,
+      body: p.body,
+      helpful_count: p.helpful_count ?? 0,
+      comment_count: p.comment_count ?? 0,
+      image_paths: p.image_paths,
+      created_at: p.created_at,
+    }));
+  },
+
   async createCommunity(payload: {
     name: string;
     slug: string;

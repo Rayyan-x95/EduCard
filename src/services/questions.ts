@@ -30,7 +30,7 @@ export interface FeedRow {
   is_bookmarked: boolean;
 }
 
-const FEED_PAGE_SIZE = 20;
+export const FEED_PAGE_SIZE = 20;
 const ANSWERS_HARD_CAP = 200;
 
 /** Compact question shape for profile lists (see listUserQuestions). */
@@ -52,11 +52,9 @@ export interface QuestionListItem {
 
 /**
  * Resolves the caller's id from the local session (no network round-trip).
- * Direct-table INSERTs must supply author_id explicitly — the RLS policies
- * use WITH CHECK ((select auth.uid()) = author_id), so an omitted column is
- * rejected as a permission error instead of being stamped server-side.
  */
-async function requireUserId(): Promise<string> {
+async function requireUserId(passedUserId?: string): Promise<string> {
+  if (passedUserId) return passedUserId;
   const { data } = await supabase.auth.getSession();
   const userId = data.session?.user?.id;
   if (!userId) {
@@ -72,8 +70,8 @@ function mapFallbackQuestion(q: any): FeedRow {
     item_type: "question",
     id: q.id,
     author_id: q.author_id,
-    author_username: q.profiles?.username || "scholar",
-    author_display_name: q.profiles?.display_name || "Academic Scholar",
+    author_username: q.profiles?.username || "user",
+    author_display_name: q.profiles?.display_name || "User",
     author_avatar_path: q.profiles?.avatar_path || null,
     author_status: q.profiles?.current_status || "undergraduate",
     author_is_verified: q.profiles?.is_verified || false,
@@ -297,7 +295,7 @@ export const QuestionsService = {
       id: q.id,
       author_id: q.author_id,
       author_username: q.profiles?.username ?? "",
-      author_display_name: q.profiles?.display_name ?? "Scholar",
+      author_display_name: q.profiles?.display_name ?? "User",
       author_avatar_path: q.profiles?.avatar_path ?? null,
       author_status: q.profiles?.current_status ?? "undergraduate",
       author_is_verified: q.profiles?.is_verified ?? false,
@@ -380,6 +378,65 @@ export const QuestionsService = {
       return (data || []) as any;
     } catch {
       // Related content is enhancement-only; never block the detail page.
+      return [];
+    }
+  },
+
+  /**
+   * Pre-ask similarity search: finds existing questions matching the input title.
+   * Helps students find instant answers and prevents duplicate questions.
+   */
+  async findSimilarQuestions(
+    rawTitle: string,
+    limit = 4
+  ): Promise<
+    {
+      id: string;
+      title: string;
+      status: QuestionStatusEnum;
+      answer_count: number;
+    }[]
+  > {
+    const trimmed = rawTitle.trim();
+    if (trimmed.length < 5) return [];
+
+    // Sanitize query to prevent PostgREST/FTS injection
+    const sanitized = trimmed.replace(/[(),.%\\*_]/g, "").slice(0, 80);
+    if (!sanitized) return [];
+
+    try {
+      // 1. Try full-text search RPC first
+      const { data: ftsData } = await supabase.rpc("search_questions_fts", {
+        p_query: sanitized,
+        p_limit: limit,
+      });
+
+      if (Array.isArray(ftsData) && ftsData.length > 0) {
+        return ftsData.map((q: any) => ({
+          id: q.id,
+          title: q.title,
+          status: q.status,
+          answer_count: q.answer_count ?? 0,
+        }));
+      }
+
+      // 2. Fallback to title substring match
+      const { data: fallbackData } = await supabase
+        .from("questions")
+        .select("id, title, status, answer_count")
+        .ilike("title", `%${sanitized}%`)
+        .is("deleted_at", null)
+        .order("answer_count", { ascending: false })
+        .limit(limit);
+
+      return (fallbackData || []).map((q: any) => ({
+        id: q.id,
+        title: q.title,
+        status: q.status,
+        answer_count: q.answer_count ?? 0,
+      }));
+    } catch {
+      // Pre-ask suggestion is progressive enhancement; never block the composer.
       return [];
     }
   },

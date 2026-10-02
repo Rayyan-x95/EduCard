@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 
 export interface SearchResults {
   questions: any[];
+  posts: any[];
   communities: any[];
   profiles: any[];
   topics: any[];
@@ -11,7 +12,7 @@ export const SearchService = {
   async searchAll(queryText: string): Promise<SearchResults> {
     const rawQuery = queryText.trim();
     if (!rawQuery || rawQuery.length < 2) {
-      return { questions: [], communities: [], profiles: [], topics: [] };
+      return { questions: [], posts: [], communities: [], profiles: [], topics: [] };
     }
 
     // Limit maximum length to prevent malicious DB load
@@ -21,7 +22,7 @@ export const SearchService = {
     const safeFilter = cleanQuery.replace(/[(),.%\\*_]/g, "");
 
     if (!safeFilter || safeFilter.length < 2) {
-      return { questions: [], communities: [], profiles: [], topics: [] };
+      return { questions: [], posts: [], communities: [], profiles: [], topics: [] };
     }
 
     const likePattern = `%${safeFilter}%`;
@@ -48,11 +49,24 @@ export const SearchService = {
         .limit(10);
     };
 
-    // Consolidated profile query matches username or display_name in a single request.
+    // Consolidated queries in parallel.
     // safeFilter is sanitized of () , . % \ * _ preventing PostgREST filter injection.
-    const [questionsRes, communitiesRes, topicsRes, profilesRes] =
+    const [questionsRes, postsRes, communitiesRes, topicsRes, profilesRes] =
       await Promise.all([
         fetchQuestions(),
+        supabase
+          .from("posts")
+          .select(
+            `
+            id, body, helpful_count, comment_count, created_at,
+            profiles!posts_author_id_fkey (
+              username, display_name, avatar_path, current_status, is_verified
+            )
+          `
+          )
+          .ilike("body", likePattern)
+          .is("deleted_at", null)
+          .limit(10),
         supabase
           .from("communities")
           .select("id, name, slug, description, member_count")
@@ -79,6 +93,7 @@ export const SearchService = {
 
     return {
       questions: questionsRes.data || [],
+      posts: postsRes.data || [],
       communities: communitiesRes.data || [],
       topics: topicsRes.data || [],
       profiles: Array.from(profileMap.values()).slice(0, 10),

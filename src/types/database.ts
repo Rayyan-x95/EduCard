@@ -1237,6 +1237,15 @@ export interface Database {
           count: number;
         };
       };
+      toggle_bookmark: {
+        Args: {
+          p_target_type: string; // 'question' | 'post'
+          p_target_id: string;   // UUID as string
+        };
+        Returns: {
+          is_active: boolean;
+        };
+      };
       complete_onboarding: {
         Args: {
           p_username: string;
@@ -1327,6 +1336,16 @@ export interface Database {
           p_community_id?: string | null;
           p_topic_ids?: string[];
           p_image_paths?: string[];
+        };
+        Returns: string;
+      };
+      rpc_create_post: {
+        Args: {
+          p_body: string;
+          p_community_id?: string | null;
+          p_topic_ids?: string[];
+          p_image_paths?: string[];
+          p_visibility?: ContentVisibilityEnum;
         };
         Returns: string;
       };

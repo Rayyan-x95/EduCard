@@ -25,6 +25,12 @@ export const queryClient = new QueryClient({
 
         return true;
       },
+      retryDelay: (attemptIndex) => {
+        // Exponential backoff with jitter: 1s, 2s, 4s... capped at 30s
+        const base = Math.min(1000 * 2 ** attemptIndex, 30_000);
+        const jitter = Math.random() * 500;
+        return base + jitter;
+      },
       refetchOnWindowFocus: false,
     },
     mutations: {
@@ -35,7 +41,7 @@ export const queryClient = new QueryClient({
 
 // Standardized Query Key Factories
 export const queryKeys = {
-  feed: (filter: string) => ["feed", filter] as const,
+  feed: (filter?: string) => (filter ? (["feed", filter] as const) : (["feed"] as const)),
   question: (id: string) => ["question", id] as const,
   answers: (questionId: string) => ["answers", questionId] as const,
   profile: (userId: string) => ["profile", userId] as const,
@@ -47,6 +53,19 @@ export const queryKeys = {
   unreadNotificationsCount: () => ["notifications", "unread-count"] as const,
   bookmarks: (targetType?: string) => ["bookmarks", targetType || "all"] as const,
   isBookmarked: (targetType: string, id: string) => ["is-bookmarked", targetType, id] as const,
+  myQuestions: (userId?: string) => ["my-questions", userId] as const,
+  questionComments: (questionId: string) => ["question-comments", questionId] as const,
+  answerComments: (answerId: string) => ["answer-comments", answerId] as const,
+  communityName: (communityId?: string | null) => ["community-name", communityId] as const,
+  relatedQuestions: (questionId: string) => ["related-questions", questionId] as const,
+  questionImageUrls: (imagePaths?: (string | null)[] | null) => ["question-image-urls", imagePaths] as const,
+  moderationQueue: () => ["moderation-queue"] as const,
+  isModerator: () => ["is-moderator"] as const,
+  post: (id: string) => ["post", id] as const,
+  userPosts: (userId?: string) => ["user-posts", userId] as const,
+  communityPosts: (communityId?: string) => ["community-posts", communityId] as const,
+  /** Full-text / substring search across questions, posts, communities, profiles. */
+  search: (q: string) => ["search", q] as const,
 };
 
 // Cache TTL Presets (in milliseconds)
@@ -59,4 +78,9 @@ export const CACHE_TTL = {
   PROFILE: 1000 * 60 * 5, // 5 minutes
   /** Standard dynamic query stale time */
   STANDARD: 1000 * 60 * 2, // 2 minutes
+  /**
+   * Moderator role — changes only when an admin promotes/demotes a user.
+   * Safe to cache for 30 minutes; worst case the user sees the panel 30m late.
+   */
+  MODERATOR_ROLE: 1000 * 60 * 30, // 30 minutes
 } as const;

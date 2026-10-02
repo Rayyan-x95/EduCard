@@ -34,7 +34,7 @@ export default function PostDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
   const [commentText, setCommentText] = useState("");
   const [error, setError] = useState("");
 
@@ -130,8 +130,9 @@ export default function PostDetailScreen() {
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Go back"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => { AppHaptics.light(); if (router.canGoBack()) router.back(); else router.replace("/(tabs)" as any); }}
-          className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <ArrowLeft size={20} color="#F8FAFC" />
         </TouchableOpacity>
@@ -140,8 +141,13 @@ export default function PostDetailScreen() {
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Share this post"
-            onPress={() => { AppHaptics.light(); ShareService.copyToClipboard(`https://educard.ninety5.in/post/${id}`, "Post link"); }}
-            className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            onPress={() => {
+              AppHaptics.light();
+              const snippet = post.body.length > 60 ? `${post.body.slice(0, 57)}...` : post.body;
+              ShareService.sharePost(snippet, id as string);
+            }}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
           >
             <Share2 size={18} color="#818CF8" />
           </TouchableOpacity>
@@ -150,11 +156,12 @@ export default function PostDetailScreen() {
             accessibilityRole="button"
             accessibilityLabel={isBookmarked ? "Remove bookmark" : "Bookmark post"}
             accessibilityState={{ selected: !!isBookmarked }}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             onPress={() => {
               AppHaptics.light();
               if (!bookmarkMutation.isPending) bookmarkMutation.mutate();
             }}
-            className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
           >
             <Bookmark
               size={18}
@@ -166,6 +173,7 @@ export default function PostDetailScreen() {
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Report this post"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             onPress={() => {
               AppHaptics.light();
               router.push({
@@ -173,7 +181,7 @@ export default function PostDetailScreen() {
                 params: { targetType: "post", targetId: id || "", targetUserId: post.author_id || "" },
               } as any);
             }}
-            className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
           >
             <Flag size={18} color="#94A3B8" />
           </TouchableOpacity>
@@ -189,7 +197,7 @@ export default function PostDetailScreen() {
         {/* Author header — tap to open public profile */}
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel={`View ${post.author?.display_name || "scholar"}'s profile`}
+          accessibilityLabel={`View ${post.author?.display_name || "user"}'s profile`}
           disabled={!post.author_id}
           onPress={() => {
             AppHaptics.light();
@@ -197,9 +205,9 @@ export default function PostDetailScreen() {
           }}
           className="flex-row items-center space-x-3 mb-4 active:opacity-70"
         >
-          <Avatar name={post.author?.display_name || "Scholar"} uri={post.author?.avatar_path} size="md" role={post.author?.current_status || "undergraduate"} isVerified={post.author?.is_verified || false} />
+          <Avatar name={post.author?.display_name || "User"} uri={post.author?.avatar_path} size="md" role={post.author?.current_status || "undergraduate"} isVerified={post.author?.is_verified || false} />
           <View className="flex-1">
-            <Typography variant="label-md" className="text-on-surface font-bold">{post.author?.display_name || "Scholar"}</Typography>
+            <Typography variant="label-md" className="text-on-surface font-bold">{post.author?.display_name || "User"}</Typography>
             <Typography variant="label-sm" className="text-on-surface-variant/70">{new Date(post.created_at).toLocaleDateString()}</Typography>
           </View>
         </TouchableOpacity>
@@ -258,7 +266,15 @@ export default function PostDetailScreen() {
         {error ? <Typography variant="label-sm" className="text-error mb-2">{error}</Typography> : null}
         <View className="flex-row items-center space-x-3">
           <TextInput placeholder="Add a comment..." value={commentText} onChangeText={setCommentText} containerClassName="flex-1 mb-0" multiline maxLength={1000} className="max-h-20" />
-          <Button variant="primary" size="md" loading={commentMutation.isPending} disabled={commentText.trim().length < 1} onPress={() => commentMutation.mutate()} className="px-4">
+          <Button
+            variant="primary"
+            size="md"
+            accessibilityLabel="Send comment"
+            loading={commentMutation.isPending}
+            disabled={commentText.trim().length < 1}
+            onPress={() => commentMutation.mutate()}
+            className="px-4"
+          >
             <Send size={18} color="#0F172A" />
           </Button>
         </View>

@@ -50,14 +50,20 @@ EduCard is a cross-platform social knowledge network for students. Students can 
 
 ## Documentation
 
-- `docs/PRD.md` — product requirements
-- `docs/ARCHITECTURE.md` — technical architecture
-- `docs/DATABASE.md` — database model
-- `docs/SECURITY.md` — security and privacy
-- `docs/API.md` — data/API contracts
-- `docs/UX.md` — UX and screen specification
-- `docs/MODERATION.md` — trust and safety
-- `docs/ANALYTICS.md` — product analytics
-- `docs/ROADMAP.md` — delivery roadmap
-- `docs/QA.md` — testing strategy
-- `docs/OPERATIONS.md` — production operations
+See the **[Documentation Hub](docs/README.md)** for the complete guide.
+
+- [`docs/PRD.md`](docs/PRD.md) — Product requirements
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — Technical architecture & data flows
+- [`docs/DATABASE.md`](docs/DATABASE.md) — PostgreSQL database model & indexing
+- [`docs/SECURITY.md`](docs/SECURITY.md) — Security model & Row-Level Security
+- [`docs/API.md`](docs/API.md) — Data & API contracts
+- [`docs/DESIGN.md`](docs/DESIGN.md) — Design system & styling guidelines
+- [`docs/UX.md`](docs/UX.md) — UX & screen specifications
+- [`docs/MODERATION.md`](docs/MODERATION.md) — Trust, safety & moderation
+- [`docs/ANALYTICS.md`](docs/ANALYTICS.md) — Product analytics & event taxonomy
+- [`docs/OPERATIONS.md`](docs/OPERATIONS.md) — Production operations & push delivery runbook
+- [`docs/QA.md`](docs/QA.md) — Testing strategy & verification gates
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — Product roadmap
+- [`docs/V1-BACKLOG.md`](docs/V1-BACKLOG.md) — Feature epics & release backlog
+- [`docs/adr/`](docs/adr/README.md) — Architecture Decision Records (ADRs)
+- [`AUDIT_REPORT.md`](AUDIT_REPORT.md) — Production audit report (Grade A+)

@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { UserStatusEnum, Database } from "@/types/database";
 import { normalizeError } from "@/lib/errors";
+import { NotificationsService } from "@/services/notifications";
 
 export interface OnboardingInput {
   username: string;
@@ -101,6 +102,14 @@ export const AuthService = {
 
   // Sign out
   async signOut() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.id) {
+        await NotificationsService.unregisterPushToken(user.id);
+      }
+    } catch {
+      // Best effort
+    }
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   },

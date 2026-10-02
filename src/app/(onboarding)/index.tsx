@@ -30,7 +30,6 @@ import {
   School,
   Award,
   Briefcase,
-  Sparkles,
   CheckCircle2,
   BookOpen,
   ArrowRight,
@@ -48,32 +47,34 @@ const ROLES: RoleOption[] = [
   {
     id: "undergraduate",
     title: "Student",
-    subtitle: "Currently enrolled in an academic program, seeking knowledge and guidance.",
+    subtitle: "Currently enrolled in school or university.",
     icon: School,
   },
   {
     id: "alumni",
     title: "Alumni",
-    subtitle: "Graduated scholars looking to reconnect, share experiences, and network.",
+    subtitle: "Graduates looking to reconnect, share advice, and network.",
     icon: Award,
   },
   {
     id: "professional",
     title: "Professional",
-    subtitle: "Industry experts contributing insights and bridging academia and career.",
+    subtitle: "Working professionals sharing industry insights.",
     icon: Briefcase,
   },
   {
     id: "mentor",
     title: "Mentor / Faculty",
-    subtitle: "Experienced individuals dedicated to guiding and advising the next generation.",
-    icon: Sparkles,
+    subtitle: "Faculty and mentors advising students.",
+    icon: BookOpen,
   },
 ];
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const { user, profile, setProfile } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const profile = useAuthStore((state) => state.profile);
+  const setProfile = useAuthStore((state) => state.setProfile);
   const [step, setStep] = useState(1);
 
   const { data: availableTopics = [], isLoading: topicsLoading } = useQuery({
@@ -254,7 +255,7 @@ export default function OnboardingScreen() {
                 Step {step} of 3
               </Typography>
               <Typography variant="label-sm" className="text-primary font-bold normal-case">
-                {step === 1 ? "Choose Your Path" : step === 2 ? "Education Profile" : "Academic Interests"}
+                {step === 1 ? "Choose Your Path" : step === 2 ? "Education Profile" : "Topics & Interests"}
               </Typography>
             </View>
             <View className="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
@@ -346,15 +347,15 @@ export default function OnboardingScreen() {
           <View>
             <View className="items-center mb-6">
               <Typography variant="headline-lg" className="text-on-surface text-center mb-2 font-bold text-2xl">
-                Academic Profile
+                Your Profile
               </Typography>
               <Typography variant="body-md" className="text-on-surface-variant text-center max-w-xs leading-relaxed">
-                Tell us where you study so we can route questions to relevant scholars.
+                Tell us where you study so we can connect you with relevant questions and peers.
               </Typography>
             </View>
 
             <TextInput
-              label="Scholar Handle / Username"
+              label="Username"
               placeholder="e.g. sarahchen"
               value={username}
               onChangeText={(val) => {
@@ -490,11 +491,11 @@ export default function OnboardingScreen() {
         )}
 
         {step === 3 && (
-          /* Step 3: Academic Interests */
+          /* Step 3: Topics & Interests */
           <View>
             <View className="items-center mb-6">
               <Typography variant="headline-lg" className="text-on-surface text-center mb-2 font-bold text-2xl">
-                Academic Interests
+                Topics & Interests
               </Typography>
               <Typography variant="body-md" className="text-on-surface-variant text-center max-w-xs leading-relaxed">
                 Optionally pick topics you care about — you can change these anytime.
@@ -580,7 +581,7 @@ export default function OnboardingScreen() {
             </Typography>
 
             <Typography variant="body-md" className="text-on-surface-variant text-center max-w-sm mb-10 leading-relaxed">
-              Your academic profile has been successfully configured. You are now ready to join discussions, connect with peers, and share knowledge.
+              Your profile is ready. You can now join discussions, connect with peers, and share knowledge.
             </Typography>
 
             <Button

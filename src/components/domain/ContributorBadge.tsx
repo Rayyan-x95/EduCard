@@ -1,5 +1,6 @@
 import { Badge, BadgeVariant } from "@/components/ui/Badge";
 import { UserStatusEnum } from "@/types/database";
+import { Check } from "lucide-react-native";
 
 interface ContributorBadgeProps {
   status: UserStatusEnum;
@@ -44,7 +45,7 @@ export function ContributorBadge({
       default:
         return {
           variant: "neutral",
-          label: "Scholar",
+          label: "Member",
         };
     }
   };
@@ -54,7 +55,16 @@ export function ContributorBadge({
   return (
     <Badge
       variant={variant}
-      label={isVerified ? `✓ ${label}` : label}
+      label={label}
+      icon={
+        isVerified ? (
+          <Check
+            size={11}
+            color={variant === "mentor" ? "#D8B4FE" : "#34D399"}
+            strokeWidth={2.8}
+          />
+        ) : undefined
+      }
       className={className}
     />
   );

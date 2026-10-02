@@ -33,11 +33,11 @@ export function Button({
   onPress,
   ...props
 }: ButtonProps) {
-  const baseStyles = "flex-row items-center justify-center font-semibold";
+  const baseStyles = "flex-row items-center justify-center font-semibold web:cursor-pointer select-none active:scale-[0.99] transition-all";
 
   const sizeStyles = {
-    sm: "px-3.5 py-2 min-h-[40px] rounded-xl",
-    md: "px-5 py-2.5 min-h-[46px] rounded-xl",
+    sm: "px-4 py-2.5 min-h-[44px] rounded-xl",
+    md: "px-5 py-3 min-h-[48px] rounded-xl",
     lg: "px-6 py-3.5 min-h-[52px] rounded-2xl",
   };
 
