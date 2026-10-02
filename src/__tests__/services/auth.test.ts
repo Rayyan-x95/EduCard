@@ -95,4 +95,28 @@ describe("AuthService", () => {
     expect(supabase.rpc).toHaveBeenCalledWith("delete_own_account");
     expect(supabase.auth.signOut).toHaveBeenCalled();
   });
+
+  it("fetches profile by username with sanitized handle", async () => {
+    const mockProfile = { id: "u-123", username: "rayyan1904" };
+    const maybeSingle = vi.fn().mockResolvedValueOnce({ data: mockProfile, error: null });
+    const ilike = vi.fn().mockReturnValue({ maybeSingle });
+    const select = vi.fn().mockReturnValue({ ilike });
+    vi.mocked(supabase.from).mockReturnValueOnce({ select } as any);
+
+    const result = await AuthService.getProfileByUsername("@rayyan1904");
+    expect(supabase.from).toHaveBeenCalledWith("profiles");
+    expect(ilike).toHaveBeenCalledWith("username", "rayyan1904");
+    expect(result).toEqual(mockProfile);
+  });
+
+  it("resolves username in getPublicProfile when non-UUID string is provided", async () => {
+    const mockProfile = { id: "u-456", username: "rayyan1904" };
+    const maybeSingle = vi.fn().mockResolvedValueOnce({ data: mockProfile, error: null });
+    const ilike = vi.fn().mockReturnValue({ maybeSingle });
+    const select = vi.fn().mockReturnValue({ ilike });
+    vi.mocked(supabase.from).mockReturnValueOnce({ select } as any);
+
+    const result = await AuthService.getPublicProfile("rayyan1904");
+    expect(result).toEqual(mockProfile);
+  });
 });

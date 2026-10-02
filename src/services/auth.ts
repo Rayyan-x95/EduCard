@@ -34,9 +34,35 @@ export const AuthService = {
     return data;
   },
 
-  /** Public profile lookup for other users */
-  async getPublicProfile(userId: string) {
-    return this.getCurrentProfile(userId);
+  /** Public profile lookup for other users by userId (UUID) or username */
+  async getPublicProfile(idOrUsername: string) {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
+    if (isUuid) {
+      return this.getCurrentProfile(idOrUsername);
+    }
+    const profile = await this.getProfileByUsername(idOrUsername);
+    if (!profile) {
+      throw Object.assign(new Error("Profile not found"), { code: "PGRST116" });
+    }
+    return profile;
+  },
+
+  /** Public profile lookup by username */
+  async getProfileByUsername(username: string) {
+    const cleanUsername = username.toLowerCase().trim().replace(/^@/, "");
+    const { data, error } = await supabase
+      .from("profiles")
+      .select(
+        `
+        *,
+        education (*)
+      `
+      )
+      .ilike("username", cleanUsername)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
   },
 
   /** Live availability check for the onboarding username field. */
