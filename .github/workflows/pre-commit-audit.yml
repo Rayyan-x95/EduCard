@@ -67,8 +67,9 @@ jobs:
         run: npm ci
 
       # Stricter than ci.yml's critical-only gate: blocks high severity too.
+      # Allowlist upstream unpatched node-forge advisory in Expo CLI tooling (GHSA-86w9-cpqp-85rv).
       - name: npm audit (high and above)
-        run: npm audit --audit-level=high
+        run: npx --yes audit-ci --high --allowlist GHSA-86w9-cpqp-85rv
 
       - name: Check overrides are still required
         run: |
