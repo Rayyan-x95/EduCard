@@ -92,10 +92,10 @@ export const QuestionCard = React.memo(function QuestionCard({
 
       {/* Footer Metrics with Tactile Interactive Chips */}
       <View className="flex-row items-center justify-between pt-3 border-t border-white/[0.08]">
-        <View className="flex-row items-center space-x-2.5">
+        <View className="flex-row items-center">
           {/* Answers Chip with Solved Indicator */}
           <View
-            className={`flex-row items-center space-x-1.5 min-h-[38px] px-3.5 py-1.5 rounded-full border ${
+            className={`flex-row items-center min-h-[38px] px-3.5 py-1.5 rounded-full border mr-2.5 ${
               isSolved
                 ? "bg-tertiary-container/35 border-tertiary/50 shadow-sm shadow-tertiary/20"
                 : question.answer_count > 0
@@ -104,12 +104,14 @@ export const QuestionCard = React.memo(function QuestionCard({
             }`}
           >
             {isSolved ? (
-              <CheckCircle2 size={14} color="#34D399" />
+              <View className="mr-1.5"><CheckCircle2 size={14} color="#34D399" /></View>
             ) : (
-              <MessageSquare
-                size={14}
-                color={question.answer_count > 0 ? "#818CF8" : "#94A3B8"}
-              />
+              <View className="mr-1.5">
+                <MessageSquare
+                  size={14}
+                  color={question.answer_count > 0 ? "#818CF8" : "#94A3B8"}
+                />
+              </View>
             )}
             <Typography
               variant="label-md"

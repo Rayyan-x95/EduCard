@@ -44,7 +44,7 @@ export function TextInput({
       )}
       <View
         className={clsx(
-          "flex-row items-center gap-3 bg-surface-container-low border rounded-xl px-4 min-h-[50px] transition-all",
+          "flex-row items-center bg-surface-container-low border rounded-xl px-4 min-h-[50px] web:transition-all",
           error
             ? "border-error bg-error-container/10"
             : isFocused
@@ -52,10 +52,10 @@ export function TextInput({
             : "border-outline-variant/60"
         )}
       >
-        {leftIcon && <View aria-hidden>{leftIcon}</View>}
+        {leftIcon && <View aria-hidden className="mr-3">{leftIcon}</View>}
         <RNTextInput
           className={clsx("flex-1 text-on-surface text-base font-body", className)}
-          style={[{ paddingVertical: Platform.OS === 'android' ? 8 : 12, minHeight: 48 }, props.style as any]}
+          style={[{ paddingVertical: Platform.OS === 'android' ? 8 : 12, minHeight: props.multiline ? undefined : 48 }, props.style as any]}
           placeholderTextColor="#94A3B8"
           selectionColor="#818CF8"
           accessibilityLabel={accessibilityLabel ?? label}

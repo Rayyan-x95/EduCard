@@ -28,7 +28,7 @@ export const AuthorHeader = React.memo(function AuthorHeader({
 }: AuthorHeaderProps) {
   return (
     <View className={cn("flex-row items-center justify-between mb-3.5", className)}>
-      <View className="flex-row items-center space-x-3 flex-1 mr-3">
+      <View className="flex-row items-center gap-x-3 flex-1 mr-3">
         <Avatar
           name={displayName}
           uri={avatarPath}

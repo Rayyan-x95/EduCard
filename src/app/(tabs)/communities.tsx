@@ -57,10 +57,10 @@ export default function CommunitiesScreen() {
         </View>
 
         {isLoading ? (
-          <View className="flex-1 px-5 py-4 space-y-4">
-            <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
-            <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
-            <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
+          <View className="flex-1 px-5 py-4">
+            <Skeleton height={140} className="w-full rounded-2xl bg-surface-container mb-4" />
+            <Skeleton height={140} className="w-full rounded-2xl bg-surface-container mb-4" />
+            <Skeleton height={140} className="w-full rounded-2xl bg-surface-container mb-4" />
           </View>
         ) : isError ? (
           <ErrorState
@@ -90,8 +90,8 @@ export default function CommunitiesScreen() {
                   }}
                 >
                   <View className="flex-row items-center justify-between mb-3">
-                    <View className="flex-row items-center space-x-3.5 flex-1 mr-2">
-                      <View className="w-11 h-11 rounded-2xl bg-primary-container/40 border border-primary/30 items-center justify-center shadow-sm shadow-primary/20">
+                    <View className="flex-row items-center flex-1 mr-2">
+                      <View className="w-11 h-11 rounded-2xl bg-primary-container/40 border border-primary/30 items-center justify-center shadow-sm shadow-primary/20 mr-3.5">
                         <Users size={20} color="#818CF8" />
                       </View>
                       <View className="flex-1">

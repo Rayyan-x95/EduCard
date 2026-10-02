@@ -73,9 +73,9 @@ export const PostCard = React.memo(function PostCard({ post, onPress, onHelpfulP
 
       {/* Footer Metrics */}
       <View className="flex-row items-center justify-between pt-3 border-t border-white/[0.08]">
-        <View className="flex-row items-center space-x-2.5">
-          <View className="flex-row items-center space-x-1.5 min-h-[38px] px-3.5 py-1.5 rounded-full bg-surface-container-high/80 border border-white/[0.08]">
-            <MessageSquare size={14} color="#94A3B8" />
+        <View className="flex-row items-center">
+          <View className="flex-row items-center mr-2.5 min-h-[38px] px-3.5 py-1.5 rounded-full bg-surface-container-high/80 border border-white/[0.08]">
+            <View className="mr-1.5"><MessageSquare size={14} color="#94A3B8" /></View>
             <Typography variant="label-md" className="text-on-surface-variant/90 font-medium tracking-tight">
               {post.comment_count} {post.comment_count === 1 ? "comment" : "comments"}
             </Typography>

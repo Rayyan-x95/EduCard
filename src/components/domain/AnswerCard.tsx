@@ -90,8 +90,8 @@ export const AnswerCard = React.memo(function AnswerCard({
     >
       {/* Verified Solution Banner for Accepted Answer */}
       {answer.is_accepted && (
-        <View className="flex-row items-center space-x-2.5 bg-tertiary-container/40 border border-tertiary/40 rounded-xl px-3.5 py-2.5 mb-4">
-          <CheckCircle2 size={16} color="#34D399" />
+        <View className="flex-row items-center bg-tertiary-container/40 border border-tertiary/40 rounded-xl px-3.5 py-2.5 mb-4">
+          <View className="mr-2.5"><CheckCircle2 size={16} color="#34D399" /></View>
           <Typography variant="label-md" className="font-bold text-tertiary">
             Verified Solution by Question Author
           </Typography>
@@ -145,14 +145,14 @@ export const AnswerCard = React.memo(function AnswerCard({
             AppHaptics.light();
             setShowComments((v) => !v);
           }}
-          className="flex-row items-center space-x-1.5 px-3.5 py-2 min-h-[44px] rounded-full bg-surface-container-high border border-outline-variant/40 web:cursor-pointer select-none active:bg-surface-container-highest"
+          className="flex-row items-center px-3.5 py-2 min-h-[44px] rounded-full bg-surface-container-high border border-outline-variant/40 web:cursor-pointer select-none active:bg-surface-container-highest"
         >
           {showComments ? (
-            <ChevronUp size={14} color="#94A3B8" />
+            <View className="mr-1.5"><ChevronUp size={14} color="#94A3B8" /></View>
           ) : (
-            <ChevronDown size={14} color="#94A3B8" />
+            <View className="mr-1.5"><ChevronDown size={14} color="#94A3B8" /></View>
           )}
-          <MessageSquare size={13} color="#94A3B8" />
+          <View className="mr-1.5"><MessageSquare size={13} color="#94A3B8" /></View>
           <Typography variant="label-md" className="text-on-surface-variant">
             ({comments.length})
           </Typography>
@@ -182,14 +182,16 @@ export const AnswerCard = React.memo(function AnswerCard({
           ) : (
             comments.map((c: PostComment) => (
               <View key={c.id} className="mb-2.5">
-                <View className="flex-row items-center space-x-2 mb-0.5">
-                  <Avatar
-                    name={c.author_display_name}
-                    uri={c.author_avatar_path}
-                    size="sm"
-                    role={c.author_status}
-                    isVerified={c.author_is_verified}
-                  />
+                <View className="flex-row items-center mb-0.5">
+                  <View className="mr-2">
+                    <Avatar
+                      name={c.author_display_name}
+                      uri={c.author_avatar_path}
+                      size="sm"
+                      role={c.author_status}
+                      isVerified={c.author_is_verified}
+                    />
+                  </View>
                   <Typography variant="label-sm" className="text-on-surface font-semibold flex-1" numberOfLines={1}>
                     {c.author_display_name}
                   </Typography>
@@ -202,12 +204,12 @@ export const AnswerCard = React.memo(function AnswerCard({
           )}
 
           {/* Inline composer */}
-          <View className="flex-row items-center space-x-2 mt-2">
+          <View className="flex-row items-center mt-2">
             <TextInput
               placeholder="Comment on this answer…"
               value={commentText}
               onChangeText={setCommentText}
-              containerClassName="flex-1 mb-0"
+              containerClassName="flex-1 mb-0 mr-2"
               maxLength={1000}
               className="py-1.5 text-sm"
             />

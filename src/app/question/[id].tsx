@@ -170,7 +170,7 @@ export default function QuestionDetailScreen() {
           isBookmarked={false}
           bookmarkMutation={null}
         />
-        <View className="flex-1 px-5 py-5 space-y-4">
+        <View className="flex-1 px-5 py-5 gap-y-4">
           <Skeleton height={28} width="85%" className="bg-surface-container" />
           <Skeleton height={100} className="w-full bg-surface-container" />
         </View>
@@ -233,8 +233,8 @@ export default function QuestionDetailScreen() {
             <View className="mb-2">
               {/* Solved Status Banner */}
               {isSolved && (
-                <View className="flex-row items-center space-x-3 bg-tertiary-container/30 border border-tertiary/40 rounded-2xl px-4 py-3.5 mb-6 shadow-sm shadow-tertiary/10">
-                  <CheckCircle2 size={20} color="#34D399" />
+                <View className="flex-row items-center bg-tertiary-container/30 border border-tertiary/40 rounded-2xl px-4 py-3.5 mb-6 shadow-sm shadow-tertiary/10">
+                  <View className="mr-3"><CheckCircle2 size={20} color="#34D399" /></View>
                   <View className="flex-1">
                     <Typography variant="label-md" className="font-bold text-tertiary">
                       Accepted Answer
@@ -280,9 +280,9 @@ export default function QuestionDetailScreen() {
                     AppHaptics.light();
                     router.push(`/community/${communityName.slug}` as any);
                   }}
-                  className="self-start flex-row items-center space-x-1.5 px-3 py-1.5 rounded-full bg-primary-container/30 border border-primary/40 mb-6 active:bg-primary-container/50"
+                  className="self-start flex-row items-center px-3 py-1.5 rounded-full bg-primary-container/30 border border-primary/40 mb-6 active:bg-primary-container/50"
                 >
-                  <MessageSquare size={13} color="#818CF8" />
+                  <View className="mr-1.5"><MessageSquare size={13} color="#818CF8" /></View>
                   <Typography variant="label-sm" className="text-primary font-bold normal-case">
                     {communityName.name}
                   </Typography>
@@ -315,8 +315,8 @@ export default function QuestionDetailScreen() {
 
               {/* Answers Header */}
               <View className="flex-row items-center justify-between pt-5 pb-4 border-t border-surface-container-high/80">
-                <View className="flex-row items-center space-x-2">
-                  <MessageSquare size={18} color="#818CF8" />
+                <View className="flex-row items-center">
+                  <View className="mr-2"><MessageSquare size={18} color="#818CF8" /></View>
                   <Typography variant="headline-sm" className="text-on-surface font-bold">
                     {answers?.length || 0} {answers?.length === 1 ? "Answer" : "Answers"}
                   </Typography>
@@ -324,7 +324,7 @@ export default function QuestionDetailScreen() {
               </View>
 
               {aLoading && (
-                <View className="space-y-4 mt-4">
+                <View className="gap-y-4 mt-4">
                   <Skeleton height={120} className="w-full bg-surface-container" />
                   <Skeleton height={120} className="w-full bg-surface-container" />
                 </View>
@@ -375,8 +375,8 @@ export default function QuestionDetailScreen() {
 
               {/* Discussion Thread — clarifying questions & follow-ups on the question itself */}
               <View className="mt-6 pt-5 border-t border-surface-container-high/80">
-                <View className="flex-row items-center space-x-2 mb-3">
-                  <MessageSquare size={16} color="#94A3B8" />
+                <View className="flex-row items-center mb-3">
+                  <View className="mr-2"><MessageSquare size={16} color="#94A3B8" /></View>
                   <Typography variant="label-lg" className="text-on-surface font-bold">
                     Discussion ({comments.length})
                   </Typography>
@@ -410,12 +410,12 @@ export default function QuestionDetailScreen() {
                 )}
 
                 {/* Inline comment composer */}
-                <View className="flex-row items-center space-x-2 mt-2">
+                <View className="flex-row items-center mt-2">
                   <TextInput
                     placeholder="Ask a clarifying question…"
                     value={commentText}
                     onChangeText={setCommentText}
-                    containerClassName="flex-1 mb-0"
+                    containerClassName="flex-1 mr-2 mb-0"
                     maxLength={1000}
                     className="py-1.5 text-sm"
                   />
@@ -534,12 +534,12 @@ export default function QuestionDetailScreen() {
             </Typography>
           </View>
 
-          <View className="flex-row items-center space-x-3">
+          <View className="flex-row items-center">
             <TextInput
               placeholder="Write your answer..."
               value={answerText}
               onChangeText={setAnswerText}
-              containerClassName="flex-1 mb-0"
+              containerClassName="flex-1 mr-3 mb-0"
               multiline
               maxLength={10000}
               className="max-h-24 py-2"
@@ -586,7 +586,7 @@ function HeaderBar({
 }) {
   const router = useRouter();
   return (
-    <View className="flex-row items-center justify-between px-5 py-3 border-b border-surface-container-high/80">
+    <View className="flex-row items-center px-5 pt-3 pb-1 border-b border-surface-container-high/80">
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel="Go back"
@@ -595,14 +595,14 @@ function HeaderBar({
           AppHaptics.light();
           onBack();
         }}
-        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+        className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3 mb-2"
       >
         <ArrowLeft size={20} color="#F8FAFC" />
       </TouchableOpacity>
-      <Typography variant="label-lg" className="text-on-surface font-bold">
+      <Typography variant="label-lg" className="text-on-surface font-bold flex-1 mr-2" numberOfLines={1}>
         Question
       </Typography>
-      <View className="flex-row items-center space-x-2">
+      <View className="flex-row items-center flex-wrap justify-end">
         {isAuthor && (
           <TouchableOpacity
             accessibilityRole="button"
@@ -613,7 +613,7 @@ function HeaderBar({
               AppHaptics.medium();
               onDelete?.();
             }}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20 web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20 web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
           >
             <Trash2 size={18} color="#F87171" />
           </TouchableOpacity>
@@ -629,7 +629,7 @@ function HeaderBar({
               ShareService.shareQuestion(questionTitle, id);
             }
           }}
-          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
         >
           <Share2 size={18} color="#818CF8" />
         </TouchableOpacity>
@@ -643,7 +643,7 @@ function HeaderBar({
             AppHaptics.light();
             if (bookmarkMutation && !bookmarkMutation.isPending) bookmarkMutation.mutate();
           }}
-          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
         >
           <Bookmark
             size={18}
@@ -663,7 +663,7 @@ function HeaderBar({
               params: { targetType: "question", targetId: id || "", targetUserId: "" },
             } as any);
           }}
-          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
         >
           <Flag size={18} color="#94A3B8" />
         </TouchableOpacity>

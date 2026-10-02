@@ -81,7 +81,7 @@ export default function ForgotPasswordScreen() {
 
           {sent ? (
             <View className="bg-tertiary-container/25 border border-tertiary/40 rounded-2xl p-4 mb-4 shadow-sm">
-              <View className="flex-row items-center space-x-2 mb-1.5">
+              <View className="flex-row items-center gap-x-2 mb-1.5">
                 <CheckCircle2 size={18} color="#34D399" />
                 <Typography variant="label-md" className="text-tertiary font-bold normal-case">
                   Recovery Link Dispatched

@@ -102,7 +102,7 @@ export default function PostDetailScreen() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-surface">
-        <View className="flex-1 px-5 py-5 space-y-4">
+        <View className="flex-1 px-5 py-5 gap-y-4">
           <Skeleton height={28} width="85%" className="bg-surface-container" />
           <Skeleton height={100} className="bg-surface-container" />
         </View>
@@ -126,18 +126,18 @@ export default function PostDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      <View className="flex-row items-center justify-between px-5 py-3 border-b border-surface-container-high/80">
+      <View className="flex-row items-center px-5 pt-3 pb-1 border-b border-surface-container-high/80">
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Go back"
           hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           onPress={() => { AppHaptics.light(); if (router.canGoBack()) router.back(); else router.replace("/(tabs)" as any); }}
-          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3 mb-2"
         >
           <ArrowLeft size={20} color="#F8FAFC" />
         </TouchableOpacity>
-        <Typography variant="label-lg" className="text-on-surface font-bold">Discussion</Typography>
-        <View className="flex-row items-center space-x-1.5">
+        <Typography variant="label-lg" className="text-on-surface font-bold flex-1 mr-2" numberOfLines={1}>Discussion</Typography>
+        <View className="flex-row items-center flex-wrap justify-end">
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Share this post"
@@ -147,7 +147,7 @@ export default function PostDetailScreen() {
               const snippet = post.body.length > 60 ? `${post.body.slice(0, 57)}...` : post.body;
               ShareService.sharePost(snippet, id as string);
             }}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
           >
             <Share2 size={18} color="#818CF8" />
           </TouchableOpacity>
@@ -161,7 +161,7 @@ export default function PostDetailScreen() {
               AppHaptics.light();
               if (!bookmarkMutation.isPending) bookmarkMutation.mutate();
             }}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
           >
             <Bookmark
               size={18}
@@ -181,7 +181,7 @@ export default function PostDetailScreen() {
                 params: { targetType: "post", targetId: id || "", targetUserId: post.author_id || "" },
               } as any);
             }}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
           >
             <Flag size={18} color="#94A3B8" />
           </TouchableOpacity>
@@ -203,10 +203,10 @@ export default function PostDetailScreen() {
             AppHaptics.light();
             if (post.author_id) router.push(`/user/${post.author_id}` as any);
           }}
-          className="flex-row items-center space-x-3 mb-4 active:opacity-70"
+          className="flex-row items-center mb-4 active:opacity-70"
         >
           <Avatar name={post.author?.display_name || "User"} uri={post.author?.avatar_path} size="md" role={post.author?.current_status || "undergraduate"} isVerified={post.author?.is_verified || false} />
-          <View className="flex-1">
+          <View className="flex-1 ml-3">
             <Typography variant="label-md" className="text-on-surface font-bold">{post.author?.display_name || "User"}</Typography>
             <Typography variant="label-sm" className="text-on-surface-variant/70">{new Date(post.created_at).toLocaleDateString()}</Typography>
           </View>
@@ -224,18 +224,18 @@ export default function PostDetailScreen() {
           </ScrollView>
         )}
 
-        <View className="flex-row items-center space-x-2 mb-6">
+        <View className="flex-row items-center mb-6">
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel={`Helpful ${post.helpful_count}`}
             onPress={() => reactionMutation.mutate()}
-            className="flex-row items-center space-x-1.5 px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/40"
+            className="flex-row items-center mr-2 px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/40"
           >
-            <ThumbsUp size={14} color="#94A3B8" />
+            <View className="mr-1.5"><ThumbsUp size={14} color="#94A3B8" /></View>
             <Typography variant="label-md" className="text-on-surface-variant">{post.helpful_count}</Typography>
           </TouchableOpacity>
-          <View className="flex-row items-center space-x-1 px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/40">
-            <MessageSquare size={14} color="#94A3B8" />
+          <View className="flex-row items-center px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/40">
+            <View className="mr-1"><MessageSquare size={14} color="#94A3B8" /></View>
             <Typography variant="label-md" className="text-on-surface-variant">{post.comment_count} comments</Typography>
           </View>
         </View>
@@ -247,9 +247,9 @@ export default function PostDetailScreen() {
           ) : comments.length > 0 ? (
             comments.map((c: any) => (
               <Card key={c.id} className="p-4 mb-3 border border-outline-variant/60">
-                <View className="flex-row items-center space-x-2 mb-2">
+                <View className="flex-row items-center mb-2">
                   <Avatar name={c.author_display_name} uri={c.author_avatar_path} size="sm" role={c.author_status} isVerified={c.author_is_verified} />
-                  <Typography variant="label-md" className="text-on-surface font-bold flex-1">{c.author_display_name}</Typography>
+                  <Typography variant="label-md" className="text-on-surface font-bold flex-1 ml-2">{c.author_display_name}</Typography>
                 </View>
                 <Typography variant="body-md" className="text-on-surface leading-relaxed">{c.body}</Typography>
               </Card>
@@ -264,8 +264,8 @@ export default function PostDetailScreen() {
 
       <View className="p-4 bg-surface-container-high border-t border-outline-variant/60">
         {error ? <Typography variant="label-sm" className="text-error mb-2">{error}</Typography> : null}
-        <View className="flex-row items-center space-x-3">
-          <TextInput placeholder="Add a comment..." value={commentText} onChangeText={setCommentText} containerClassName="flex-1 mb-0" multiline maxLength={1000} className="max-h-20" />
+        <View className="flex-row items-center">
+          <TextInput placeholder="Add a comment..." value={commentText} onChangeText={setCommentText} containerClassName="flex-1 mr-3 mb-0" multiline maxLength={1000} className="max-h-20" />
           <Button
             variant="primary"
             size="md"

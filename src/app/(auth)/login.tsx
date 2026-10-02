@@ -164,7 +164,7 @@ export default function LoginScreen() {
         </Card>
 
         {/* Navigation Links */}
-        <View className="flex-row items-center justify-center space-x-1 mb-3">
+        <View className="flex-row items-center justify-center gap-x-1 mb-3">
           <Typography variant="body-sm" className="text-on-surface-variant">
             New to EduCard?
           </Typography>

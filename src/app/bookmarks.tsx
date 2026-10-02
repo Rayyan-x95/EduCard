@@ -180,7 +180,7 @@ export default function BookmarksScreen() {
               setIsStudyModeOpen(true);
               Analytics.track("study_mode_entered", { count: studyDeck.length });
             }}
-            className="flex-row items-center space-x-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-primary-container/40 border border-primary/40 active:bg-primary-container/60 web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="flex-row items-center gap-x-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-primary-container/40 border border-primary/40 active:bg-primary-container/60 web:cursor-pointer select-none active:scale-95 transition-transform"
           >
             <Sparkles size={14} color="#818CF8" />
             <Typography variant="label-sm" className="text-primary font-bold">
@@ -226,7 +226,7 @@ export default function BookmarksScreen() {
                   />
 
                   {activeTab === "questions" && (
-                    <View className="flex-row items-center space-x-2 mt-3">
+                    <View className="flex-row items-center mt-3">
                       {(["all", "solved", "open"] as const).map((filter) => {
                         const isSelected = questionFilter === filter;
                         const label =
@@ -245,7 +245,7 @@ export default function BookmarksScreen() {
                               AppHaptics.selection();
                               setQuestionFilter(filter);
                             }}
-                            className={`px-3.5 py-2 min-h-[38px] rounded-full border web:cursor-pointer select-none active:scale-95 transition-transform ${
+                            className={`px-3.5 py-2 min-h-[38px] rounded-full border web:cursor-pointer select-none active:scale-95 transition-transform mr-2 ${
                               isSelected
                                 ? "bg-primary-container/60 border-primary shadow-sm shadow-primary/20"
                                 : "bg-surface-container border-outline-variant/60 active:bg-surface-container-high"
@@ -272,9 +272,9 @@ export default function BookmarksScreen() {
 
             if (item.type === "loading") {
               return (
-                <View className="space-y-4">
-                  <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
-                  <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
+                <View>
+                  <View className="mb-4"><Skeleton height={140} className="w-full rounded-2xl bg-surface-container" /></View>
+                  <View><Skeleton height={140} className="w-full rounded-2xl bg-surface-container" /></View>
                 </View>
               );
             }
@@ -406,7 +406,7 @@ export default function BookmarksScreen() {
         <SafeAreaView className="flex-1 bg-surface">
           {/* Study Mode Header */}
           <View className="px-5 py-3 border-b border-surface-container-high/80 flex-row items-center justify-between">
-            <View className="flex-row items-center space-x-2">
+            <View className="flex-row items-center gap-x-2">
               <View className="w-8 h-8 rounded-lg bg-primary-container/40 items-center justify-center">
                 <BookOpen size={16} color="#818CF8" />
               </View>
@@ -437,7 +437,7 @@ export default function BookmarksScreen() {
                     Card {studyIndex + 1} of {studyDeck.length}
                   </Typography>
                   {studyDeck[studyIndex]?.status === "solved" && (
-                    <View className="flex-row items-center space-x-1 px-2.5 py-1 rounded-full bg-tertiary-container/30 border border-tertiary/40">
+                    <View className="flex-row items-center gap-x-1 px-2.5 py-1 rounded-full bg-tertiary-container/30 border border-tertiary/40">
                       <CheckCircle2 size={12} color="#34D399" />
                       <Typography variant="label-sm" className="text-tertiary font-bold text-xs normal-case">
                         Verified Solution

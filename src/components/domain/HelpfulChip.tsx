@@ -41,7 +41,7 @@ export const HelpfulChip = React.memo(function HelpfulChip({
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       onPress={handlePress}
       className={cn(
-        "flex-row items-center space-x-1.5 px-3.5 py-1.5 min-h-[38px] rounded-full border web:cursor-pointer select-none active:scale-[0.96] transition-all duration-150",
+        "flex-row items-center gap-x-1.5 px-3.5 py-1.5 min-h-[38px] rounded-full border web:cursor-pointer select-none active:scale-[0.96] transition-all duration-150",
         disabled
           ? "bg-surface-container-high/40 border-outline-variant/30 opacity-60"
           : isHelpful

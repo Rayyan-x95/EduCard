@@ -247,7 +247,7 @@ export default function NewPostModal() {
         ) : null}
 
         {targetCommunity && (
-          <View className="flex-row items-center space-x-2.5 mb-5 px-4 py-3 rounded-xl bg-primary-container/25 border border-primary/40">
+          <View className="flex-row items-center gap-x-2.5 mb-5 px-4 py-3 rounded-xl bg-primary-container/25 border border-primary/40">
             <Users size={16} color="#818CF8" />
             <View className="flex-1">
               <Typography variant="label-sm" className="text-on-surface-variant/80 normal-case">Posting to</Typography>
@@ -293,7 +293,7 @@ export default function NewPostModal() {
         <View className="flex-row items-center justify-between mb-3">
           <Typography variant="label-md" className="text-on-surface font-bold">Attachments</Typography>
           <TouchableOpacity onPress={handleAttachImage} disabled={uploadingImage} className="px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/60">
-            <View className="flex-row items-center space-x-1.5"><ImageIcon size={16} color={uploadingImage ? "#64748B" : "#818CF8"} /><Typography variant="label-sm" className="text-primary font-semibold normal-case">{uploadingImage ? "Uploading..." : "Add image"}</Typography></View>
+            <View className="flex-row items-center gap-x-1.5"><ImageIcon size={16} color={uploadingImage ? "#64748B" : "#818CF8"} /><Typography variant="label-sm" className="text-primary font-semibold normal-case">{uploadingImage ? "Uploading..." : "Add image"}</Typography></View>
           </TouchableOpacity>
         </View>
 
@@ -313,7 +313,7 @@ export default function NewPostModal() {
         )}
 
         <Card className="p-4 mb-6 bg-surface-container-low border border-outline-variant/60 shadow-sm">
-          <View className="flex-row items-center space-x-2.5 mb-2">
+          <View className="flex-row items-center gap-x-2.5 mb-2">
             <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30"><Lightbulb size={16} color="#818CF8" /></View>
             <Typography variant="label-md" className="text-primary font-bold normal-case">Tips</Typography>
           </View>

@@ -151,7 +151,7 @@ export default function SignupScreen() {
 
           {awaitingConfirmation ? (
             <View className="bg-tertiary-container/25 border border-tertiary/40 rounded-2xl p-4 mb-2">
-              <View className="flex-row items-center space-x-2 mb-1.5">
+              <View className="flex-row items-center gap-x-2 mb-1.5">
                 <CheckCircle2 size={18} color="#34D399" />
                 <Typography variant="label-md" className="text-tertiary font-bold normal-case">
                   Confirm your email
@@ -241,7 +241,7 @@ export default function SignupScreen() {
           )}
         </Card>
 
-        <View className="flex-row items-center justify-center space-x-1">
+        <View className="flex-row items-center justify-center gap-x-1">
           <Typography variant="body-sm" className="text-on-surface-variant">
             Already registered?
           </Typography>

@@ -299,7 +299,7 @@ export default function PrivacyAccountScreen() {
             <Badge variant="solved" label="Verified Student" />
           ) : (
             <>
-              <View className="space-y-2">
+              <View className="flex-col gap-2">
                 {VERIFICATION_OPTIONS.map((opt) => (
                   <TouchableOpacity
                     key={opt.id}
@@ -309,7 +309,7 @@ export default function PrivacyAccountScreen() {
                       AppHaptics.selection();
                       setSelectedVerification(opt.id === selectedVerification ? null : opt.id);
                     }}
-                    className={`p-3 rounded-xl border ${
+                    className={`p-3 rounded-xl border mb-2 ${
                       selectedVerification === opt.id
                         ? "bg-tertiary-container/20 border-tertiary/50"
                         : "bg-surface-container-low border-outline-variant/50"
@@ -559,8 +559,8 @@ export default function PrivacyAccountScreen() {
 
         {/* Device Telemetry */}
         <View className="items-center justify-center py-4 mb-4">
-          <View className="flex-row items-center space-x-1.5 mb-1">
-            <Smartphone size={14} color="#64748B" />
+          <View className="flex-row items-center mb-1">
+            <View className="mr-1.5"><Smartphone size={14} color="#64748B" /></View>
             <Typography variant="label-sm" className="text-on-surface-variant/60 normal-case">
               {deviceModel} • EduCard v{appVersion} ({buildVersion})
             </Typography>
@@ -573,8 +573,8 @@ export default function PrivacyAccountScreen() {
 
 function SectionHeader({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle: string }) {
   return (
-    <View className="flex-row items-center space-x-3 mb-4">
-      <View className="p-2.5 bg-primary-container/40 rounded-xl border border-primary/30 shadow-sm shadow-primary/20">
+    <View className="flex-row items-center mb-4">
+      <View className="p-2.5 bg-primary-container/40 rounded-xl border border-primary/30 shadow-sm shadow-primary/20 mr-3">
         {icon}
       </View>
       <View className="flex-1">

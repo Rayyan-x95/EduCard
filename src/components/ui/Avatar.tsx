@@ -64,22 +64,20 @@ export const Avatar = React.memo(function Avatar({
   return (
     <View
       className={cn("relative", className)}
+      style={{ overflow: 'visible' }}
       accessible={false}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <View className={cn("rounded-full p-0.5", getRoleRingClass(role))}>
+      <View className={cn("rounded-full p-0.5", sizeStyles[size], getRoleRingClass(role))}>
         {uri ? (
           <Image
             source={{ uri }}
-            className={cn(sizeStyles[size], "bg-surface-container-high")}
+            className="w-full h-full rounded-full bg-surface-container-high"
           />
         ) : (
           <View
-            className={cn(
-              sizeStyles[size],
-              "bg-surface-container-highest border border-white/[0.08] items-center justify-center shadow-inner"
-            )}
+            className="w-full h-full rounded-full bg-surface-container-highest border border-white/[0.08] items-center justify-center shadow-inner"
           >
             <Text className={cn("text-primary-light font-bold tracking-tight", textSizes[size])}>
               {getInitials(name || "Edu Card")}

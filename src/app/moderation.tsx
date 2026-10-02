@@ -164,9 +164,9 @@ export default function ModerationScreen() {
           onRetry={() => refetch()}
         />
       ) : isLoading ? (
-        <View className="p-5 space-y-3.5">
-          <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
-          <Skeleton height={140} className="w-full rounded-2xl bg-surface-container" />
+        <View className="p-5">
+          <View className="mb-3.5"><Skeleton height={140} className="w-full rounded-2xl bg-surface-container" /></View>
+          <View><Skeleton height={140} className="w-full rounded-2xl bg-surface-container" /></View>
         </View>
       ) : reports.length === 0 ? (
         <ScrollView
@@ -208,7 +208,7 @@ export default function ModerationScreen() {
               <Card key={r.id} className="p-4 mb-4 border border-outline-variant/60 shadow-sm">
                 {/* Reason header */}
                 <View className="flex-row items-center justify-between mb-2">
-                  <View className="flex-row items-center space-x-2">
+                  <View className="flex-row items-center gap-x-2">
                     <Flag size={15} color="#F87171" />
                     <Typography variant="label-md" className="text-error font-bold normal-case">
                       {REASON_LABELS[r.reason] ?? r.reason}
@@ -222,7 +222,7 @@ export default function ModerationScreen() {
 
                 {/* Reporter context */}
                 {r.reporter && (
-                  <View className="flex-row items-center space-x-2 mb-2">
+                  <View className="flex-row items-center gap-x-2 mb-2">
                     <Avatar
                       name={r.reporter.display_name || "User"}
                       uri={r.reporter.avatar_path}
@@ -249,7 +249,7 @@ export default function ModerationScreen() {
                 </Typography>
 
                 {/* Actions */}
-                <View className="flex-row space-x-2.5">
+                <View className="flex-row gap-x-2.5">
                   <Button
                     variant="danger"
                     size="sm"

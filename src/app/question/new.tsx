@@ -325,8 +325,8 @@ export default function NewQuestionModal() {
 
         {/* Community destination banner — makes scope explicit before posting */}
         {targetCommunity && (
-          <View className="flex-row items-center space-x-2.5 mb-5 px-4 py-3 rounded-xl bg-primary-container/25 border border-primary/40">
-            <Users size={16} color="#818CF8" />
+          <View className="flex-row items-center mb-5 px-4 py-3 rounded-xl bg-primary-container/25 border border-primary/40">
+            <View className="mr-2.5"><Users size={16} color="#818CF8" /></View>
             <View className="flex-1">
               <Typography variant="label-sm" className="text-on-surface-variant/80 normal-case">
                 Posting to
@@ -358,8 +358,8 @@ export default function NewQuestionModal() {
         {similarQuestions.length > 0 && (
           <View className="mb-6 p-4 rounded-2xl bg-surface-container-high/90 border border-primary/40 shadow-sm">
             <View className="flex-row items-center justify-between mb-2">
-              <View className="flex-row items-center space-x-2">
-                <Sparkles size={16} color="#818CF8" />
+              <View className="flex-row items-center">
+                <View className="mr-2"><Sparkles size={16} color="#818CF8" /></View>
                 <Typography variant="label-md" className="text-on-surface font-bold">
                   Similar questions already asked
                 </Typography>
@@ -371,7 +371,7 @@ export default function NewQuestionModal() {
             <Typography variant="body-sm" className="text-on-surface-variant mb-3 leading-relaxed">
               Check if your question has already been answered before posting:
             </Typography>
-            <View className="space-y-2">
+            <View>
               {similarQuestions.map((sq) => {
                 const hasSolution = sq.status === "solved";
                 return (
@@ -384,7 +384,7 @@ export default function NewQuestionModal() {
                       Analytics.track("duplicate_suggestion_clicked", { question_id: sq.id });
                       router.push(`/question/${sq.id}` as any);
                     }}
-                    className="p-3 rounded-xl bg-surface-container border border-outline-variant/60 active:bg-surface-container-low flex-row items-center justify-between"
+                    className="p-3 mb-2 rounded-xl bg-surface-container border border-outline-variant/60 active:bg-surface-container-low flex-row items-center justify-between"
                   >
                     <View className="flex-1 mr-2">
                       <Typography variant="label-sm" className="text-on-surface font-semibold" numberOfLines={1}>
@@ -395,8 +395,8 @@ export default function NewQuestionModal() {
                       </Typography>
                     </View>
                     {hasSolution && (
-                      <View className="flex-row items-center space-x-1 px-2 py-1 rounded-md bg-tertiary-container/40 border border-tertiary/40">
-                        <CheckCircle2 size={12} color="#34D399" />
+                      <View className="flex-row items-center px-2 py-1 rounded-md bg-tertiary-container/40 border border-tertiary/40">
+                        <View className="mr-1"><CheckCircle2 size={12} color="#34D399" /></View>
                         <Typography variant="label-sm" className="text-tertiary font-bold text-[11px] normal-case">
                           Solved
                         </Typography>
@@ -568,7 +568,7 @@ export default function NewQuestionModal() {
 
         {/* Who Might Answer Preview */}
         <Card className="p-4 mb-6 bg-surface-container-low border border-outline-variant/60 shadow-sm">
-          <View className="flex-row items-center space-x-2.5 mb-2">
+          <View className="flex-row items-center gap-x-2.5 mb-2">
             <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30">
               <Lightbulb size={16} color="#818CF8" />
             </View>

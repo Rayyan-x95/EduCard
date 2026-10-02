@@ -42,7 +42,7 @@ function PressableCard({
       style={animatedStyle}
       className={cn(
         cardStyles,
-        "active:border-primary/40 active:bg-surface-container-high/90 web:cursor-pointer transition-colors duration-150",
+        "active:border-primary/40 active:bg-surface-container-high/90 web:cursor-pointer web:transition-colors duration-150",
         className
       )}
       {...props}

@@ -160,7 +160,7 @@ export default function ReportModal() {
         </Typography>
 
         {/* Radio Reason List */}
-        <View className="space-y-3 mb-6">
+        <View className="mb-6">
           {DETAILED_REASONS.map((r) => {
             const isSelected = selectedReason === r.id;
             return (
@@ -173,7 +173,7 @@ export default function ReportModal() {
                   AppHaptics.selection();
                   setSelectedReason(r.id);
                 }}
-                className={`p-4 rounded-2xl border ${
+                className={`p-4 mb-3 rounded-2xl border ${
                   isSelected
                     ? "bg-error-container/25 border-error shadow-sm shadow-error/10"
                     : "bg-surface-container border-outline-variant/60 active:bg-surface-container-high"

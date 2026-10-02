@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, ScrollView } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -120,7 +120,7 @@ export default function GlobalSearchScreen() {
   return (
     <SafeAreaView className="flex-1 bg-surface">
       {/* Search Header */}
-      <View className="px-5 py-3 border-b border-surface-container-high/80 flex-row items-center space-x-3">
+      <View className="px-5 py-3 border-b border-surface-container-high/80 flex-row items-center">
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Go back"
@@ -129,7 +129,7 @@ export default function GlobalSearchScreen() {
             AppHaptics.light();
             if (router.canGoBack()) router.back(); else router.replace('/(tabs)' as any);
           }}
-          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3"
         >
           <ArrowLeft size={20} color="#F8FAFC" />
         </TouchableOpacity>
@@ -168,7 +168,7 @@ export default function GlobalSearchScreen() {
               </Typography>
             </TouchableOpacity>
           </View>
-          <View className="flex-row flex-wrap gap-2 pb-3">
+          <View className="flex-row flex-wrap pb-3">
             {recentSearches.map((s) => (
               <TouchableOpacity
                 key={s}
@@ -179,7 +179,7 @@ export default function GlobalSearchScreen() {
                   setQuery(s);
                   setDebouncedQuery(s);
                 }}
-                className="px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/60 active:bg-surface-container-high"
+                className="px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/60 active:bg-surface-container-high mr-2 mb-2"
               >
                 <Typography variant="label-sm" className="text-on-surface-variant normal-case" numberOfLines={1}>
                   {s}
@@ -191,8 +191,9 @@ export default function GlobalSearchScreen() {
       )}
 
       {/* Filter Tabs */}
-      <View className="flex-row px-5 py-3 border-b border-surface-container-high/80 space-x-2">
-        {(["top", "questions", "posts", "people", "spaces"] as const).map((tab) => {
+      <View className="border-b border-surface-container-high/80">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row px-5 py-3">
+          {(["top", "questions", "posts", "people", "spaces"] as const).map((tab) => {
           const isSelected = activeTab === tab;
           return (
             <TouchableOpacity
@@ -203,7 +204,7 @@ export default function GlobalSearchScreen() {
                 AppHaptics.selection();
                 setActiveTab(tab);
               }}
-              className={`px-4 py-1.5 rounded-full border ${
+              className={`mr-2 px-4 py-1.5 rounded-full border ${
                 isSelected
                   ? "bg-primary-container/60 border-primary shadow-sm shadow-primary/20"
                   : "bg-surface-container border-outline-variant/60 active:bg-surface-container-high"
@@ -222,6 +223,7 @@ export default function GlobalSearchScreen() {
             </TouchableOpacity>
           );
         })}
+        </ScrollView>
       </View>
 
       <View style={{ flex: 1, width: "100%" }}>
@@ -234,7 +236,7 @@ export default function GlobalSearchScreen() {
         ListEmptyComponent={() => {
           if (loading) {
             return (
-              <View className="space-y-3">
+              <View className="gap-y-3">
                 <Skeleton height={80} className="w-full rounded-2xl bg-surface-container" />
                 <Skeleton height={80} className="w-full rounded-2xl bg-surface-container" />
                 <Skeleton height={80} className="w-full rounded-2xl bg-surface-container" />
@@ -328,8 +330,8 @@ export default function GlobalSearchScreen() {
                 <Typography variant="body-sm" className="text-on-surface-variant mb-3 leading-relaxed" numberOfLines={2}>
                   {c.description}
                 </Typography>
-                <View className="flex-row items-center space-x-1.5">
-                  <Users size={13} color="#94A3B8" />
+                <View className="flex-row items-center">
+                  <View className="mr-1.5"><Users size={13} color="#94A3B8" /></View>
                   <Typography variant="label-sm" className="text-on-surface-variant/70 normal-case font-medium">
                     {(c.member_count ?? 0).toLocaleString()} members
                   </Typography>
@@ -360,8 +362,8 @@ export default function GlobalSearchScreen() {
                 }`}
               >
                 {isSolved && (
-                  <View className="flex-row items-center space-x-1.5 mb-2">
-                    <CheckCircle2 size={15} color="#34D399" />
+                  <View className="flex-row items-center mb-2">
+                    <View className="mr-1.5"><CheckCircle2 size={15} color="#34D399" /></View>
                     <Typography variant="label-sm" className="text-tertiary font-bold normal-case">
                       Verified Solution
                     </Typography>
@@ -417,7 +419,7 @@ export default function GlobalSearchScreen() {
                   AppHaptics.light();
                   router.push(`/user/${p.id}` as any);
                 }}
-                className={`p-3.5 ${item.isLast ? 'mb-6' : 'mb-2.5'} flex-row items-center space-x-3.5 bg-surface-container border border-outline-variant/60 shadow-sm`}
+                className={`p-3.5 ${item.isLast ? 'mb-6' : 'mb-2.5'} flex-row items-center bg-surface-container border border-outline-variant/60 shadow-sm`}
               >
                 <Avatar
                   name={p.display_name}
@@ -426,7 +428,7 @@ export default function GlobalSearchScreen() {
                   role={p.current_status}
                   isVerified={p.is_verified}
                 />
-                <View className="flex-1">
+                <View className="flex-1 ml-3.5">
                   <Typography variant="label-md" className="text-on-surface font-bold">
                     {p.display_name}
                   </Typography>

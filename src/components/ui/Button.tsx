@@ -33,7 +33,7 @@ export function Button({
   onPress,
   ...props
 }: ButtonProps) {
-  const baseStyles = "flex-row items-center justify-center font-semibold web:cursor-pointer select-none active:scale-[0.99] transition-all";
+  const baseStyles = "flex-row items-center justify-center font-semibold web:cursor-pointer select-none active:scale-[0.99] web:transition-all";
 
   const sizeStyles = {
     sm: "px-4 py-2.5 min-h-[44px] rounded-xl",
@@ -55,7 +55,7 @@ export function Button({
     primary: "text-[#0F172A] font-bold text-center",
     secondary: "text-on-surface font-semibold text-center",
     outline: "text-primary font-semibold text-center",
-    ghost: "text-on-surface-variant font-medium text-center",
+    ghost: "text-on-surface font-medium text-center",
     danger: "text-error font-bold text-center",
     solved: "text-tertiary font-bold text-center",
   };
@@ -93,7 +93,7 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={variant === "primary" ? "#0F172A" : "#818CF8"} size="small" />
       ) : (
-        <View className="flex-row items-center justify-center space-x-2">
+        <View className="flex-row items-center justify-center">
           {leftIcon && <View className="mr-2">{leftIcon}</View>}
           <Typography
             variant={size === "sm" ? "label-md" : "label-lg"}

@@ -126,7 +126,7 @@ export default function NewCommunityModal() {
         ) : null}
 
         {/* Space Identity Banner */}
-        <Card className="p-4 mb-6 bg-surface-container-low border border-primary/30 flex-row items-center space-x-3.5 shadow-sm shadow-primary/10">
+        <Card className="p-4 mb-6 bg-surface-container-low border border-primary/30 flex-row items-center gap-x-3.5 shadow-sm shadow-primary/10">
           <View className="p-3 bg-primary-container/40 rounded-2xl border border-primary/30 shadow-sm shadow-primary/20">
             <Users size={22} color="#818CF8" />
           </View>
@@ -226,7 +226,7 @@ export default function NewCommunityModal() {
           containerClassName="mb-6"
         />
 
-        <View className="flex-row items-center space-x-2 justify-center pb-8 opacity-70">
+        <View className="flex-row items-center gap-x-2 justify-center pb-8 opacity-70">
           <Shield size={14} color="#94A3B8" />
           <Typography variant="label-sm" className="text-on-surface-variant text-center normal-case">
             As creator, you will automatically be assigned moderator privileges.

@@ -287,7 +287,7 @@ export default function OnboardingScreen() {
               </Typography>
             </View>
 
-            <View className="space-y-3 mb-8">
+            <View className="mb-8">
               {ROLES.map((r) => {
                 const Icon = r.icon;
                 const isSelected = selectedRole === r.id;
@@ -301,15 +301,15 @@ export default function OnboardingScreen() {
                       AppHaptics.selection();
                       setSelectedRole(r.id);
                     }}
-                    className={`p-4 rounded-2xl border ${
+                    className={`p-4 rounded-2xl border mb-3 ${
                       isSelected
                         ? "bg-primary-container/30 border-primary shadow-sm shadow-primary/20"
                         : "bg-surface-container border-outline-variant/60 active:bg-surface-container-high"
                     }`}
                   >
-                    <View className="flex-row items-start space-x-3.5">
+                    <View className="flex-row items-start">
                       <View
-                        className={`w-11 h-11 rounded-2xl items-center justify-center border-2 ${
+                        className={`mr-3.5 w-11 h-11 rounded-2xl items-center justify-center border-2 ${
                           isSelected ? "bg-primary-container/50 shadow-sm" : "bg-surface-container-high"
                         }`}
                       >

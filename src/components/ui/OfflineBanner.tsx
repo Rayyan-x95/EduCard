@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { View } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import * as Network from "expo-network";
 import { Typography } from "./Typography";
 import { WifiOff } from "lucide-react-native";
@@ -15,7 +15,7 @@ export function OfflineBanner() {
   const isOffline = useUIStore((state) => state.isOffline);
   const setOffline = useUIStore((state) => state.setOffline);
   const opacity = useSharedValue(0);
-  const insets = useSafeAreaInsets();
+
 
   useEffect(() => {
     let isMounted = true;
@@ -68,7 +68,7 @@ export function OfflineBanner() {
       pointerEvents="none"
       style={{
         position: "absolute",
-        top: insets.top,
+        top: 0,
         left: 0,
         right: 0,
         zIndex: 1000,
@@ -78,7 +78,7 @@ export function OfflineBanner() {
         accessibilityLiveRegion="polite"
         accessibilityRole="alert"
         style={[animatedStyle]}
-        className="bg-error-container border-b border-error px-4 py-2 flex-row items-center justify-center space-x-2"
+        className="bg-error-container border-b border-error px-4 py-2 flex-row items-center justify-center gap-x-2"
       >
         <WifiOff size={16} color="#ffb4ab" />
         <Typography variant="label-sm" className="text-on-error-container font-semibold text-center">

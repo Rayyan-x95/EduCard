@@ -93,10 +93,10 @@ export default function CommunityDetailScreen() {
     return (
       <SafeAreaView className="flex-1 bg-surface">
         <Header onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)" as any))} />
-        <View className="flex-1 px-5 py-5 space-y-4">
-          <Skeleton height={28} width="60%" className="bg-surface-container" />
-          <Skeleton height={140} className="bg-surface-container" />
-          <Skeleton height={80} className="bg-surface-container" />
+        <View className="flex-1 px-5 py-5">
+          <View className="mb-4"><Skeleton height={28} width="60%" className="bg-surface-container" /></View>
+          <View className="mb-4"><Skeleton height={140} className="bg-surface-container" /></View>
+          <View><Skeleton height={80} className="bg-surface-container" /></View>
         </View>
       </SafeAreaView>
     );
@@ -174,10 +174,10 @@ export default function CommunityDetailScreen() {
               const communityData = item.data;
               return (
                 <Card className="p-6 mb-5 border border-white/[0.08] shadow-lg shadow-black/30">
-                  <View className="flex-row items-center space-x-2.5 mb-3">
-                    <Badge variant="category" label="Community" />
-                    <View className="flex-row items-center space-x-1 px-2.5 py-1 rounded-full bg-surface-container-high border border-outline-variant/40">
-                      <Users size={12} color="#94A3B8" />
+                  <View className="flex-row items-center mb-3">
+                    <View className="mr-2.5"><Badge variant="category" label="Community" /></View>
+                    <View className="flex-row items-center px-2.5 py-1 rounded-full bg-surface-container-high border border-outline-variant/40">
+                      <View className="mr-1"><Users size={12} color="#94A3B8" /></View>
                       <Typography variant="label-sm" className="text-on-surface-variant/80 font-medium normal-case">
                         {(communityData.member_count || 1).toLocaleString()} members
                       </Typography>
@@ -202,8 +202,9 @@ export default function CommunityDetailScreen() {
                       Sign in to join
                     </Button>
                   ) : (
-                    <View className="space-y-2.5">
-                      <Button
+                    <View>
+                      <View className="mb-2.5">
+                        <Button
                         variant={isMember ? "secondary" : "primary"}
                         size="md"
                         loading={joinMutation.isPending}
@@ -219,11 +220,12 @@ export default function CommunityDetailScreen() {
                       >
                         {isMember ? "Leave Space" : "Join Space"}
                       </Button>
+                    </View>
         
                       {/* Community actions — Ask and Post */}
                       {isMember && (
-                        <View className="flex-row space-x-2">
-                          <View className="flex-1">
+                        <View className="flex-row">
+                          <View className="flex-1 mr-2">
                             <Button
                               variant="primary"
                               size="md"
@@ -268,8 +270,8 @@ export default function CommunityDetailScreen() {
             if (item.type === "rules") {
               return (
                 <Card className="p-5 mb-5 border border-outline-variant/60">
-                  <View className="flex-row items-center space-x-2.5 mb-3">
-                    <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30">
+                  <View className="flex-row items-center mb-3">
+                    <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30 mr-2.5">
                       <Shield size={16} color="#818CF8" />
                     </View>
                     <Typography variant="label-md" className="text-primary font-bold normal-case">
@@ -351,7 +353,7 @@ export default function CommunityDetailScreen() {
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
-                    <View className="flex-row items-center space-x-1">
+                    <View className="flex-row items-center gap-x-1">
                       <MessageSquare size={12} color="#94A3B8" />
                       <Typography variant="label-sm" className="text-on-surface-variant/70">
                         {q.answer_count ?? 0}

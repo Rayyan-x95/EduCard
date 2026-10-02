@@ -72,14 +72,14 @@ export function Badge({
   return (
     <View
       className={clsx(
-        "flex-row items-center self-start rounded-full px-2.5 py-1 space-x-1.5",
+        "flex-row items-center self-start rounded-full px-2.5 py-1",
         current.container,
         className
       )}
     >
-      {icon && <View className="mr-1">{icon}</View>}
-      <Typography variant="label-sm" className={clsx("tracking-normal lowercase first-letter:capitalize", current.text)}>
-        {label}
+      {icon && <View className="mr-1.5">{icon}</View>}
+      <Typography variant="label-sm" className={clsx("tracking-normal", current.text)}>
+        {label.charAt(0).toUpperCase() + label.slice(1).toLowerCase()}
       </Typography>
     </View>
   );

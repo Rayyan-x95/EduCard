@@ -199,19 +199,16 @@ export default function HomeScreen() {
       <HeaderBar profile={profile} />
 
       {/* Apple-Style Segmented Control Filter */}
-      <View className="w-full items-center">
-        <View className="w-full max-w-[720px] px-5 pt-3 pb-2">
-          <SegmentedControl
-            options={FILTERS}
-            value={activeFeedFilter}
-            onChange={(val) => setActiveFeedFilter(val as UIFeedFilter)}
-          />
-        </View>
+      <View style={{ width: "100%", maxWidth: 720, alignSelf: "center" }} className="px-5 pt-3 pb-2">
+        <SegmentedControl
+          options={FILTERS}
+          value={activeFeedFilter}
+          onChange={(val) => setActiveFeedFilter(val as UIFeedFilter)}
+        />
       </View>
 
       {/* Feed List */}
-      <View style={{ flex: 1, width: "100%", alignItems: "center" }}>
-        <View style={{ flex: 1, width: "100%", maxWidth: 720 }}>
+      <View style={{ flex: 1, width: "100%", maxWidth: 720, alignSelf: "center" }}>
         <FlashList<FeedRow>
           data={questions}
           keyExtractor={(item) => `${item.item_type}:${item.id}`}
@@ -231,7 +228,7 @@ export default function HomeScreen() {
           ListHeaderComponent={
             <View className="mb-2">
               {/* Quick Ask / Post Prompt Card */}
-              <View className="p-3.5 mb-4 bg-surface-container border border-white/[0.08] border-t-white/[0.16] rounded-2xl flex-row items-center space-x-3 shadow-md shadow-black/30 backdrop-blur-sm">
+              <View className="p-3.5 mb-4 bg-surface-container border border-white/[0.08] border-t-white/[0.16] rounded-2xl flex-row items-center shadow-md shadow-black/30 backdrop-blur-sm">
                 <Avatar
                   name={profile?.display_name || "User"}
                   uri={profile?.avatar_path}
@@ -247,26 +244,26 @@ export default function HomeScreen() {
                     AppHaptics.light();
                     router.push("/question/new");
                   }}
-                  className="flex-1 bg-surface-container-high/60 border border-white/[0.06] rounded-xl px-3.5 py-2.5 flex-row items-center web:cursor-pointer select-none active:bg-surface-container-high"
+                  className="flex-1 bg-surface-container-high/60 border border-white/[0.06] rounded-xl px-3.5 py-2.5 flex-row items-center web:cursor-pointer select-none active:bg-surface-container-high mx-2"
                 >
                   <Typography variant="body-md" className="text-on-surface-variant/80 text-[14px]">
                     What are you trying to solve?
                   </Typography>
                 </TouchableOpacity>
-                <View className="flex-row items-center space-x-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onPress={() => router.push("/post/new" as any)}
-                    className="px-3.5 py-2 min-h-[38px] rounded-xl"
-                  >
-                    Post
-                  </Button>
+                <View className="flex-row items-center">
+                  <View className="mr-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onPress={() => router.push("/post/new" as any)}
+                    >
+                      Post
+                    </Button>
+                  </View>
                   <Button
                     variant="primary"
                     size="sm"
                     onPress={() => router.push("/question/new")}
-                    className="px-4 py-2 min-h-[38px] rounded-xl"
                   >
                     Ask
                   </Button>
@@ -303,10 +300,10 @@ export default function HomeScreen() {
           }}
           ListEmptyComponent={
             isLoading ? (
-              <View className="space-y-4">
-                <QuestionCardSkeleton />
-                <QuestionCardSkeleton />
-                <QuestionCardSkeleton />
+              <View>
+                <View className="mb-4"><QuestionCardSkeleton /></View>
+                <View className="mb-4"><QuestionCardSkeleton /></View>
+                <View><QuestionCardSkeleton /></View>
               </View>
             ) : (
               <EmptyState
@@ -323,7 +320,6 @@ export default function HomeScreen() {
           }
           renderItem={renderItem}
         />
-        </View>
       </View>
     </SafeAreaView>
   );
@@ -335,8 +331,8 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
   return (
     <View className="w-full items-center border-b border-white/[0.08] bg-surface/95 backdrop-blur-md z-10">
       <View className="w-full max-w-[720px] flex-row items-center justify-between px-5 pt-3 pb-3">
-        <View className="flex-row items-center space-x-3">
-          <View className="w-10 h-10 rounded-xl bg-primary-container/40 border border-primary/40 items-center justify-center shadow-md shadow-primary/25">
+        <View className="flex-row items-center">
+          <View className="mr-3 w-10 h-10 rounded-xl bg-primary-container/40 border border-primary/40 items-center justify-center shadow-md shadow-primary/25">
             <Logo variant="simple" size="sm" width={22} height={22} />
           </View>
           <View>
@@ -349,7 +345,7 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
           </View>
         </View>
 
-        <View className="flex-row items-center space-x-2.5">
+        <View className="flex-row items-center">
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Search"
@@ -358,7 +354,7 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
               AppHaptics.light();
               router.push("/search" as any);
             }}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container-high/80 items-center justify-center border border-white/[0.08] web:hover:border-white/[0.18] active:bg-surface-container-highest web:cursor-pointer select-none active:scale-95 transition-all"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container-high/80 items-center justify-center border border-white/[0.08] web:hover:border-white/[0.18] active:bg-surface-container-highest web:cursor-pointer select-none active:scale-95 transition-all mr-2.5"
           >
             <Search size={18} color="#94A3B8" />
           </TouchableOpacity>

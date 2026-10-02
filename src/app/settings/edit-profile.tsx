@@ -98,7 +98,7 @@ export default function EditProfileScreen() {
     <SafeAreaView className="flex-1 bg-surface">
       {/* Top App Bar */}
       <View className="px-5 py-3 border-b border-surface-container-high/80 flex-row items-center justify-between">
-        <View className="flex-row items-center space-x-3">
+        <View className="flex-row items-center">
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Go back"
@@ -107,7 +107,7 @@ export default function EditProfileScreen() {
               AppHaptics.light();
               if (router.canGoBack()) router.back(); else router.replace('/(tabs)' as any);
             }}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3"
           >
             <ArrowLeft size={20} color="#F8FAFC" />
           </TouchableOpacity>
@@ -161,8 +161,8 @@ export default function EditProfileScreen() {
 
         {/* Basic Information Bento Card */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <View className="flex-row items-center space-x-2.5 pb-3.5 mb-4 border-b border-outline-variant/30">
-            <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30">
+          <View className="flex-row items-center pb-3.5 mb-4 border-b border-outline-variant/30">
+            <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30 mr-2.5">
               <User size={16} color="#818CF8" />
             </View>
             <Typography variant="headline-sm" className="text-on-surface font-bold">

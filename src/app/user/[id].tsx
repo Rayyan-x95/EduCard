@@ -137,10 +137,10 @@ export default function UserProfileScreen() {
     return (
       <SafeAreaView className="flex-1 bg-surface">
         <Header onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)" as any))} />
-        <View className="flex-1 px-5 py-5 space-y-4">
-          <Skeleton height={28} width="60%" className="bg-surface-container" />
-          <Skeleton height={140} className="bg-surface-container" />
-          <Skeleton height={80} className="bg-surface-container" />
+        <View className="flex-1 px-5 py-5">
+          <View className="mb-4"><Skeleton height={28} width="60%" className="bg-surface-container" /></View>
+          <View className="mb-4"><Skeleton height={140} className="bg-surface-container" /></View>
+          <View><Skeleton height={80} className="bg-surface-container" /></View>
         </View>
       </SafeAreaView>
     );
@@ -200,14 +200,16 @@ export default function UserProfileScreen() {
                 AppHaptics.light();
                 setShowConnections((v: boolean) => !v);
               }}
-              className="flex-row items-center justify-center space-x-1.5 mt-3 active:opacity-70"
+              className="flex-row items-center justify-center mt-3 active:opacity-70"
             >
-              <Typography variant="label-sm" className="text-on-surface font-bold">
-                {(followCounts?.followers ?? 0).toLocaleString()} followers
-              </Typography>
-              <Typography variant="label-sm" className="text-on-surface-variant/50">
+              <View className="mr-1.5">
+                <Typography variant="label-sm" className="text-on-surface font-bold">
+                  {(followCounts?.followers ?? 0).toLocaleString()} followers
+                </Typography>
+              </View>
+              <View className="mr-1.5"><Typography variant="label-sm" className="text-on-surface-variant/50">
                 ·
-              </Typography>
+              </Typography></View>
               <Typography variant="label-sm" className="text-on-surface font-bold">
                 {(followCounts?.following ?? 0).toLocaleString()} following
               </Typography>
@@ -221,7 +223,7 @@ export default function UserProfileScreen() {
           ) : null}
 
           {/* Action Buttons */}
-          <View className="w-full mt-6 space-y-2.5">
+          <View className="w-full mt-6">
             {!me?.id ? (
               <Button variant="outline" size="md" onPress={() => router.push("/(auth)/login" as any)}>
                 Sign in to follow
@@ -245,31 +247,33 @@ export default function UserProfileScreen() {
                   {isFollowing ? "Following" : "Follow"}
                 </Button>
 
-                <View className="flex-row space-x-2.5">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    leftIcon={<Flag size={14} color="#F87171" />}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/report",
-                        params: { targetType: "profile", targetId: id as string, targetUserId: "" },
-                      } as any)
-                    }
-                    className="flex-1"
-                  >
-                    Report
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    loading={blockMutation.isPending}
-                    leftIcon={<Ban size={14} color="#F87171" />}
-                    onPress={() => blockMutation.mutate()}
-                    className="flex-1"
-                  >
-                    Block
-                  </Button>
+                <View className="flex-row mt-2.5">
+                  <View className="flex-1 mr-2.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      leftIcon={<Flag size={14} color="#F87171" />}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/report",
+                          params: { targetType: "profile", targetId: id as string, targetUserId: "" },
+                        } as any)
+                      }
+                    >
+                      Report
+                    </Button>
+                  </View>
+                  <View className="flex-1">
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      loading={blockMutation.isPending}
+                      leftIcon={<Ban size={14} color="#F87171" />}
+                      onPress={() => blockMutation.mutate()}
+                    >
+                      Block
+                    </Button>
+                  </View>
                 </View>
               </>
             )}
@@ -295,7 +299,7 @@ export default function UserProfileScreen() {
                       AppHaptics.light();
                       router.push(`/user/${f.id}` as any);
                     }}
-                    className="flex-row items-center space-x-3 py-2 active:opacity-70"
+                    className="flex-row items-center gap-x-3 py-2 active:opacity-70"
                   >
                     <Avatar name={f.display_name} uri={f.avatar_path} size="sm" role={f.current_status} isVerified={f.is_verified} />
                     <View className="flex-1">
@@ -314,7 +318,7 @@ export default function UserProfileScreen() {
         </Card>
 
         {/* Stats */}
-        <View className="flex-row space-x-3 mb-5">
+        <View className="flex-row gap-x-3 mb-5">
           <StatTile
             icon={<Award size={20} color="#FBBF24" />}
             value={String(profile.reputation_score ?? 0)}
@@ -341,7 +345,7 @@ export default function UserProfileScreen() {
           if (badges.length === 0) return null;
           return (
             <View className="mb-6">
-              <View className="flex-row items-center space-x-2 mb-3">
+              <View className="flex-row items-center gap-x-2 mb-3">
                 <Sparkles size={16} color="#818CF8" />
                 <Typography variant="label-lg" className="text-on-surface font-bold">
                   Academic Credentials
@@ -351,7 +355,7 @@ export default function UserProfileScreen() {
                 {badges.map((b) => (
                   <View
                     key={b.id}
-                    className="flex-row items-center space-x-2.5 px-3.5 py-2.5 rounded-xl bg-surface-container border border-outline-variant/60"
+                    className="flex-row items-center gap-x-2.5 px-3.5 py-2.5 rounded-xl bg-surface-container border border-outline-variant/60"
                   >
                     <Award
                       size={16}
@@ -390,7 +394,7 @@ export default function UserProfileScreen() {
             </Typography>
             {(profile as any).education.map((edu: any, idx: number) => (
               <Card key={edu.id || idx} className="p-4 mb-3 border border-outline-variant/60">
-                <View className="flex-row items-center space-x-3 mb-2">
+                <View className="flex-row items-center gap-x-3 mb-2">
                   <View className="p-2 rounded-lg bg-primary-container/40 border border-primary/30">
                     <School size={16} color="#818CF8" />
                   </View>
@@ -398,7 +402,7 @@ export default function UserProfileScreen() {
                     {edu.institution_name}
                   </Typography>
                 </View>
-                <View className="flex-row items-center space-x-2 pl-1">
+                <View className="flex-row items-center gap-x-2 pl-1">
                   <BookOpen size={15} color="#94A3B8" />
                   <Typography variant="body-sm" className="text-on-surface-variant flex-1">
                     {edu.degree} in {edu.field} ({edu.start_year}
@@ -439,7 +443,7 @@ export default function UserProfileScreen() {
               >
                 <View className="flex-row items-start justify-between mb-2">
                   <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
-                  <View className="flex-row items-center space-x-1">
+                  <View className="flex-row items-center gap-x-1">
                     <Award size={12} color="#94A3B8" />
                     <Typography variant="label-sm" className="text-on-surface-variant/70">
                       {q.helpful_count ?? 0}
@@ -472,11 +476,11 @@ export default function UserProfileScreen() {
               >
                 <View className="flex-row items-start justify-between mb-2">
                   <Badge variant="category" label="Discussion" />
-                  <View className="flex-row items-center space-x-3">
+                  <View className="flex-row items-center gap-x-3">
                     <Typography variant="label-sm" className="text-on-surface-variant/70">
                       {p.helpful_count ?? 0} helpful
                     </Typography>
-                    <View className="flex-row items-center space-x-1">
+                    <View className="flex-row items-center gap-x-1">
                       <MessageSquare size={12} color="#94A3B8" />
                       <Typography variant="label-sm" className="text-on-surface-variant/70">
                         {p.comment_count ?? 0}

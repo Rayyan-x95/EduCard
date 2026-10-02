@@ -168,9 +168,9 @@ export default function NotificationsScreen() {
             accessibilityLabel={`Mark ${unreadCount} notifications as read`}
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             onPress={() => markAllMutation.mutate()}
-            className="flex-row items-center space-x-1.5 px-3.5 py-2.5 min-h-[44px] rounded-xl bg-surface-container border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="flex-row items-center px-3.5 py-2.5 min-h-[44px] rounded-xl bg-surface-container border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
           >
-            <CheckCheck size={15} color="#818CF8" />
+            <View className="mr-1.5"><CheckCheck size={15} color="#818CF8" /></View>
             <Typography variant="label-sm" className="text-primary font-bold">
               Mark all read
             </Typography>
@@ -193,10 +193,10 @@ export default function NotificationsScreen() {
           />
         </ScrollView>
       ) : isLoading ? (
-        <View className="p-5 space-y-3.5">
-          <Skeleton height={80} className="w-full rounded-2xl bg-surface-container" />
-          <Skeleton height={80} className="w-full rounded-2xl bg-surface-container" />
-          <Skeleton height={80} className="w-full rounded-2xl bg-surface-container" />
+        <View className="p-5">
+          <View className="mb-3.5"><Skeleton height={80} className="w-full rounded-2xl bg-surface-container" /></View>
+          <View className="mb-3.5"><Skeleton height={80} className="w-full rounded-2xl bg-surface-container" /></View>
+          <View><Skeleton height={80} className="w-full rounded-2xl bg-surface-container" /></View>
         </View>
       ) : notifications.length > 0 ? (
         <FlashList<GroupedNotification>
@@ -230,9 +230,9 @@ export default function NotificationsScreen() {
                       : "bg-surface-container-low border-outline-variant/40 opacity-80"
                   }`}
                 >
-                  <View className="flex-row items-start space-x-3.5">
+                  <View className="flex-row items-start">
                     <View
-                      className={`w-10 h-10 rounded-xl items-center justify-center ${
+                      className={`w-10 h-10 rounded-xl items-center justify-center mr-3.5 ${
                         tone === "accepted"
                           ? "bg-tertiary-container/50 border border-tertiary/50"
                           : tone === "follow"
@@ -255,8 +255,11 @@ export default function NotificationsScreen() {
 
                     <View className="flex-1">
                       <View className="flex-row items-center justify-between mb-1">
-                        <View className="flex-row items-center space-x-1.5 flex-1 mr-2">
-                          <Typography variant="label-md" className="text-on-surface font-bold">
+                        <View className="flex-row items-center flex-1 mr-2">
+                          {isUnread && (
+                            <View className="w-2 h-2 rounded-full bg-primary mr-1.5 shadow-sm shadow-primary" />
+                          )}
+                          <Typography variant="label-md" className="text-on-surface font-bold mr-1.5">
                             {title}
                           </Typography>
                           {item.count > 1 && (
@@ -275,10 +278,6 @@ export default function NotificationsScreen() {
                         {body}
                       </Typography>
                     </View>
-
-                    {isUnread && (
-                      <View className="w-2 h-2 rounded-full bg-primary mt-1.5 shadow-sm shadow-primary" />
-                    )}
                   </View>
                 </Card>
               </TouchableOpacity>
