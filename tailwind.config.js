@@ -7,85 +7,86 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Apple & Google High-End Luxury Dark Palette
+        // Oxford Editorial & Academic Guild Luxury Dark Palette
         surface: {
-          DEFAULT: "#0B0F12", // Deep OLED obsidian
-          dim: "#070A0C",
-          bright: "#2A323D",
-          "container-lowest": "#05080A",
-          "container-low": "#0F1418",
-          container: "#151B21",
-          "container-high": "#1C232B",
-          "container-highest": "#252E38",
-          variant: "#252E38",
-          glass: "rgba(21, 27, 33, 0.75)",
+          DEFAULT: "#0C1014", // Deep archival ink-obsidian ground
+          dim: "#080B0E",
+          bright: "#242E3B",
+          "container-lowest": "#06080A",
+          "container-low": "#0F141A",
+          container: "#131920", // Primary scholarly card surface
+          "container-high": "#19222C", // Secondary elevated surface / controls
+          "container-highest": "#212C38", // Active chips / pressed states
+          variant: "#212C38",
+          glass: "rgba(19, 25, 32, 0.88)",
         },
         "on-surface": {
-          DEFAULT: "#F8FAFC", // Crisp pure white text
-          variant: "#CBD5E1", // Brighter slate for better contrast at lower opacities
-          muted: "#94A3B8",
+          DEFAULT: "#F4F6F8", // Crisp warm ivory text (high contrast ≥ 12:1)
+          variant: "#A1B0C2", // Legible warm slate (high contrast ≥ 4.8:1)
+          muted: "#6D7E92",
         },
         "inverse-surface": {
-          DEFAULT: "#F8FAFC",
+          DEFAULT: "#F4F6F8",
         },
         "inverse-on-surface": {
-          DEFAULT: "#0B0F12",
+          DEFAULT: "#0C1014",
         },
         outline: {
-          DEFAULT: "#475569", // Slate 600
-          variant: "#334155", // Slate 700 for visible borders
-          subtle: "rgba(255, 255, 255, 0.15)", // Increased opacity for subtle borders
+          DEFAULT: "rgba(255, 255, 255, 0.12)",
+          variant: "rgba(255, 255, 255, 0.08)", // Refined hairline
+          subtle: "rgba(255, 255, 255, 0.05)",
         },
         primary: {
-          DEFAULT: "#818CF8", // Electric Indigo
-          light: "#C7D2FE",
-          container: "#1E1B4B",
-          "on-container": "#A5B4FC",
-          "on-primary": "#0F172A",
-          inverse: "#4F46E5",
-          fixed: "#E0E7FF",
-          "fixed-dim": "#818CF8",
+          DEFAULT: "#E5A93C", // Oxford Academic Amber / Warm Antique Brass
+          light: "#F5C772",
+          container: "#2B1F08",
+          "on-container": "#F5C772",
+          "on-primary": "#1A1203",
+          inverse: "#B87F1E",
+          fixed: "#FDF0D5",
+          "fixed-dim": "#E5A93C",
         },
         secondary: {
-          DEFAULT: "#C084FC", // Radiant Violet
-          light: "#E9D5FF",
-          container: "#3B0764",
-          "on-container": "#D8B4FE",
-          "on-secondary": "#1E0436",
-          fixed: "#F3E8FF",
-          "fixed-dim": "#C084FC",
+          DEFAULT: "#38BDF8", // Scholar Blue / Research accent
+          light: "#7DD3FC",
+          container: "#0C4A6E",
+          "on-container": "#BAE6FD",
+          "on-secondary": "#082F49",
+          fixed: "#E0F2FE",
+          "fixed-dim": "#38BDF8",
         },
         tertiary: {
-          DEFAULT: "#34D399", // Emerald Verified Solution
-          light: "#A7F3D0",
-          container: "#064E3B",
-          "on-container": "#6EE7B7",
+          DEFAULT: "#10B981", // Oxford Botanical Emerald — Solved / Accepted Answer
+          light: "#6EE7B7",
+          container: "#063726",
+          "on-container": "#A7F3D0",
           "on-tertiary": "#022C22",
           fixed: "#D1FAE5",
         },
         amber: {
-          DEFAULT: "#FBBF24", // Scholar Gold / Reputation
+          DEFAULT: "#E5A93C", // Scholar Gold / Reputation
           light: "#FDE68A",
-          container: "#451A03",
+          container: "#382305",
           "on-container": "#FCD34D",
         },
         error: {
-          DEFAULT: "#F87171", // Coral Red
-          container: "#450A0A",
-          "on-container": "#FECACA",
-          "on-error": "#450A0A",
+          DEFAULT: "#F43F5E", // Scholarly Coral Crimson
+          container: "#4C0519",
+          "on-container": "#FECDD3",
+          "on-error": "#4C0519",
         },
         background: {
-          DEFAULT: "#0B0F12",
+          DEFAULT: "#0C1014",
         },
         "on-background": {
-          DEFAULT: "#F8FAFC",
+          DEFAULT: "#F4F6F8",
         },
       },
       fontFamily: {
-        headline: ["Plus Jakarta Sans", "System", "sans-serif"],
-        body: ["Inter", "System", "sans-serif"],
-        sans: ["Inter", "System", "sans-serif"],
+        headline: ["Georgia", "Times New Roman", "New York", "serif"],
+        serif: ["Georgia", "Times New Roman", "New York", "serif"],
+        body: ["Inter", "-apple-system", "BlinkMacSystemFont", "System", "sans-serif"],
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "System", "sans-serif"],
       },
       borderRadius: {
         sm: "6px",
@@ -93,8 +94,8 @@ module.exports = {
         md: "14px",
         lg: "18px",
         xl: "22px",
-        "2xl": "28px",
-        "3xl": "36px",
+        "2xl": "26px",
+        "3xl": "32px",
         full: "9999px",
       },
       spacing: {

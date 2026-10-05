@@ -14,9 +14,9 @@ export default function NotFoundScreen() {
       <View className="flex-1 items-center justify-center px-6">
         <Card className="p-8 items-center border border-outline-variant/60 shadow-lg max-w-[420px] w-full">
           <View className="w-16 h-16 rounded-2xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-4">
-            <Compass size={32} color="#818CF8" />
+            <Compass size={32} color="#E5A93C" />
           </View>
-          <Typography variant="headline-md" className="text-on-surface text-center font-bold mb-2">
+          <Typography variant="headline-md" className="text-on-surface text-center font-headline font-bold mb-2 tracking-tight">
             Page not found
           </Typography>
           <Typography variant="body-md" className="text-on-surface-variant text-center leading-relaxed mb-6">

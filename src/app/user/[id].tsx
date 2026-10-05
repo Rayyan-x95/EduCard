@@ -183,7 +183,7 @@ export default function UserProfileScreen() {
             isVerified={profile.is_verified}
             className="mb-4"
           />
-          <Typography variant="headline-md" className="text-on-surface text-center font-bold">
+          <Typography variant="headline-md" className="text-on-surface text-center font-headline font-bold text-2xl tracking-tight">
             {profile.display_name || "User"}
           </Typography>
           <Typography variant="label-md" className="text-primary font-bold mb-3">
@@ -236,9 +236,9 @@ export default function UserProfileScreen() {
                   loading={followMutation.isPending}
                   leftIcon={
                     isFollowing ? (
-                      <UserCheck size={16} color="#818CF8" />
+                      <UserCheck size={16} color="#E5A93C" />
                     ) : (
-                      <UserPlus size={16} color="#0F172A" />
+                      <UserPlus size={16} color="#181104" />
                     )
                   }
                   onPress={() => followMutation.mutate()}
@@ -252,7 +252,7 @@ export default function UserProfileScreen() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      leftIcon={<Flag size={14} color="#F87171" />}
+                      leftIcon={<Flag size={14} color="#F43F5E" />}
                       onPress={() =>
                         router.push({
                           pathname: "/report",
@@ -268,7 +268,7 @@ export default function UserProfileScreen() {
                       variant="danger"
                       size="sm"
                       loading={blockMutation.isPending}
-                      leftIcon={<Ban size={14} color="#F87171" />}
+                      leftIcon={<Ban size={14} color="#F43F5E" />}
                       onPress={() => blockMutation.mutate()}
                     >
                       Block
@@ -320,22 +320,22 @@ export default function UserProfileScreen() {
         {/* Stats */}
         <View className="flex-row gap-x-3 mb-5">
           <StatTile
-            icon={<Award size={20} color="#FBBF24" />}
+            icon={<Award size={20} color="#E5A93C" />}
             value={String(profile.reputation_score ?? 0)}
             label="Reputation"
-            tone="#FBBF24"
+            tone="#E5A93C"
           />
           <StatTile
-            icon={<ShieldCheck size={20} color="#34D399" />}
+            icon={<ShieldCheck size={20} color="#10B981" />}
             value={profile.is_verified ? "Verified" : "Active"}
             label="Status"
-            tone="#34D399"
+            tone="#10B981"
           />
           <StatTile
-            icon={<BookOpen size={20} color="#818CF8" />}
+            icon={<BookOpen size={20} color="#38BDF8" />}
             value={String(profile.total_answers ?? 0)}
             label="Answers"
-            tone="#818CF8"
+            tone="#38BDF8"
           />
         </View>
 
@@ -346,8 +346,8 @@ export default function UserProfileScreen() {
           return (
             <View className="mb-6">
               <View className="flex-row items-center gap-x-2 mb-3">
-                <Sparkles size={16} color="#818CF8" />
-                <Typography variant="label-lg" className="text-on-surface font-bold">
+                <Sparkles size={16} color="#E5A93C" />
+                <Typography variant="label-lg" className="text-on-surface font-headline font-bold">
                   Academic Credentials
                 </Typography>
               </View>
@@ -361,10 +361,10 @@ export default function UserProfileScreen() {
                       size={16}
                       color={
                         b.variant === "tertiary"
-                          ? "#34D399"
+                          ? "#10B981"
                           : b.variant === "accent"
-                          ? "#F59E0B"
-                          : "#818CF8"
+                          ? "#E5A93C"
+                          : "#38BDF8"
                       }
                     />
                     <View>
@@ -389,21 +389,21 @@ export default function UserProfileScreen() {
         {/* Education */}
         {Array.isArray((profile as any).education) && (profile as any).education.length > 0 && (
           <View className="mb-6">
-            <Typography variant="label-lg" className="text-on-surface font-bold mb-3">
+            <Typography variant="label-lg" className="text-on-surface font-headline font-bold mb-3">
               Academic Background
             </Typography>
             {(profile as any).education.map((edu: any, idx: number) => (
-              <Card key={edu.id || idx} className="p-4 mb-3 border border-outline-variant/60">
+              <Card key={edu.id || idx} className="p-4 mb-3 border border-outline-variant/60 bg-surface-container">
                 <View className="flex-row items-center gap-x-3 mb-2">
                   <View className="p-2 rounded-lg bg-primary-container/40 border border-primary/30">
-                    <School size={16} color="#818CF8" />
+                    <School size={16} color="#E5A93C" />
                   </View>
                   <Typography variant="label-lg" className="text-on-surface font-bold flex-1">
                     {edu.institution_name}
                   </Typography>
                 </View>
                 <View className="flex-row items-center gap-x-2 pl-1">
-                  <BookOpen size={15} color="#94A3B8" />
+                  <BookOpen size={15} color="#A1B0C2" />
                   <Typography variant="body-sm" className="text-on-surface-variant flex-1">
                     {edu.degree} in {edu.field} ({edu.start_year}
                     {edu.end_year ? ` – ${edu.end_year}` : " – Present"})
@@ -428,8 +428,8 @@ export default function UserProfileScreen() {
 
         {activeTab === "questions" ? (
           questions.length === 0 ? (
-            <Card className="p-6 items-center border border-outline-variant/60">
-              <MessageSquare size={20} color="#94A3B8" className="mb-1.5" />
+            <Card className="p-6 items-center border border-outline-variant/60 bg-surface-container">
+              <MessageSquare size={20} color="#A1B0C2" className="mb-1.5" />
               <Typography variant="body-sm" className="text-on-surface-variant text-center">
                 No public questions asked yet.
               </Typography>
@@ -438,19 +438,19 @@ export default function UserProfileScreen() {
             questions.map((q: any) => (
               <Card
                 key={q.id}
-                className="p-4 mb-3 border border-outline-variant/60"
+                className="p-4 mb-3 border border-outline-variant/60 bg-surface-container"
                 onPress={() => router.push(`/question/${q.id}` as any)}
               >
                 <View className="flex-row items-start justify-between mb-2">
                   <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
                   <View className="flex-row items-center gap-x-1">
-                    <Award size={12} color="#94A3B8" />
+                    <Award size={12} color="#A1B0C2" />
                     <Typography variant="label-sm" className="text-on-surface-variant/70">
                       {q.helpful_count ?? 0}
                     </Typography>
                   </View>
                 </View>
-                <Typography variant="label-md" className="text-on-surface font-bold mb-1" numberOfLines={2}>
+                <Typography variant="label-md" className="text-on-surface font-headline font-bold mb-1" numberOfLines={2}>
                   {q.title}
                 </Typography>
                 <Typography variant="body-sm" className="text-on-surface-variant" numberOfLines={2}>
@@ -461,8 +461,8 @@ export default function UserProfileScreen() {
           )
         ) : (
           posts.length === 0 ? (
-            <Card className="p-6 items-center border border-outline-variant/60">
-              <PenSquare size={20} color="#94A3B8" className="mb-1.5" />
+            <Card className="p-6 items-center border border-outline-variant/60 bg-surface-container">
+              <PenSquare size={20} color="#A1B0C2" className="mb-1.5" />
               <Typography variant="body-sm" className="text-on-surface-variant text-center">
                 No public discussion posts shared yet.
               </Typography>
@@ -471,7 +471,7 @@ export default function UserProfileScreen() {
             posts.map((p: PostListItem) => (
               <Card
                 key={p.id}
-                className="p-4 mb-3 border border-outline-variant/60"
+                className="p-4 mb-3 border border-outline-variant/60 bg-surface-container"
                 onPress={() => router.push(`/post/${p.id}` as any)}
               >
                 <View className="flex-row items-start justify-between mb-2">
@@ -481,7 +481,7 @@ export default function UserProfileScreen() {
                       {p.helpful_count ?? 0} helpful
                     </Typography>
                     <View className="flex-row items-center gap-x-1">
-                      <MessageSquare size={12} color="#94A3B8" />
+                      <MessageSquare size={12} color="#A1B0C2" />
                       <Typography variant="label-sm" className="text-on-surface-variant/70">
                         {p.comment_count ?? 0}
                       </Typography>
@@ -513,9 +513,9 @@ function Header({ onBack, onShare }: { onBack: () => void; onShare?: () => void 
         }}
         className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
       >
-        <ArrowLeft size={20} color="#F8FAFC" />
+        <ArrowLeft size={20} color="#F4F6F8" />
       </TouchableOpacity>
-      <Typography variant="label-lg" className="text-on-surface font-bold">
+      <Typography variant="label-lg" className="text-on-surface font-headline font-bold">
         Profile
       </Typography>
       {onShare ? (
@@ -529,7 +529,7 @@ function Header({ onBack, onShare }: { onBack: () => void; onShare?: () => void 
           }}
           className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
-          <Share2 size={18} color="#818CF8" />
+          <Share2 size={18} color="#E5A93C" />
         </TouchableOpacity>
       ) : (
         <View className="w-11" />
@@ -550,21 +550,21 @@ function StatTile({
   tone: string;
 }) {
   const containerMap: Record<string, string> = {
-    "#FBBF24": "bg-amber-container/40 border-amber/40",
-    "#34D399": "bg-tertiary-container/40 border-tertiary/40",
-    "#818CF8": "bg-primary-container/40 border-primary/40",
+    "#E5A93C": "bg-amber-container/40 border-amber/40",
+    "#10B981": "bg-tertiary-container/40 border-tertiary/40",
+    "#38BDF8": "bg-secondary-container/40 border-secondary/40",
   };
   const textMap: Record<string, string> = {
-    "#FBBF24": "text-amber",
-    "#34D399": "text-tertiary",
-    "#818CF8": "text-primary",
+    "#E5A93C": "text-primary",
+    "#10B981": "text-tertiary",
+    "#38BDF8": "text-secondary",
   };
   return (
-    <Card className="flex-1 p-4 items-center justify-center border border-outline-variant/60">
-      <View className={`w-10 h-10 rounded-xl ${containerMap[tone]} border items-center justify-center mb-2`}>
+    <Card className="flex-1 p-4 items-center justify-center border border-outline-variant/60 bg-surface-container">
+      <View className={`w-10 h-10 rounded-xl ${containerMap[tone] || "bg-surface-container-high border-outline-variant/60"} border items-center justify-center mb-2`}>
         {icon}
       </View>
-      <Typography variant="headline-sm" className={`${textMap[tone]} font-extrabold`} numberOfLines={1}>
+      <Typography variant="headline-sm" className={`${textMap[tone] || "text-on-surface"} font-extrabold`} numberOfLines={1}>
         {value}
       </Typography>
       <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold normal-case">

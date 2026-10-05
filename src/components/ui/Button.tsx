@@ -42,17 +42,17 @@ export function Button({
   };
 
   const variantStyles = {
-    // Apple & Material Luminous Accents — focus:ring for web a11y
-    primary: "bg-primary active:bg-primary/85 shadow-md shadow-primary/25 border border-primary-light/40 focus:ring-2 focus:ring-primary/50",
-    secondary: "bg-surface-container-high active:bg-surface-container-highest border border-outline-variant/60 focus:ring-2 focus:ring-primary/30",
-    outline: "bg-transparent border border-primary/50 active:bg-primary-container/25 focus:ring-2 focus:ring-primary/40",
+    // Oxford Academic Guild Controls
+    primary: "bg-primary active:bg-primary-light/90 shadow-sm shadow-black/40 border border-primary-light/40 focus:ring-2 focus:ring-primary/50",
+    secondary: "bg-surface-container-high active:bg-surface-container-highest border border-white/[0.08] focus:ring-2 focus:ring-primary/30",
+    outline: "bg-transparent border border-primary/40 active:bg-primary-container/30 focus:ring-2 focus:ring-primary/40",
     ghost: "bg-transparent active:bg-surface-container-high/60 focus:ring-2 focus:ring-primary/30",
-    danger: "bg-error-container active:bg-error-container/80 border border-error/40 shadow-sm shadow-error/20 focus:ring-2 focus:ring-error/40",
-    solved: "bg-tertiary-container active:bg-tertiary-container/80 border border-tertiary/50 shadow-sm shadow-tertiary/20 focus:ring-2 focus:ring-tertiary/40",
+    danger: "bg-error-container active:bg-error-container/80 border border-error/30 shadow-sm shadow-black/30 focus:ring-2 focus:ring-error/40",
+    solved: "bg-[#07241A] active:bg-[#0A2E22] border border-tertiary/40 shadow-sm shadow-black/30 focus:ring-2 focus:ring-tertiary/40",
   };
 
   const textVariantStyles = {
-    primary: "text-[#0F172A] font-bold text-center",
+    primary: "text-[#181104] font-bold text-center",
     secondary: "text-on-surface font-semibold text-center",
     outline: "text-primary font-semibold text-center",
     ghost: "text-on-surface font-medium text-center",
@@ -91,7 +91,7 @@ export function Button({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "primary" ? "#0F172A" : "#818CF8"} size="small" />
+        <ActivityIndicator color={variant === "primary" ? "#181104" : "#E5A93C"} size="small" />
       ) : (
         <View className="flex-row items-center justify-center">
           {leftIcon && <View className="mr-2">{leftIcon}</View>}

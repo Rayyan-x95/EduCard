@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   Users,
   WifiOff,
+  X,
 } from "lucide-react-native";
 
 type SearchFilterTab = "top" | "questions" | "posts" | "people" | "spaces";
@@ -120,7 +121,7 @@ export default function GlobalSearchScreen() {
   return (
     <SafeAreaView className="flex-1 bg-surface">
       {/* Search Header */}
-      <View className="px-5 py-3 border-b border-surface-container-high/80 flex-row items-center">
+      <View className="px-5 py-3 border-b border-white/[0.08] flex-row items-center">
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Go back"
@@ -129,18 +130,35 @@ export default function GlobalSearchScreen() {
             AppHaptics.light();
             if (router.canGoBack()) router.back(); else router.replace('/(tabs)' as any);
           }}
-          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3"
         >
-          <ArrowLeft size={20} color="#F8FAFC" />
+          <ArrowLeft size={20} color="#F4F6F8" />
         </TouchableOpacity>
         <View className="flex-1">
           <TextInput
-            placeholder="Search questions, people, spaces..."
+            placeholder="Search questions, scholars, spaces..."
             value={query}
             onChangeText={setQuery}
             autoFocus
             accessibilityLabel="Search queries"
-            leftIcon={<SearchIcon size={18} color="#818CF8" />}
+            leftIcon={<SearchIcon size={18} color="#E5A93C" />}
+            rightIcon={
+              query.length > 0 ? (
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Clear search input"
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  onPress={() => {
+                    AppHaptics.light();
+                    setQuery("");
+                    setDebouncedQuery("");
+                  }}
+                  className="p-1 rounded-full active:bg-surface-container-high"
+                >
+                  <X size={16} color="#A1B0C2" />
+                </TouchableOpacity>
+              ) : undefined
+            }
             containerClassName="mb-0"
           />
         </View>
@@ -149,7 +167,7 @@ export default function GlobalSearchScreen() {
       {/* Recent searches — shown when the field is empty so returning
           users can re-run prior queries without retyping. */}
       {recentSearches.length > 0 && query.trim().length === 0 && !loading && (
-        <View className="px-5 pt-4 pb-1 border-b border-surface-container-high/60">
+        <View className="px-5 pt-4 pb-1 border-b border-white/[0.08]">
           <View className="flex-row items-center justify-between mb-2.5">
             <Typography variant="label-md" className="text-on-surface-variant/80 font-bold normal-case">
               Recent searches
@@ -179,7 +197,7 @@ export default function GlobalSearchScreen() {
                   setQuery(s);
                   setDebouncedQuery(s);
                 }}
-                className="px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/60 active:bg-surface-container-high mr-2 mb-2"
+                className="px-3 py-1.5 rounded-full bg-surface-container border border-white/[0.08] active:bg-surface-container-high mr-2 mb-2"
               >
                 <Typography variant="label-sm" className="text-on-surface-variant normal-case" numberOfLines={1}>
                   {s}
@@ -191,7 +209,7 @@ export default function GlobalSearchScreen() {
       )}
 
       {/* Filter Tabs */}
-      <View className="border-b border-surface-container-high/80">
+      <View className="border-b border-white/[0.08]">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row px-5 py-3">
           {(["top", "questions", "posts", "people", "spaces"] as const).map((tab) => {
           const isSelected = activeTab === tab;
@@ -206,8 +224,8 @@ export default function GlobalSearchScreen() {
               }}
               className={`mr-2 px-4 py-1.5 rounded-full border ${
                 isSelected
-                  ? "bg-primary-container/60 border-primary shadow-sm shadow-primary/20"
-                  : "bg-surface-container border-outline-variant/60 active:bg-surface-container-high"
+                  ? "bg-primary-container/70 border-primary shadow-sm shadow-black/20"
+                  : "bg-surface-container border-white/[0.08] active:bg-surface-container-high"
               }`}
             >
               <Typography
@@ -265,9 +283,9 @@ export default function GlobalSearchScreen() {
             return (
               <View className="items-center py-16">
                 <View className="w-16 h-16 rounded-2xl bg-surface-container-high border border-outline-variant/60 items-center justify-center mb-4 shadow-sm">
-                  <HelpCircle size={32} color="#818CF8" />
+                  <HelpCircle size={32} color="#E5A93C" />
                 </View>
-                <Typography variant="headline-md" className="text-on-surface text-center mb-1 font-bold">
+                <Typography variant="headline-md" className="text-on-surface text-center mb-1 font-headline font-bold">
                   No results found
                 </Typography>
                 <Typography variant="body-md" className="text-on-surface-variant text-center max-w-xs leading-relaxed">

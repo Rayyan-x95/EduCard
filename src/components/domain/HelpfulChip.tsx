@@ -45,15 +45,15 @@ export const HelpfulChip = React.memo(function HelpfulChip({
         disabled
           ? "bg-surface-container-high/40 border-outline-variant/30 opacity-60"
           : isHelpful
-          ? "bg-secondary-container/45 border-secondary/60 shadow-sm shadow-secondary/25"
-          : "bg-surface-container-high/80 border-white/[0.08] web:hover:border-white/[0.18] active:bg-surface-container-highest",
+          ? "bg-primary-container/70 border-primary/60 shadow-sm shadow-black/30"
+          : "bg-surface-container-high/80 border-white/[0.08] web:hover:border-white/[0.14] active:bg-surface-container-highest",
         className
       )}
     >
       <ThumbsUp
         size={14}
-        color={disabled ? "#64748B" : isHelpful ? "#C084FC" : "#94A3B8"}
-        fill={!disabled && isHelpful ? "#C084FC" : "none"}
+        color={disabled ? "#637588" : isHelpful ? "#E5A93C" : "#A1B0C2"}
+        fill={!disabled && isHelpful ? "#E5A93C" : "none"}
       />
       <Typography
         variant="label-md"
@@ -62,7 +62,7 @@ export const HelpfulChip = React.memo(function HelpfulChip({
           disabled
             ? "text-on-surface-variant/60 font-medium"
             : isHelpful
-            ? "text-secondary font-bold"
+            ? "text-primary-light font-bold"
             : "text-on-surface-variant/90 font-medium"
         )}
       >

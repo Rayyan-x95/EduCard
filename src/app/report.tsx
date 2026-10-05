@@ -129,7 +129,7 @@ export default function ReportModal() {
     <SafeAreaView className="flex-1 bg-surface">
       {/* Modal Header */}
       <View className="px-5 py-3.5 border-b border-surface-container-high/80 flex-row items-center justify-between">
-        <Typography variant="label-lg" className="text-on-surface font-bold">
+        <Typography variant="label-lg" className="text-on-surface font-headline font-bold">
           Report Content or User
         </Typography>
         <TouchableOpacity
@@ -142,7 +142,7 @@ export default function ReportModal() {
           }}
           className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
-          <X size={20} color="#F8FAFC" />
+          <X size={20} color="#F4F6F8" />
         </TouchableOpacity>
       </View>
 
@@ -196,7 +196,7 @@ export default function ReportModal() {
                       isSelected ? "border-error bg-error" : "border-outline-variant"
                     }`}
                   >
-                    {isSelected && <Check size={12} color="#0F172A" strokeWidth={3} />}
+                    {isSelected && <Check size={12} color="#FFFFFF" strokeWidth={3} />}
                   </View>
                 </View>
               </TouchableOpacity>
@@ -234,8 +234,8 @@ export default function ReportModal() {
               AppHaptics.selection();
               setBlockUser(val);
             }}
-            trackColor={{ false: "#1E293B", true: "#7F1D1D" }}
-            thumbColor={blockUser ? "#F87171" : "#94A3B8"}
+            trackColor={{ false: "#19222C", true: "#6A1A24" }}
+            thumbColor={blockUser ? "#F43F5E" : "#A1B0C2"}
           />
         </Card>
 
@@ -245,7 +245,7 @@ export default function ReportModal() {
           size="lg"
           loading={loading}
           disabled={!validTarget || loading}
-          leftIcon={<Flag size={18} color="#F87171" />}
+          leftIcon={<Flag size={18} color="#FFFFFF" />}
           onPress={handleSubmit}
           className="mb-6"
         >

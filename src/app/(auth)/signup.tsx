@@ -136,7 +136,7 @@ export default function SignupScreen() {
           <View className="p-3.5 rounded-3xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-3 shadow-lg shadow-primary/20">
             <Logo variant="simple" size="xl" />
           </View>
-          <Typography variant="headline-lg" className="text-on-surface text-center mb-1.5 font-extrabold text-3xl">
+          <Typography variant="headline-lg" className="text-on-surface text-center mb-1.5 font-headline font-bold text-3xl">
             Join EduCard
           </Typography>
           <Typography variant="body-md" className="text-center text-on-surface-variant max-w-[280px] leading-relaxed">
@@ -144,15 +144,15 @@ export default function SignupScreen() {
           </Typography>
         </View>
 
-        <Card className="mb-6 p-6 border border-white/[0.08] shadow-xl shadow-black/40">
-          <Typography variant="headline-md" className="text-on-surface mb-5 text-xl font-bold">
+        <Card className="mb-6 p-6 border border-white/[0.08] shadow-xl shadow-black/40 bg-surface-container">
+          <Typography variant="headline-md" className="text-on-surface mb-5 text-xl font-headline font-bold">
             Create Account
           </Typography>
 
           {awaitingConfirmation ? (
             <View className="bg-tertiary-container/25 border border-tertiary/40 rounded-2xl p-4 mb-2">
               <View className="flex-row items-center gap-x-2 mb-1.5">
-                <CheckCircle2 size={18} color="#34D399" />
+                <CheckCircle2 size={18} color="#10B981" />
                 <Typography variant="label-md" className="text-tertiary font-bold normal-case">
                   Confirm your email
                 </Typography>
@@ -171,7 +171,7 @@ export default function SignupScreen() {
                 variant="secondary"
                 size="md"
                 className="mt-4"
-                leftIcon={<Send size={16} color="#818CF8" />}
+                leftIcon={<Send size={16} color="#E5A93C" />}
                 loading={resendLoading}
                 disabled={resendCooldown > 0}
                 onPress={handleResend}
@@ -205,7 +205,7 @@ export default function SignupScreen() {
             placeholder="Sarah Chen"
             value={displayName}
             onChangeText={setDisplayName}
-            leftIcon={<User size={18} color="#818CF8" />}
+            leftIcon={<User size={18} color="#E5A93C" />}
           />
 
           <TextInput
@@ -215,7 +215,7 @@ export default function SignupScreen() {
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            leftIcon={<Mail size={18} color="#818CF8" />}
+            leftIcon={<Mail size={18} color="#E5A93C" />}
             helperText="Use your university or school email if available."
           />
 
@@ -225,7 +225,7 @@ export default function SignupScreen() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            leftIcon={<Lock size={18} color="#818CF8" />}
+            leftIcon={<Lock size={18} color="#E5A93C" />}
           />
 
           <Button

@@ -109,9 +109,9 @@ export default function EditProfileScreen() {
             }}
             className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3"
           >
-            <ArrowLeft size={20} color="#F8FAFC" />
+            <ArrowLeft size={20} color="#F4F6F8" />
           </TouchableOpacity>
-          <Typography variant="label-lg" className="text-on-surface font-bold">
+          <Typography variant="label-lg" className="text-on-surface font-headline font-bold">
             Edit Profile
           </Typography>
         </View>
@@ -144,7 +144,7 @@ export default function EditProfileScreen() {
               disabled={uploadingAvatar}
               className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-primary border-2 border-surface items-center justify-center shadow-lg shadow-primary/30 active:opacity-80"
             >
-              <Camera size={16} color="#0F172A" />
+              <Camera size={16} color="#181104" />
             </TouchableOpacity>
           </View>
 
@@ -163,9 +163,9 @@ export default function EditProfileScreen() {
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
           <View className="flex-row items-center pb-3.5 mb-4 border-b border-outline-variant/30">
             <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30 mr-2.5">
-              <User size={16} color="#818CF8" />
+              <User size={16} color="#E5A93C" />
             </View>
-            <Typography variant="headline-sm" className="text-on-surface font-bold">
+            <Typography variant="headline-sm" className="text-on-surface font-headline font-bold">
               Profile Information
             </Typography>
           </View>
@@ -174,7 +174,7 @@ export default function EditProfileScreen() {
             label="Full Name / Display Name"
             value={displayName}
             onChangeText={setDisplayName}
-            leftIcon={<User size={18} color="#818CF8" />}
+            leftIcon={<User size={18} color="#E5A93C" />}
           />
 
           <TextInput
@@ -185,7 +185,7 @@ export default function EditProfileScreen() {
             multiline
             numberOfLines={4}
             maxLength={300}
-            leftIcon={<FileText size={18} color="#818CF8" />}
+            leftIcon={<FileText size={18} color="#E5A93C" />}
             helperText={`${bio.length}/300 characters`}
           />
 
@@ -225,7 +225,7 @@ export default function EditProfileScreen() {
             value={countryCode}
             onChangeText={(t) => setCountryCode(t.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase())}
             autoCapitalize="characters"
-            leftIcon={<Globe size={18} color="#818CF8" />}
+            leftIcon={<Globe size={18} color="#E5A93C" />}
             helperText={
               countryCode.length === 2
                 ? countryName(countryCode) !== countryCode

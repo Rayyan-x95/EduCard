@@ -166,7 +166,7 @@ export default function CommunityDetailScreen() {
                   queryClient.invalidateQueries({ queryKey: queryKeys.communityPosts(communityId) });
                 }
               }}
-              tintColor="#818CF8"
+              tintColor="#E5A93C"
             />
           }
           renderItem={({ item }: { item: any }) => {
@@ -184,7 +184,7 @@ export default function CommunityDetailScreen() {
                     </View>
                   </View>
         
-                  <Typography variant="headline-lg" className="text-on-surface mb-2 font-bold text-2xl">
+                  <Typography variant="headline-lg" className="text-on-surface mb-2 font-headline font-bold text-2xl tracking-tight">
                     {communityData.name}
                   </Typography>
                   <Typography variant="body-md" className="text-on-surface-variant leading-relaxed mb-6">
@@ -210,9 +210,9 @@ export default function CommunityDetailScreen() {
                         loading={joinMutation.isPending}
                         leftIcon={
                           isMember ? (
-                            <UserCheck size={16} color="#818CF8" />
+                            <UserCheck size={16} color="#E5A93C" />
                           ) : (
-                            <UserPlus size={16} color="#0F172A" />
+                            <UserPlus size={16} color="#181104" />
                           )
                         }
                         onPress={() => joinMutation.mutate()}
@@ -229,7 +229,7 @@ export default function CommunityDetailScreen() {
                             <Button
                               variant="primary"
                               size="md"
-                              leftIcon={<MessageSquare size={16} color="#0F172A" />}
+                              leftIcon={<MessageSquare size={16} color="#181104" />}
                               onPress={() => {
                                 AppHaptics.medium();
                                 router.push({
@@ -246,7 +246,7 @@ export default function CommunityDetailScreen() {
                             <Button
                               variant="secondary"
                               size="md"
-                              leftIcon={<PenSquare size={16} color="#818CF8" />}
+                              leftIcon={<PenSquare size={16} color="#E5A93C" />}
                               onPress={() => {
                                 AppHaptics.medium();
                                 router.push({
@@ -272,7 +272,7 @@ export default function CommunityDetailScreen() {
                 <Card className="p-5 mb-5 border border-outline-variant/60">
                   <View className="flex-row items-center mb-3">
                     <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30 mr-2.5">
-                      <Shield size={16} color="#818CF8" />
+                      <Shield size={16} color="#E5A93C" />
                     </View>
                     <Typography variant="label-md" className="text-primary font-bold normal-case">
                       Space Guidelines & Integrity
@@ -407,7 +407,7 @@ function Header({ onBack, onShare }: { onBack: () => void; onShare?: () => void 
           }}
           className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
-          <Share2 size={18} color="#818CF8" />
+          <Share2 size={18} color="#E5A93C" />
         </TouchableOpacity>
       ) : (
         <View className="w-11" />

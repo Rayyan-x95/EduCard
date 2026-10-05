@@ -91,9 +91,9 @@ export default function ProfileScreen() {
     <SafeAreaView className="flex-1 bg-surface">
       <View className="flex-1 w-full max-w-2xl mx-auto">
         {/* Top Header */}
-        <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-surface-container-high/80">
-          <Typography variant="headline-md" className="text-on-surface font-bold flex-1 mr-2" numberOfLines={1}>
-            Profile
+        <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-white/[0.08]">
+          <Typography variant="headline-md" className="text-on-surface font-headline font-bold text-2xl tracking-tight flex-1 mr-2" numberOfLines={1}>
+            Scholar Dossier
           </Typography>
 
           <View className="flex-row items-center flex-wrap justify-end">
@@ -108,7 +108,7 @@ export default function ProfileScreen() {
                 }}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-secondary/40 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
               >
-                <ShieldCheck size={18} color="#C084FC" />
+                <ShieldCheck size={18} color="#38BDF8" />
               </TouchableOpacity>
             )}
 
@@ -120,9 +120,9 @@ export default function ProfileScreen() {
                 AppHaptics.light();
                 router.push("/bookmarks" as any);
               }}
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
             >
-              <Bookmark size={18} color="#818CF8" />
+              <Bookmark size={18} color="#E5A93C" />
             </TouchableOpacity>
 
             {profile?.username && (
@@ -134,9 +134,9 @@ export default function ProfileScreen() {
                   AppHaptics.light();
                   ShareService.shareProfile(profile.username!, profile.display_name);
                 }}
-                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
               >
-                <Share2 size={18} color="#818CF8" />
+                <Share2 size={18} color="#A1B0C2" />
               </TouchableOpacity>
             )}
 
@@ -148,16 +148,16 @@ export default function ProfileScreen() {
                 AppHaptics.light();
                 router.push("/settings/privacy" as any);
               }}
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
             >
-              <Settings size={18} color="#94A3B8" />
+              <Settings size={18} color="#A1B0C2" />
             </TouchableOpacity>
           </View>
         </View>
 
         <ScrollView className="flex-1 px-5 py-5" contentContainerStyle={{ paddingBottom: 32 }}>
           {/* Identity Card */}
-          <Card className="mb-5 p-6 items-center border border-white/[0.08] shadow-lg shadow-black/30">
+          <Card className="mb-5 p-6 items-center border border-white/[0.08] shadow-sm shadow-black/40">
             <Avatar
               name={profile?.display_name || "User"}
               uri={profile?.avatar_path}
@@ -166,7 +166,7 @@ export default function ProfileScreen() {
               isVerified={profile?.is_verified}
               className="mb-4 shadow-md"
             />
-            <Typography variant="headline-md" className="text-on-surface text-center font-bold">
+            <Typography variant="headline-md" className="text-on-surface text-center font-headline font-bold text-2xl tracking-tight">
               {profile?.display_name || "User"}
             </Typography>
             <Typography variant="label-md" className="text-primary font-bold mb-3">
@@ -186,9 +186,9 @@ export default function ProfileScreen() {
                 AppHaptics.light();
                 router.push("/settings/edit-profile" as any);
               }}
-              className="flex-row items-center px-4 py-2 rounded-xl bg-surface-container-high border border-outline-variant/60 active:bg-surface-container-highest"
+              className="flex-row items-center px-4 py-2 rounded-xl bg-surface-container-high border border-white/[0.08] active:bg-surface-container-highest"
             >
-              <View className="mr-1.5"><Edit3 size={14} color="#818CF8" /></View>
+              <View className="mr-1.5"><Edit3 size={14} color="#E5A93C" /></View>
               <Typography variant="label-md" className="text-primary font-bold">
                 Edit Profile
               </Typography>
@@ -198,7 +198,7 @@ export default function ProfileScreen() {
           {/* Moderator Access Tile */}
           {isModerator && (
             <Card
-              className="p-4 mb-5 border border-secondary/40 bg-secondary-container/10"
+              className="p-4 mb-5 border border-secondary/40 bg-[#0C2233]"
               onPress={() => {
                 AppHaptics.light();
                 router.push("/moderation" as any);
@@ -207,7 +207,7 @@ export default function ProfileScreen() {
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-x-3">
                   <View className="p-2 rounded-lg bg-secondary-container/40 border border-secondary/30">
-                    <ShieldCheck size={18} color="#C084FC" />
+                    <ShieldCheck size={18} color="#38BDF8" />
                   </View>
                   <View>
                     <Typography variant="label-lg" className="text-secondary font-bold">
@@ -218,58 +218,71 @@ export default function ProfileScreen() {
                     </Typography>
                   </View>
                 </View>
-                <ChevronRight size={18} color="#C084FC" />
+                <ChevronRight size={18} color="#38BDF8" />
               </View>
             </Card>
           )}
 
-          {/* Bento Stats Grid */}
-          <View className="flex-row gap-x-3 mb-5">
-            {/* Reputation Tile */}
-            <Card className="flex-1 p-4 mb-0 items-center justify-center border border-outline-variant/60">
-              <View className="w-10 h-10 rounded-xl bg-amber-container/40 border border-amber/40 items-center justify-center mb-2 shadow-sm shadow-amber/20">
-                <Award size={20} color="#FBBF24" />
+          {/* Oxford Archival Scholar Standing Masthead */}
+          <Card className="mb-5 p-5 border border-white/[0.08] bg-surface-container/70 shadow-sm shadow-black/30">
+            <View className="flex-row items-center justify-between">
+              {/* Primary Scholarly Metric */}
+              <View className="flex-1 mr-4">
+                <View className="flex-row items-center mb-1.5">
+                  <Award size={16} color="#D49B35" />
+                  <Typography variant="label-sm" className="text-primary font-bold ml-1.5 tracking-wider uppercase">
+                    Reputation Standing
+                  </Typography>
+                </View>
+                <Typography variant="display-lg" className="text-primary-light font-headline font-bold text-3xl tracking-tight leading-none">
+                  {profile?.reputation_score || 0}
+                </Typography>
+                <Typography variant="body-sm" className="text-on-surface-variant/70 text-[12px] mt-1">
+                  Peer-validated research points
+                </Typography>
               </View>
-              <Typography variant="headline-md" className="text-on-surface font-extrabold">
-                {profile?.reputation_score || 0}
-              </Typography>
-              <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold">
-                Reputation
-              </Typography>
-            </Card>
 
-            {/* Institutional Trust Tile */}
-            <Card className="flex-1 p-4 mb-0 items-center justify-center border border-outline-variant/60">
-              <View className="w-10 h-10 rounded-xl bg-tertiary-container/40 border border-tertiary/40 items-center justify-center mb-2 shadow-sm shadow-tertiary/20">
-                <ShieldCheck size={20} color="#34D399" />
-              </View>
-              <Typography variant="headline-md" className="text-tertiary font-extrabold">
-                {profile?.is_verified ? "Verified" : "Active"}
-              </Typography>
-              <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold">
-                Status
-              </Typography>
-            </Card>
+              {/* Vertical Hairline Divider */}
+              <View className="w-[1px] h-14 bg-white/[0.08] mr-4" />
 
-            {/* Answers Contributed Tile */}
-            <Card className="flex-1 p-4 mb-0 items-center justify-center border border-outline-variant/60">
-              <View className="w-10 h-10 rounded-xl bg-primary-container/40 border border-primary/30 items-center justify-center mb-2 shadow-sm shadow-primary/20">
-                <MessageSquare size={20} color="#818CF8" />
+              {/* Secondary Scholarly Telemetry */}
+              <View className="justify-center gap-y-2">
+                <View className="flex-row items-center">
+                  <View className="w-7 h-7 rounded-lg bg-[#07241A] border border-tertiary/40 items-center justify-center mr-2">
+                    <ShieldCheck size={14} color="#10B981" />
+                  </View>
+                  <View>
+                    <Typography variant="label-md" className="text-tertiary font-bold leading-tight">
+                      {profile?.is_verified ? "Verified Scholar" : "Active Member"}
+                    </Typography>
+                    <Typography variant="label-sm" className="text-on-surface-variant/60 text-[10px]">
+                      Institutional Status
+                    </Typography>
+                  </View>
+                </View>
+
+                <View className="flex-row items-center">
+                  <View className="w-7 h-7 rounded-lg bg-surface-container-high border border-white/[0.08] items-center justify-center mr-2">
+                    <MessageSquare size={14} color="#A1B0C2" />
+                  </View>
+                  <View>
+                    <Typography variant="label-md" className="text-on-surface font-bold leading-tight">
+                      {profile?.total_answers || 0} Contributions
+                    </Typography>
+                    <Typography variant="label-sm" className="text-on-surface-variant/60 text-[10px]">
+                      Answers & Solutions
+                    </Typography>
+                  </View>
+                </View>
               </View>
-              <Typography variant="headline-md" className="text-primary font-extrabold">
-                {profile?.total_answers || 0}
-              </Typography>
-              <Typography variant="label-sm" className="text-on-surface-variant/70 font-semibold">
-                Answers
-              </Typography>
-            </Card>
-          </View>
+            </View>
+          </Card>
 
           {/* Academic Credentials & Badges (Reputation 2.0) */}
           {badges.length > 0 && (
             <View className="mb-6">
               <View className="flex-row items-center gap-x-2 mb-3">
-                <Sparkles size={16} color="#818CF8" />
+                <Sparkles size={16} color="#E5A93C" />
                 <Typography variant="label-lg" className="text-on-surface font-bold">
                   Academic Credentials
                 </Typography>
@@ -278,16 +291,16 @@ export default function ProfileScreen() {
                 {badges.map((b) => (
                   <View
                     key={b.id}
-                    className="flex-row items-center gap-x-2.5 px-3.5 py-2.5 rounded-xl bg-surface-container border border-outline-variant/60"
+                    className="flex-row items-center gap-x-2.5 px-3.5 py-2.5 rounded-xl bg-surface-container border border-white/[0.08]"
                   >
                     <Award
                       size={16}
                       color={
                         b.variant === "tertiary"
-                          ? "#34D399"
+                          ? "#10B981"
                           : b.variant === "accent"
-                          ? "#F59E0B"
-                          : "#818CF8"
+                          ? "#E5A93C"
+                          : "#E5A93C"
                       }
                     />
                     <View>
@@ -311,14 +324,14 @@ export default function ProfileScreen() {
           {/* Academic Background Section */}
           <View className="mb-6">
             <View className="flex-row items-center mb-3">
-              <View className="mr-2"><School size={16} color="#818CF8" /></View>
+              <View className="mr-2"><School size={16} color="#E5A93C" /></View>
               <Typography variant="label-lg" className="text-on-surface font-bold">
                 Academic Background
               </Typography>
             </View>
 
             {profile?.bio && (
-              <Card className="mb-3.5 p-4 bg-surface-container border border-outline-variant/60">
+              <Card className="mb-3.5 p-4 bg-surface-container border border-white/[0.08]">
                 <Typography variant="body-md" className="text-on-surface leading-relaxed">
                   {profile.bio}
                 </Typography>
@@ -327,17 +340,17 @@ export default function ProfileScreen() {
 
             {profile?.education && profile.education.length > 0 ? (
               profile.education.map((edu, idx) => (
-                <Card key={edu.id || idx} className="p-4 mb-3 border border-outline-variant/60">
+                <Card key={edu.id || idx} className="p-4 mb-3 border border-white/[0.08]">
                   <View className="mb-2 flex-row items-center">
-                    <View className="p-2 rounded-lg bg-primary-container/40 border border-primary/30 mr-3">
-                      <School size={16} color="#818CF8" />
+                    <View className="p-2 rounded-lg bg-primary-container/60 border border-primary/40 mr-3">
+                      <School size={16} color="#E5A93C" />
                     </View>
                     <Typography variant="label-lg" className="text-on-surface font-bold flex-1">
                       {edu.institution_name}
                     </Typography>
                   </View>
                   <View className="flex-row items-start pl-1">
-                    <View className="mt-0.5 mr-3"><BookOpen size={15} color="#94A3B8" /></View>
+                    <View className="mt-0.5 mr-3"><BookOpen size={15} color="#A1B0C2" /></View>
                     <Typography variant="body-sm" className="text-on-surface-variant flex-1">
                       {edu.degree} in {edu.field} ({edu.start_year}{edu.end_year ? ` – ${edu.end_year}` : " – Present"})
                     </Typography>
@@ -345,9 +358,9 @@ export default function ProfileScreen() {
                 </Card>
               ))
             ) : (
-              <Card className="p-4 border border-outline-variant/60">
+              <Card className="p-4 border border-white/[0.08]">
                 <View className="flex-row items-center mb-2">
-                  <View className="mr-3"><School size={18} color="#818CF8" /></View>
+                  <View className="mr-3"><School size={18} color="#E5A93C" /></View>
                   <Typography variant="body-md" className="text-on-surface-variant italic">
                     No academic records listed. You can update your educational background in Edit Profile.
                   </Typography>
@@ -374,7 +387,7 @@ export default function ProfileScreen() {
                 myQuestions.map((q: QuestionListItem) => (
                   <Card
                     key={q.id}
-                    className="p-4 mb-3 border border-outline-variant/60"
+                    className="p-4 mb-3 border border-white/[0.08]"
                     onPress={() => {
                       AppHaptics.light();
                       router.push(`/question/${q.id}` as any);
@@ -383,7 +396,7 @@ export default function ProfileScreen() {
                     <View className="flex-row items-start justify-between mb-2">
                       <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
                       <View className="flex-row items-center">
-                        <View className="mr-1"><MessageSquare size={12} color="#94A3B8" /></View>
+                        <View className="mr-1"><MessageSquare size={12} color="#A1B0C2" /></View>
                         <Typography variant="label-sm" className="text-on-surface-variant/70">
                           {q.answer_count ?? 0}
                         </Typography>
@@ -395,8 +408,8 @@ export default function ProfileScreen() {
                   </Card>
                 ))
               ) : (
-                <Card className="p-5 items-center border border-outline-variant/60">
-                  <View className="mb-1.5"><MessageSquare size={20} color="#94A3B8" /></View>
+                <Card className="p-5 items-center border border-white/[0.08]">
+                  <View className="mb-1.5"><MessageSquare size={20} color="#A1B0C2" /></View>
                   <Typography variant="body-sm" className="text-on-surface-variant text-center">
                     No questions asked yet.
                   </Typography>
@@ -407,7 +420,7 @@ export default function ProfileScreen() {
                 myPosts.map((p: PostListItem) => (
                   <Card
                     key={p.id}
-                    className="p-4 mb-3 border border-outline-variant/60"
+                    className="p-4 mb-3 border border-white/[0.08]"
                     onPress={() => {
                       AppHaptics.light();
                       router.push(`/post/${p.id}` as any);
@@ -420,7 +433,7 @@ export default function ProfileScreen() {
                           {p.helpful_count ?? 0} helpful
                         </Typography></View>
                         <View className="flex-row items-center">
-                          <View className="mr-1"><MessageSquare size={12} color="#94A3B8" /></View>
+                          <View className="mr-1"><MessageSquare size={12} color="#A1B0C2" /></View>
                           <Typography variant="label-sm" className="text-on-surface-variant/70">
                             {p.comment_count ?? 0}
                           </Typography>
@@ -433,8 +446,8 @@ export default function ProfileScreen() {
                   </Card>
                 ))
               ) : (
-                <Card className="p-5 items-center border border-outline-variant/60">
-                  <View className="mb-1.5"><PenSquare size={20} color="#94A3B8" /></View>
+                <Card className="p-5 items-center border border-white/[0.08]">
+                  <View className="mb-1.5"><PenSquare size={20} color="#A1B0C2" /></View>
                   <Typography variant="body-sm" className="text-on-surface-variant text-center">
                     No discussion posts shared yet.
                   </Typography>
@@ -447,7 +460,7 @@ export default function ProfileScreen() {
           <Button
             variant="danger"
             size="md"
-            leftIcon={<LogOut size={16} color="#F87171" />}
+            leftIcon={<LogOut size={16} color="#F43F5E" />}
             onPress={handleSignOut}
             className="w-full mb-6"
           >

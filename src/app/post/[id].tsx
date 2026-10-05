@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
+import { View, ScrollView, TouchableOpacity, RefreshControl, KeyboardAvoidingView, Platform } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -126,159 +126,171 @@ export default function PostDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      <View className="flex-row items-center px-5 pt-3 pb-1 border-b border-surface-container-high/80">
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          onPress={() => { AppHaptics.light(); if (router.canGoBack()) router.back(); else router.replace("/(tabs)" as any); }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3 mb-2"
-        >
-          <ArrowLeft size={20} color="#F8FAFC" />
-        </TouchableOpacity>
-        <Typography variant="label-lg" className="text-on-surface font-bold flex-1 mr-2" numberOfLines={1}>Discussion</Typography>
-        <View className="flex-row items-center flex-wrap justify-end">
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Share this post"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            onPress={() => {
-              AppHaptics.light();
-              const snippet = post.body.length > 60 ? `${post.body.slice(0, 57)}...` : post.body;
-              ShareService.sharePost(snippet, id as string);
-            }}
-            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
-          >
-            <Share2 size={18} color="#818CF8" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={isBookmarked ? "Remove bookmark" : "Bookmark post"}
-            accessibilityState={{ selected: !!isBookmarked }}
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            onPress={() => {
-              AppHaptics.light();
-              if (!bookmarkMutation.isPending) bookmarkMutation.mutate();
-            }}
-            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
-          >
-            <Bookmark
-              size={18}
-              color={isBookmarked ? "#818CF8" : "#94A3B8"}
-              fill={isBookmarked ? "#818CF8" : "none"}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel="Report this post"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            onPress={() => {
-              AppHaptics.light();
-              router.push({
-                pathname: "/report",
-                params: { targetType: "post", targetId: id || "", targetUserId: post.author_id || "" },
-              } as any);
-            }}
-            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
-          >
-            <Flag size={18} color="#94A3B8" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <ScrollView
-        className="flex-1 px-5 py-5"
-        keyboardShouldPersistTaps="handled"
-        refreshControl={<RefreshControl refreshing={false} onRefresh={() => { refetch(); refetchComments(); }} tintColor="#818CF8" />}
-        contentContainerStyle={{ paddingBottom: 16 }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
       >
-        {/* Author header — tap to open public profile */}
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel={`View ${post.author?.display_name || "user"}'s profile`}
-          disabled={!post.author_id}
-          onPress={() => {
-            AppHaptics.light();
-            if (post.author_id) router.push(`/user/${post.author_id}` as any);
-          }}
-          className="flex-row items-center mb-4 active:opacity-70"
-        >
-          <Avatar name={post.author?.display_name || "User"} uri={post.author?.avatar_path} size="md" role={post.author?.current_status || "undergraduate"} isVerified={post.author?.is_verified || false} />
-          <View className="flex-1 ml-3">
-            <Typography variant="label-md" className="text-on-surface font-bold">{post.author?.display_name || "User"}</Typography>
-            <Typography variant="label-sm" className="text-on-surface-variant/70">{new Date(post.created_at).toLocaleDateString()}</Typography>
-          </View>
-        </TouchableOpacity>
-
-        <Typography variant="body-lg" className="text-on-surface leading-[28px] mb-4">{post.body}</Typography>
-
-        {imageUrls.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6">
-            <View className="flex-row gap-3">
-              {imageUrls.map((url, idx) => (
-                <Image key={url} source={{ uri: url }} style={{ width: 180, height: 180, borderRadius: 16 }} contentFit="cover" recyclingKey={url} accessibilityLabel={`Attached image ${idx + 1}`} />
-              ))}
-            </View>
-          </ScrollView>
-        )}
-
-        <View className="flex-row items-center mb-6">
+        <View className="flex-row items-center px-5 pt-3 pb-1 border-b border-surface-container-high/80">
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel={`Helpful ${post.helpful_count}`}
-            onPress={() => reactionMutation.mutate()}
-            className="flex-row items-center mr-2 px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/40"
+            accessibilityLabel="Go back"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            onPress={() => { AppHaptics.light(); if (router.canGoBack()) router.back(); else router.replace("/(tabs)" as any); }}
+            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3 mb-2"
           >
-            <View className="mr-1.5"><ThumbsUp size={14} color="#94A3B8" /></View>
-            <Typography variant="label-md" className="text-on-surface-variant">{post.helpful_count}</Typography>
+            <ArrowLeft size={20} color="#F4F6F8" />
           </TouchableOpacity>
-          <View className="flex-row items-center px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/40">
-            <View className="mr-1"><MessageSquare size={14} color="#94A3B8" /></View>
-            <Typography variant="label-md" className="text-on-surface-variant">{post.comment_count} comments</Typography>
+          <Typography variant="label-lg" className="text-on-surface font-headline font-bold flex-1 mr-2" numberOfLines={1}>Discussion</Typography>
+          <View className="flex-row items-center flex-wrap justify-end">
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Share this post"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => {
+                AppHaptics.light();
+                const snippet = post.body.length > 60 ? `${post.body.slice(0, 57)}...` : post.body;
+                ShareService.sharePost(snippet, id as string);
+              }}
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+            >
+              <Share2 size={18} color="#E5A93C" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={isBookmarked ? "Remove bookmark" : "Bookmark post"}
+              accessibilityState={{ selected: !!isBookmarked }}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => {
+                AppHaptics.light();
+                if (!bookmarkMutation.isPending) bookmarkMutation.mutate();
+              }}
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+            >
+              <Bookmark
+                size={18}
+                color={isBookmarked ? "#E5A93C" : "#A1B0C2"}
+                fill={isBookmarked ? "#E5A93C" : "none"}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Report this post"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              onPress={() => {
+                AppHaptics.light();
+                router.push({
+                  pathname: "/report",
+                  params: { targetType: "post", targetId: id || "", targetUserId: post.author_id || "" },
+                } as any);
+              }}
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+            >
+              <Flag size={18} color="#A1B0C2" />
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View className="pt-4 border-t border-surface-container-high/80">
-          <Typography variant="headline-sm" className="text-on-surface font-bold mb-3">{comments.length} Comments</Typography>
-          {cLoading ? (
-            <Skeleton height={80} className="bg-surface-container mb-3" />
-          ) : comments.length > 0 ? (
-            comments.map((c: any) => (
-              <Card key={c.id} className="p-4 mb-3 border border-outline-variant/60">
-                <View className="flex-row items-center mb-2">
-                  <Avatar name={c.author_display_name} uri={c.author_avatar_path} size="sm" role={c.author_status} isVerified={c.author_is_verified} />
-                  <Typography variant="label-md" className="text-on-surface font-bold flex-1 ml-2">{c.author_display_name}</Typography>
-                </View>
-                <Typography variant="body-md" className="text-on-surface leading-relaxed">{c.body}</Typography>
-              </Card>
-            ))
-          ) : (
-            <Card className="p-6 items-center border border-outline-variant/60">
-              <Typography variant="body-sm" className="text-on-surface-variant text-center">No comments yet. Be the first to share your thoughts.</Typography>
-            </Card>
-          )}
-        </View>
-      </ScrollView>
-
-      <View className="p-4 bg-surface-container-high border-t border-outline-variant/60">
-        {error ? <Typography variant="label-sm" className="text-error mb-2">{error}</Typography> : null}
-        <View className="flex-row items-center">
-          <TextInput placeholder="Add a comment..." value={commentText} onChangeText={setCommentText} containerClassName="flex-1 mr-3 mb-0" multiline maxLength={1000} className="max-h-20" />
-          <Button
-            variant="primary"
-            size="md"
-            accessibilityLabel="Send comment"
-            loading={commentMutation.isPending}
-            disabled={commentText.trim().length < 1}
-            onPress={() => commentMutation.mutate()}
-            className="px-4"
+        <ScrollView
+          className="flex-1 px-5 py-5"
+          keyboardShouldPersistTaps="handled"
+          refreshControl={<RefreshControl refreshing={false} onRefresh={() => { refetch(); refetchComments(); }} tintColor="#E5A93C" />}
+          contentContainerStyle={{ paddingBottom: 16 }}
+        >
+          {/* Author header — tap to open public profile */}
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={`View ${post.author?.display_name || "user"}'s profile`}
+            disabled={!post.author_id}
+            onPress={() => {
+              AppHaptics.light();
+              if (post.author_id) router.push(`/user/${post.author_id}` as any);
+            }}
+            className="flex-row items-center mb-4 active:opacity-70"
           >
-            <Send size={18} color="#0F172A" />
-          </Button>
+            <Avatar name={post.author?.display_name || "User"} uri={post.author?.avatar_path} size="md" role={post.author?.current_status || "undergraduate"} isVerified={post.author?.is_verified || false} />
+            <View className="flex-1 ml-3">
+              <Typography variant="label-md" className="text-on-surface font-headline font-bold">{post.author?.display_name || "User"}</Typography>
+              <Typography variant="label-sm" className="text-on-surface-variant/70">{new Date(post.created_at).toLocaleDateString()}</Typography>
+            </View>
+          </TouchableOpacity>
+
+          <Typography variant="body-lg" className="text-on-surface leading-[28px] mb-4">{post.body}</Typography>
+
+          {imageUrls.length > 0 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6">
+              <View className="flex-row gap-3">
+                {imageUrls.map((url, idx) => (
+                  <Image key={url} source={{ uri: url }} style={{ width: 180, height: 180, borderRadius: 16 }} contentFit="cover" recyclingKey={url} accessibilityLabel={`Attached image ${idx + 1}`} />
+                ))}
+              </View>
+            </ScrollView>
+          )}
+
+          <View className="flex-row items-center mb-6">
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={`Helpful ${post.helpful_count}`}
+              onPress={() => reactionMutation.mutate()}
+              className="flex-row items-center mr-2 px-3.5 py-1.5 rounded-full bg-surface-container border border-outline-variant/60 active:bg-surface-container-high"
+            >
+              <View className="mr-1.5"><ThumbsUp size={14} color="#E5A93C" /></View>
+              <Typography variant="label-md" className="text-on-surface-variant font-medium">{post.helpful_count}</Typography>
+            </TouchableOpacity>
+            <View className="flex-row items-center px-3.5 py-1.5 rounded-full bg-surface-container border border-outline-variant/60">
+              <View className="mr-1.5"><MessageSquare size={14} color="#A1B0C2" /></View>
+              <Typography variant="label-md" className="text-on-surface-variant font-medium">{post.comment_count} comments</Typography>
+            </View>
+          </View>
+
+          <View className="pt-4 border-t border-surface-container-high/80">
+            <Typography variant="headline-sm" className="text-on-surface font-headline font-bold mb-3">{comments.length} Comments</Typography>
+            {cLoading ? (
+              <Skeleton height={80} className="bg-surface-container mb-3" />
+            ) : comments.length > 0 ? (
+              comments.map((c: any) => (
+                <View key={c.id} className="p-3.5 mb-2.5 rounded-xl border border-white/[0.07] bg-surface-container">
+                  <View className="flex-row items-center justify-between mb-2">
+                    <View className="flex-row items-center flex-1">
+                      <Avatar name={c.author_display_name} uri={c.author_avatar_path} size="sm" role={c.author_status} isVerified={c.author_is_verified} />
+                      <Typography variant="label-md" className="text-on-surface font-bold ml-2">{c.author_display_name}</Typography>
+                    </View>
+                    {c.created_at && (
+                      <Typography variant="label-sm" className="text-on-surface-variant/60 text-xs">
+                        {new Date(c.created_at).toLocaleDateString()}
+                      </Typography>
+                    )}
+                  </View>
+                  <Typography variant="body-md" className="text-on-surface leading-relaxed pl-1">{c.body}</Typography>
+                </View>
+              ))
+            ) : (
+              <Card className="p-6 items-center border border-outline-variant/60 bg-surface-container">
+                <Typography variant="body-sm" className="text-on-surface-variant text-center">No comments yet. Be the first to share your thoughts.</Typography>
+              </Card>
+            )}
+          </View>
+        </ScrollView>
+
+        <View className="p-4 bg-surface-container-high border-t border-outline-variant/60">
+          {error ? <Typography variant="label-sm" className="text-error mb-2">{error}</Typography> : null}
+          <View className="flex-row items-center">
+            <TextInput placeholder="Add a comment..." value={commentText} onChangeText={setCommentText} containerClassName="flex-1 mr-3 mb-0" multiline maxLength={1000} className="max-h-20" />
+            <Button
+              variant="primary"
+              size="md"
+              accessibilityLabel="Send comment"
+              loading={commentMutation.isPending}
+              disabled={commentText.trim().length < 1}
+              onPress={() => commentMutation.mutate()}
+              className="px-4"
+            >
+              <Send size={18} color="#181104" />
+            </Button>
+          </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

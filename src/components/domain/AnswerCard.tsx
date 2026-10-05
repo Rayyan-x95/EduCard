@@ -84,14 +84,14 @@ export const AnswerCard = React.memo(function AnswerCard({
       isSolved={answer.is_accepted}
       className={
         answer.is_accepted
-          ? "bg-tertiary-container/15 border-tertiary/50 mb-5"
-          : "bg-surface-container border-outline-variant/50 mb-5"
+          ? "bg-[#0A1A14] border-tertiary/40 mb-4"
+          : "bg-surface-container border-white/[0.07] mb-4"
       }
     >
       {/* Verified Solution Banner for Accepted Answer */}
       {answer.is_accepted && (
-        <View className="flex-row items-center bg-tertiary-container/40 border border-tertiary/40 rounded-xl px-3.5 py-2.5 mb-4">
-          <View className="mr-2.5"><CheckCircle2 size={16} color="#34D399" /></View>
+        <View className="flex-row items-center bg-[#07241A] border border-tertiary/40 rounded-xl px-3.5 py-2.5 mb-4">
+          <View className="mr-2.5"><CheckCircle2 size={16} color="#10B981" /></View>
           <Typography variant="label-md" className="font-bold text-tertiary">
             Verified Solution by Question Author
           </Typography>
@@ -116,12 +116,12 @@ export const AnswerCard = React.memo(function AnswerCard({
       />
 
       {/* Long-form Answer Body with Generous Line Height */}
-      <Typography variant="body-lg" className="text-on-surface leading-[28px] mb-5">
+      <Typography variant="body-lg" className="text-on-surface leading-[26px] mb-5">
         {answer.body}
       </Typography>
 
       {/* Footer Actions */}
-      <View className="flex-row items-center justify-between pt-3 border-t border-outline-variant/30">
+      <View className="flex-row items-center justify-between pt-3 border-t border-white/[0.07]">
         {/* Helpful Reaction */}
         <HelpfulChip
           count={answer.helpful_count}
@@ -145,14 +145,14 @@ export const AnswerCard = React.memo(function AnswerCard({
             AppHaptics.light();
             setShowComments((v) => !v);
           }}
-          className="flex-row items-center px-3.5 py-2 min-h-[44px] rounded-full bg-surface-container-high border border-outline-variant/40 web:cursor-pointer select-none active:bg-surface-container-highest"
+          className="flex-row items-center px-3.5 py-2 min-h-[44px] rounded-full bg-surface-container-high border border-white/[0.08] web:cursor-pointer select-none active:bg-surface-container-highest"
         >
           {showComments ? (
-            <View className="mr-1.5"><ChevronUp size={14} color="#94A3B8" /></View>
+            <View className="mr-1.5"><ChevronUp size={14} color="#A1B0C2" /></View>
           ) : (
-            <View className="mr-1.5"><ChevronDown size={14} color="#94A3B8" /></View>
+            <View className="mr-1.5"><ChevronDown size={14} color="#A1B0C2" /></View>
           )}
-          <View className="mr-1.5"><MessageSquare size={13} color="#94A3B8" /></View>
+          <View className="mr-1.5"><MessageSquare size={13} color="#A1B0C2" /></View>
           <Typography variant="label-md" className="text-on-surface-variant">
             ({comments.length})
           </Typography>
@@ -164,7 +164,7 @@ export const AnswerCard = React.memo(function AnswerCard({
             variant="solved"
             size="sm"
             loading={isAccepting}
-            leftIcon={<CheckCircle2 size={14} color="#34D399" />}
+            leftIcon={<CheckCircle2 size={14} color="#10B981" />}
             onPress={() => onAcceptPress?.(answer.id)}
           >
             Accept
@@ -174,7 +174,7 @@ export const AnswerCard = React.memo(function AnswerCard({
 
       {/* Comment thread */}
       {showComments && (
-        <View className="mt-4 pt-4 border-t border-outline-variant/25">
+        <View className="mt-4 pt-4 border-t border-white/[0.07]">
           {comments.length === 0 ? (
             <Typography variant="body-sm" className="text-on-surface-variant/70 mb-2 pl-1">
               No comments yet.
@@ -220,13 +220,13 @@ export const AnswerCard = React.memo(function AnswerCard({
               onPress={handleCommentSubmit}
               className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-full items-center justify-center web:cursor-pointer select-none active:scale-95 transition-transform ${
                 commentText.trim().length >= 1
-                  ? "bg-primary shadow-sm shadow-primary/30"
-                  : "bg-surface-container-high border border-outline-variant/40"
+                  ? "bg-primary shadow-sm shadow-black/30"
+                  : "bg-surface-container-high border border-white/[0.08]"
               }`}
             >
               <Send
                 size={17}
-                color={commentText.trim().length >= 1 ? "#0F172A" : "#64748B"}
+                color={commentText.trim().length >= 1 ? "#181104" : "#637588"}
               />
             </TouchableOpacity>
           </View>

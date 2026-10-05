@@ -128,7 +128,7 @@ export default function NewCommunityModal() {
         {/* Space Identity Banner */}
         <Card className="p-4 mb-6 bg-surface-container-low border border-primary/30 flex-row items-center gap-x-3.5 shadow-sm shadow-primary/10">
           <View className="p-3 bg-primary-container/40 rounded-2xl border border-primary/30 shadow-sm shadow-primary/20">
-            <Users size={22} color="#818CF8" />
+            <Users size={22} color="#E5A93C" />
           </View>
           <View className="flex-1">
             <Typography variant="label-md" className="text-on-surface font-bold">
@@ -186,7 +186,7 @@ export default function NewCommunityModal() {
               >
                 {isSelected && (
                   <View className="mr-1.5">
-                    <Check size={14} color="#818CF8" strokeWidth={2.6} />
+                    <Check size={14} color="#E5A93C" strokeWidth={2.6} />
                   </View>
                 )}
                 <Typography

@@ -78,38 +78,41 @@ export const QuestionCard = React.memo(function QuestionCard({
         }
       />
 
-      {/* Question Title & Body */}
-      <Typography variant="headline-sm" className="text-on-surface mb-2 font-bold leading-snug tracking-tight">
+      {/* Question Title & Body — Oxford Archival Typographic Hero */}
+      <Typography
+        variant="headline-md"
+        className="text-on-surface font-headline font-bold text-[18px] sm:text-[20px] mb-2 leading-snug tracking-tight"
+      >
         {question.title}
       </Typography>
       <Typography
         variant="body-md"
-        className="text-on-surface-variant leading-relaxed mb-4 text-[15px]"
+        className="text-on-surface-variant/90 leading-relaxed mb-4 text-[14px]"
         numberOfLines={3}
       >
         {question.body}
       </Typography>
 
       {/* Footer Metrics with Tactile Interactive Chips */}
-      <View className="flex-row items-center justify-between pt-3 border-t border-white/[0.08]">
+      <View className="flex-row items-center justify-between pt-3 border-t border-white/[0.07]">
         <View className="flex-row items-center">
           {/* Answers Chip with Solved Indicator */}
           <View
             className={`flex-row items-center min-h-[38px] px-3.5 py-1.5 rounded-full border mr-2.5 ${
               isSolved
-                ? "bg-tertiary-container/35 border-tertiary/50 shadow-sm shadow-tertiary/20"
+                ? "bg-[#07241A] border-tertiary/40 shadow-sm shadow-black/20"
                 : question.answer_count > 0
-                ? "bg-primary-container/35 border-primary/40 shadow-sm shadow-primary/20"
-                : "bg-surface-container-high/80 border-white/[0.08]"
+                ? "bg-primary-container/50 border-primary/40 shadow-sm shadow-black/20"
+                : "bg-surface-container-high border-white/[0.07]"
             }`}
           >
             {isSolved ? (
-              <View className="mr-1.5"><CheckCircle2 size={14} color="#34D399" /></View>
+              <View className="mr-1.5"><CheckCircle2 size={14} color="#10B981" /></View>
             ) : (
               <View className="mr-1.5">
                 <MessageSquare
                   size={14}
-                  color={question.answer_count > 0 ? "#818CF8" : "#94A3B8"}
+                  color={question.answer_count > 0 ? "#E5A93C" : "#A1B0C2"}
                 />
               </View>
             )}
@@ -119,8 +122,8 @@ export const QuestionCard = React.memo(function QuestionCard({
                 isSolved
                   ? "text-tertiary font-bold tracking-tight"
                   : question.answer_count > 0
-                  ? "text-primary font-bold tracking-tight"
-                  : "text-on-surface-variant/80 font-medium"
+                  ? "text-primary-light font-bold tracking-tight"
+                  : "text-on-surface-variant/90 font-medium"
               }
             >
               {question.answer_count} {question.answer_count === 1 ? "answer" : "answers"}

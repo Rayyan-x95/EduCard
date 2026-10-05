@@ -13,7 +13,7 @@ import { FlashList } from "@shopify/flash-list";
 import { CommunitiesService, CommunityRow } from "@/services/communities";
 import { queryKeys, CACHE_TTL } from "@/lib/query-client";
 import { AppHaptics } from "@/lib/haptics";
-import { Users, Compass, Plus, ChevronRight } from "lucide-react-native";
+import { Compass, Plus, ChevronRight } from "lucide-react-native";
 
 export default function CommunitiesScreen() {
   const router = useRouter();
@@ -33,19 +33,19 @@ export default function CommunitiesScreen() {
   return (
     <SafeAreaView className="flex-1 bg-surface">
       <View className="flex-1 w-full max-w-2xl mx-auto">
-        <View className="px-5 pt-3 pb-3 border-b border-surface-container-high/80 flex-row items-center justify-between">
+        <View className="px-5 pt-3 pb-3 border-b border-white/[0.08] flex-row items-center justify-between">
           <View className="flex-1 mr-3">
-            <Typography variant="headline-md" className="text-on-surface font-bold">
-              Communities
+            <Typography variant="headline-md" className="text-on-surface font-headline font-bold text-2xl tracking-tight">
+              Spaces & Guilds
             </Typography>
             <Typography variant="body-sm" className="text-on-surface-variant/80">
-              Study groups, clubs, and campus discussions
+              Academic study groups, faculties, and collegiate discussions
             </Typography>
           </View>
           <Button
             variant="primary"
             size="sm"
-            leftIcon={<Plus size={16} color="#0F172A" />}
+            leftIcon={<Plus size={16} color="#181104" />}
             onPress={() => {
               AppHaptics.medium();
               router.push("/community/new" as any);
@@ -78,12 +78,12 @@ export default function CommunitiesScreen() {
                 <RefreshControl
                   refreshing={isRefetching}
                   onRefresh={refetch}
-                  tintColor="#818CF8"
+                  tintColor="#E5A93C"
                 />
               }
               renderItem={({ item: comm }: { item: CommunityRow }) => (
                 <Card
-                  className="mb-4"
+                  className="mb-3.5"
                   onPress={() => {
                     AppHaptics.light();
                     router.push(`/community/${comm.slug}` as any);
@@ -91,22 +91,24 @@ export default function CommunitiesScreen() {
                 >
                   <View className="flex-row items-center justify-between mb-3">
                     <View className="flex-row items-center flex-1 mr-2">
-                      <View className="w-11 h-11 rounded-2xl bg-primary-container/40 border border-primary/30 items-center justify-center shadow-sm shadow-primary/20 mr-3.5">
-                        <Users size={20} color="#818CF8" />
+                      <View className="w-11 h-11 rounded-xl bg-primary-container/70 border border-primary/40 items-center justify-center shadow-sm shadow-black/20 mr-3.5">
+                        <Typography variant="label-md" className="text-primary-light font-headline font-bold text-[15px] tracking-wider uppercase">
+                          {comm.name.slice(0, 2).toUpperCase()}
+                        </Typography>
                       </View>
                       <View className="flex-1">
-                        <Typography variant="headline-sm" className="text-on-surface font-bold leading-snug">
+                        <Typography variant="headline-sm" className="text-on-surface font-headline font-bold text-lg tracking-tight leading-snug">
                           {comm.name}
                         </Typography>
-                        <Typography variant="label-sm" className="text-on-surface-variant/70 font-medium mt-1">
-                          {(comm.member_count || 0).toLocaleString()} members
+                        <Typography variant="label-sm" className="text-on-surface-variant/70 font-medium mt-0.5">
+                          {(comm.member_count || 0).toLocaleString()} {comm.member_count === 1 ? "scholar" : "scholars"}
                         </Typography>
                       </View>
                     </View>
-                    <ChevronRight size={18} color="#94A3B8" />
+                    <ChevronRight size={18} color="#A1B0C2" />
                   </View>
 
-                  <Typography variant="body-md" className="text-on-surface-variant/90 leading-relaxed" numberOfLines={3}>
+                  <Typography variant="body-md" className="text-on-surface-variant/90 leading-relaxed text-[14px]" numberOfLines={3}>
                     {comm.description}
                   </Typography>
                 </Card>
@@ -116,7 +118,7 @@ export default function CommunitiesScreen() {
         ) : (
           <View className="flex-1 items-center justify-center px-5 py-12">
             <EmptyState
-              icon={<Compass size={32} color="#818CF8" />}
+              icon={<Compass size={32} color="#E5A93C" />}
               title="No Communities Found"
               description="Discover questions and connect with peers on the feed."
               actionLabel="Explore Feed"

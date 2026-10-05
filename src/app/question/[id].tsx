@@ -226,21 +226,21 @@ export default function QuestionDetailScreen() {
             <RefreshControl
               refreshing={false}
               onRefresh={() => { qRefetch(); refetchAnswers(); }}
-              tintColor="#818CF8"
+              tintColor="#E5A93C"
             />
           }
           ListHeaderComponent={
             <View className="mb-2">
               {/* Solved Status Banner */}
               {isSolved && (
-                <View className="flex-row items-center bg-tertiary-container/30 border border-tertiary/40 rounded-2xl px-4 py-3.5 mb-6 shadow-sm shadow-tertiary/10">
-                  <View className="mr-3"><CheckCircle2 size={20} color="#34D399" /></View>
+                <View className="flex-row items-center bg-[#07241A] border border-tertiary/40 rounded-2xl px-4 py-3.5 mb-6 shadow-sm shadow-black/20">
+                  <View className="mr-3"><CheckCircle2 size={20} color="#10B981" /></View>
                   <View className="flex-1">
                     <Typography variant="label-md" className="font-bold text-tertiary">
                       Accepted Answer
                     </Typography>
                     <Typography variant="label-sm" className="text-on-surface-variant/90 normal-case">
-                      The author marked this answer as accepted.
+                      The author marked this answer as the accepted solution.
                     </Typography>
                   </View>
                 </View>
@@ -264,10 +264,10 @@ export default function QuestionDetailScreen() {
               />
 
               {/* Question Title & Body */}
-              <Typography variant="headline-lg" className="text-on-surface mb-3.5 leading-snug font-bold">
+              <Typography variant="headline-lg" className="text-on-surface mb-3.5 leading-snug font-headline font-bold text-2xl tracking-tight">
                 {question.title}
               </Typography>
-              <Typography variant="body-lg" className="text-on-surface leading-[30px] mb-4 font-normal">
+              <Typography variant="body-lg" className="text-on-surface leading-[28px] mb-4 font-normal">
                 {question.body}
               </Typography>
 
@@ -280,10 +280,10 @@ export default function QuestionDetailScreen() {
                     AppHaptics.light();
                     router.push(`/community/${communityName.slug}` as any);
                   }}
-                  className="self-start flex-row items-center px-3 py-1.5 rounded-full bg-primary-container/30 border border-primary/40 mb-6 active:bg-primary-container/50"
+                  className="self-start flex-row items-center px-3 py-1.5 rounded-full bg-primary-container/60 border border-primary/40 mb-6 active:bg-primary-container/80"
                 >
-                  <View className="mr-1.5"><MessageSquare size={13} color="#818CF8" /></View>
-                  <Typography variant="label-sm" className="text-primary font-bold normal-case">
+                  <View className="mr-1.5"><MessageSquare size={13} color="#E5A93C" /></View>
+                  <Typography variant="label-sm" className="text-primary-light font-bold normal-case">
                     {communityName.name}
                   </Typography>
                 </TouchableOpacity>
@@ -314,9 +314,9 @@ export default function QuestionDetailScreen() {
               )}
 
               {/* Answers Header */}
-              <View className="flex-row items-center justify-between pt-5 pb-4 border-t border-surface-container-high/80">
+              <View className="flex-row items-center justify-between pt-5 pb-4 border-t border-white/[0.08]">
                 <View className="flex-row items-center">
-                  <View className="mr-2"><MessageSquare size={18} color="#818CF8" /></View>
+                  <View className="mr-2"><MessageSquare size={18} color="#E5A93C" /></View>
                   <Typography variant="headline-sm" className="text-on-surface font-bold">
                     {answers?.length || 0} {answers?.length === 1 ? "Answer" : "Answers"}
                   </Typography>
@@ -460,8 +460,8 @@ export default function QuestionDetailScreen() {
           ListEmptyComponent={
             !aLoading && !aIsError ? (
               <Card className="p-8 items-center my-4 bg-surface-container border border-outline-variant/60 shadow-md">
-                <MessageSquare size={32} color="#818CF8" className="mb-2" />
-                <Typography variant="label-lg" className="text-on-surface text-center mb-1 font-bold">
+                <MessageSquare size={32} color="#E5A93C" className="mb-2" />
+                <Typography variant="label-lg" className="text-on-surface text-center mb-1 font-headline font-bold">
                   No answers yet
                 </Typography>
                 <Typography variant="body-sm" className="text-on-surface-variant text-center max-w-[280px] leading-relaxed">
@@ -556,7 +556,7 @@ export default function QuestionDetailScreen() {
               accessibilityLabel="Post answer"
               className="px-4"
             >
-              <Send size={18} color="#0F172A" />
+              <Send size={18} color="#181104" />
             </Button>
           </View>
         </View>
@@ -586,7 +586,7 @@ function HeaderBar({
 }) {
   const router = useRouter();
   return (
-    <View className="flex-row items-center px-5 pt-3 pb-1 border-b border-surface-container-high/80">
+    <View className="flex-row items-center px-5 pt-3 pb-1 border-b border-white/[0.08]">
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel="Go back"
@@ -595,12 +595,12 @@ function HeaderBar({
           AppHaptics.light();
           onBack();
         }}
-        className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3 mb-2"
+        className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3 mb-2"
       >
-        <ArrowLeft size={20} color="#F8FAFC" />
+        <ArrowLeft size={20} color="#F4F6F8" />
       </TouchableOpacity>
-      <Typography variant="label-lg" className="text-on-surface font-bold flex-1 mr-2" numberOfLines={1}>
-        Question
+      <Typography variant="label-lg" className="text-on-surface font-headline font-bold text-[17px] tracking-tight flex-1 mr-2" numberOfLines={1}>
+        Inquiry
       </Typography>
       <View className="flex-row items-center flex-wrap justify-end">
         {isAuthor && (
@@ -615,7 +615,7 @@ function HeaderBar({
             }}
             className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20 web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
           >
-            <Trash2 size={18} color="#F87171" />
+            <Trash2 size={18} color="#F43F5E" />
           </TouchableOpacity>
         )}
 
@@ -629,9 +629,9 @@ function HeaderBar({
               ShareService.shareQuestion(questionTitle, id);
             }
           }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
         >
-          <Share2 size={18} color="#818CF8" />
+          <Share2 size={18} color="#A1B0C2" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -643,12 +643,12 @@ function HeaderBar({
             AppHaptics.light();
             if (bookmarkMutation && !bookmarkMutation.isPending) bookmarkMutation.mutate();
           }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
         >
           <Bookmark
             size={18}
-            color={isBookmarked ? "#818CF8" : "#94A3B8"}
-            fill={isBookmarked ? "#818CF8" : "none"}
+            color={isBookmarked ? "#E5A93C" : "#A1B0C2"}
+            fill={isBookmarked ? "#E5A93C" : "none"}
           />
         </TouchableOpacity>
 
@@ -663,9 +663,9 @@ function HeaderBar({
               params: { targetType: "question", targetId: id || "", targetUserId: "" },
             } as any);
           }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
         >
-          <Flag size={18} color="#94A3B8" />
+          <Flag size={18} color="#A1B0C2" />
         </TouchableOpacity>
       </View>
     </View>

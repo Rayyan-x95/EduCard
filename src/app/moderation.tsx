@@ -144,10 +144,10 @@ export default function ModerationScreen() {
           }}
           className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 mr-3 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
-          <ArrowLeft size={20} color="#F8FAFC" />
+          <ArrowLeft size={20} color="#F4F6F8" />
         </TouchableOpacity>
         <View>
-          <Typography variant="label-lg" className="text-on-surface font-bold">
+          <Typography variant="label-lg" className="text-on-surface font-headline font-bold">
             Moderation Queue
           </Typography>
           <Typography variant="label-sm" className="text-on-surface-variant/70 normal-case">
@@ -173,13 +173,13 @@ export default function ModerationScreen() {
           contentContainerStyle={{ flexGrow: 1, alignItems: "center", justifyContent: "center" }}
           className="px-6 py-12"
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#818CF8" />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#E5A93C" />
           }
         >
           <View className="w-16 h-16 rounded-2xl bg-tertiary-container/30 border border-tertiary/40 items-center justify-center mb-4">
-            <Shield size={32} color="#34D399" />
+            <Shield size={32} color="#10B981" />
           </View>
-          <Typography variant="headline-md" className="text-on-surface text-center mb-1.5 font-bold">
+          <Typography variant="headline-md" className="text-on-surface text-center mb-1.5 font-headline font-bold">
             Queue clear
           </Typography>
           <Typography variant="body-md" className="text-on-surface-variant text-center max-w-xs leading-relaxed mb-2 normal-case">
@@ -191,7 +191,7 @@ export default function ModerationScreen() {
           className="flex-1 px-5 py-5"
           contentContainerStyle={{ paddingBottom: 32 }}
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#818CF8" />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#E5A93C" />
           }
         >
           {actionError ? (

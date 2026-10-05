@@ -152,13 +152,13 @@ export default function NotificationsScreen() {
     <SafeAreaView className="flex-1 bg-surface">
       <View className="flex-1 w-full max-w-2xl mx-auto">
         {/* Top Header */}
-        <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-surface-container-high/80">
+        <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-white/[0.08]">
         <View className="flex-1 mr-3">
-          <Typography variant="headline-md" className="text-on-surface font-bold">
-            Alerts
+          <Typography variant="headline-md" className="text-on-surface font-headline font-bold text-2xl tracking-tight">
+            Alerts & Dispatch
           </Typography>
           <Typography variant="body-sm" className="text-on-surface-variant/80">
-            Answers, replies, and activity updates
+            Answers, peer reviews, and guild updates
           </Typography>
         </View>
 
@@ -168,9 +168,9 @@ export default function NotificationsScreen() {
             accessibilityLabel={`Mark ${unreadCount} notifications as read`}
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             onPress={() => markAllMutation.mutate()}
-            className="flex-row items-center px-3.5 py-2.5 min-h-[44px] rounded-xl bg-surface-container border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="flex-row items-center px-3.5 py-2.5 min-h-[44px] rounded-xl bg-surface-container border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
           >
-            <View className="mr-1.5"><CheckCheck size={15} color="#818CF8" /></View>
+            <View className="mr-1.5"><CheckCheck size={15} color="#E5A93C" /></View>
             <Typography variant="label-sm" className="text-primary font-bold">
               Mark all read
             </Typography>
@@ -182,7 +182,7 @@ export default function NotificationsScreen() {
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: 20 }}
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#818CF8" />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#E5A93C" />
           }
         >
           <ErrorState
@@ -208,7 +208,7 @@ export default function NotificationsScreen() {
             if (hasNextPage && !isFetchingNextPage) fetchNextPage();
           }}
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#818CF8" />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#E5A93C" />
           }
           renderItem={({ item }) => {
             const { title, body, tone } = describe(item);
@@ -225,31 +225,31 @@ export default function NotificationsScreen() {
                   className={`mb-3 p-4 border ${
                     isUnread
                       ? tone === "accepted"
-                        ? "bg-tertiary-container/15 border-tertiary/40"
-                        : "bg-surface-container border-primary/40 shadow-sm shadow-primary/10"
-                      : "bg-surface-container-low border-outline-variant/40 opacity-80"
+                        ? "bg-[#0A1A14] border-tertiary/40"
+                        : "bg-surface-container border-primary/40 shadow-sm shadow-black/20"
+                      : "bg-surface-container-low border-white/[0.06] opacity-80"
                   }`}
                 >
                   <View className="flex-row items-start">
                     <View
                       className={`w-10 h-10 rounded-xl items-center justify-center mr-3.5 ${
                         tone === "accepted"
-                          ? "bg-tertiary-container/50 border border-tertiary/50"
+                          ? "bg-[#07241A] border border-tertiary/40"
                           : tone === "follow"
-                          ? "bg-secondary-container/40 border border-secondary/50"
+                          ? "bg-[#0C2233] border border-secondary/40"
                           : tone === "helpful"
-                          ? "bg-secondary-container/30 border border-secondary/40"
-                          : "bg-primary-container/50 border border-primary/50"
+                          ? "bg-primary-container/70 border border-primary/50"
+                          : "bg-primary-container/50 border border-primary/40"
                       }`}
                     >
                       {tone === "accepted" ? (
-                        <CheckCircle2 size={18} color="#34D399" />
+                        <CheckCircle2 size={18} color="#10B981" />
                       ) : tone === "follow" ? (
-                        <UserPlus size={16} color="#C084FC" />
+                        <UserPlus size={16} color="#38BDF8" />
                       ) : tone === "helpful" ? (
-                        <ThumbsUp size={16} color="#C084FC" />
+                        <ThumbsUp size={16} color="#E5A93C" />
                       ) : (
-                        <MessageSquare size={16} color="#818CF8" />
+                        <MessageSquare size={16} color="#E5A93C" />
                       )}
                     </View>
 
@@ -257,7 +257,7 @@ export default function NotificationsScreen() {
                       <View className="flex-row items-center justify-between mb-1">
                         <View className="flex-row items-center flex-1 mr-2">
                           {isUnread && (
-                            <View className="w-2 h-2 rounded-full bg-primary mr-1.5 shadow-sm shadow-primary" />
+                            <View className="w-2 h-2 rounded-full bg-primary mr-1.5 shadow-sm shadow-primary/40" />
                           )}
                           <Typography variant="label-md" className="text-on-surface font-bold mr-1.5">
                             {title}
@@ -274,7 +274,7 @@ export default function NotificationsScreen() {
                           {formatDate(item.created_at)}
                         </Typography>
                       </View>
-                      <Typography variant="body-sm" className="text-on-surface-variant/90 leading-relaxed">
+                      <Typography variant="body-sm" className="text-on-surface-variant/90 leading-relaxed text-[13px]">
                         {body}
                       </Typography>
                     </View>
@@ -289,13 +289,13 @@ export default function NotificationsScreen() {
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, alignItems: "center", justifyContent: "center", padding: 20 }}
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#818CF8" />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#E5A93C" />
           }
         >
           <EmptyState
-            icon={<Bell size={32} color="#818CF8" />}
-            title="You're all caught up!"
-            description="No new alerts yet. Check back later for updates on your questions."
+            icon={<Bell size={32} color="#E5A93C" />}
+            title="All Caught Up"
+            description="No unread alerts at this time. Check back later for peer discussions."
             actionLabel="Explore Spaces"
             onAction={() => {
               AppHaptics.medium();

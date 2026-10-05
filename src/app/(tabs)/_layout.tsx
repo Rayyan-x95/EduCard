@@ -1,7 +1,7 @@
 import React from "react";
-import { Tabs, useRouter } from "expo-router";
-import { View, TouchableOpacity } from "react-native";
-import { Home, Users, Plus, Bell, User } from "lucide-react-native";
+import { Tabs } from "expo-router";
+import { View } from "react-native";
+import { Home, Users, Bell, User } from "lucide-react-native";
 import { useQuery } from "@tanstack/react-query";
 import { AppHaptics } from "@/lib/haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,7 +11,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { Typography } from "@/components/ui/Typography";
 
 export default function TabLayout() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const user = useAuthStore((state) => state.user);
 
@@ -26,16 +25,16 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "rgba(11, 15, 18, 0.95)",
-          borderTopColor: "rgba(255, 255, 255, 0.08)",
+          backgroundColor: "rgba(10, 13, 16, 0.96)",
+          borderTopColor: "rgba(255, 255, 255, 0.07)",
           borderTopWidth: 1,
-          height: 64 + insets.bottom,
-          paddingBottom: 8 + insets.bottom,
+          height: 60 + insets.bottom,
+          paddingBottom: 6 + insets.bottom,
           paddingTop: 8,
-          elevation: 12,
+          elevation: 8,
         },
-        tabBarActiveTintColor: "#818CF8",
-        tabBarInactiveTintColor: "#64748B",
+        tabBarActiveTintColor: "#D49B35",
+        tabBarInactiveTintColor: "#6D7E92",
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "600",
@@ -46,12 +45,12 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Dispatch",
           tabBarIcon: ({ color, focused }) => (
             <View className="items-center">
-              <Home size={22} color={color} strokeWidth={focused ? 2.4 : 2} />
+              <Home size={21} color={color} strokeWidth={focused ? 2.4 : 1.9} />
               {focused && (
-                <View className="w-1.5 h-1.5 rounded-full bg-primary mt-1 shadow-sm shadow-primary" />
+                <View className="w-1 h-1 rounded-full bg-primary mt-1 shadow-sm shadow-primary/40" />
               )}
             </View>
           ),
@@ -63,12 +62,12 @@ export default function TabLayout() {
       <Tabs.Screen
         name="communities"
         options={{
-          title: "Spaces",
+          title: "Guilds",
           tabBarIcon: ({ color, focused }) => (
             <View className="items-center">
-              <Users size={22} color={color} strokeWidth={focused ? 2.4 : 2} />
+              <Users size={21} color={color} strokeWidth={focused ? 2.4 : 1.9} />
               {focused && (
-                <View className="w-1.5 h-1.5 rounded-full bg-primary mt-1 shadow-sm shadow-primary" />
+                <View className="w-1 h-1 rounded-full bg-primary mt-1 shadow-sm shadow-primary/40" />
               )}
             </View>
           ),
@@ -80,22 +79,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ask-placeholder"
         options={{
-          title: "Ask",
-          tabBarIcon: () => (
-            <View className="w-12 h-12 rounded-full bg-primary items-center justify-center -mt-4 border-2 border-primary-light/50 shadow-xl shadow-primary/45 web:cursor-pointer select-none active:scale-95 transition-transform">
-              <Plus size={24} color="#0F172A" strokeWidth={2.8} />
-            </View>
-          ),
-          tabBarButton: (props) => (
-            <TouchableOpacity
-              {...(props as any)}
-              activeOpacity={0.82}
-              onPress={() => {
-                AppHaptics.medium();
-                router.push("/question/new" as any);
-              }}
-            />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -105,9 +89,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View className="items-center">
               <View className="relative">
-                <Bell size={22} color={color} strokeWidth={focused ? 2.4 : 2} />
+                <Bell size={21} color={color} strokeWidth={focused ? 2.4 : 1.9} />
                 {unreadCount > 0 && (
-                  <View className="absolute -top-1.5 -right-2.5 bg-error rounded-full min-w-[17px] h-[17px] px-1 items-center justify-center border border-[#0D1115]">
+                  <View className="absolute -top-1.5 -right-2.5 bg-error rounded-full min-w-[16px] h-[16px] px-1 items-center justify-center border border-[#0A0D10]">
                     <Typography
                       variant="label-sm"
                       className="text-white text-[9px] font-extrabold leading-none text-center"
@@ -118,7 +102,7 @@ export default function TabLayout() {
                 )}
               </View>
               {focused && (
-                <View className="w-1.5 h-1.5 rounded-full bg-primary mt-1 shadow-sm shadow-primary" />
+                <View className="w-1 h-1 rounded-full bg-primary mt-1 shadow-sm shadow-primary/40" />
               )}
             </View>
           ),
@@ -130,12 +114,12 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: "Dossier",
           tabBarIcon: ({ color, focused }) => (
             <View className="items-center">
-              <User size={22} color={color} strokeWidth={focused ? 2.4 : 2} />
+              <User size={21} color={color} strokeWidth={focused ? 2.4 : 1.9} />
               {focused && (
-                <View className="w-1.5 h-1.5 rounded-full bg-primary mt-1 shadow-sm shadow-primary" />
+                <View className="w-1 h-1 rounded-full bg-primary mt-1 shadow-sm shadow-primary/40" />
               )}
             </View>
           ),

@@ -224,15 +224,15 @@ export default function PrivacyAccountScreen() {
           }}
           className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 mr-3 active:bg-surface-container-high"
         >
-          <ArrowLeft size={20} color="#F8FAFC" />
+          <ArrowLeft size={20} color="#F4F6F8" />
         </TouchableOpacity>
-        <Typography variant="label-lg" className="text-on-surface font-bold">
+        <Typography variant="label-lg" className="text-on-surface font-headline font-bold">
           Privacy & Account
         </Typography>
       </View>
 
       <ScrollView className="flex-1 px-5 py-5" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: Math.max(32, insets.bottom + 24) }}>
-        <Typography variant="headline-lg" className="text-on-surface mb-1 font-bold text-2xl">
+        <Typography variant="headline-lg" className="text-on-surface mb-1 font-headline font-bold text-2xl">
           Privacy & Account
         </Typography>
         <Typography variant="body-md" className="text-on-surface-variant mb-6 leading-relaxed">
@@ -241,7 +241,7 @@ export default function PrivacyAccountScreen() {
 
         {/* Visibility Section */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <SectionHeader icon={<Eye size={18} color="#818CF8" />} title="Visibility" subtitle="Control who can view your credentials and activity." />
+          <SectionHeader icon={<Eye size={18} color="#E5A93C" />} title="Visibility" subtitle="Control who can view your credentials and activity." />
 
           <SettingRow
             title="Public Profile"
@@ -261,7 +261,7 @@ export default function PrivacyAccountScreen() {
 
         {/* Notifications Section */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <SectionHeader icon={<Bell size={18} color="#818CF8" />} title="Notification Preferences" subtitle="Select which alerts reach your device." />
+          <SectionHeader icon={<Bell size={18} color="#E5A93C" />} title="Notification Preferences" subtitle="Select which alerts reach your device." />
 
           <SettingRow
             title="Answer Alerts"
@@ -290,7 +290,7 @@ export default function PrivacyAccountScreen() {
         {/* Verification Section */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
           <SectionHeader
-            icon={<BadgeCheck size={18} color="#34D399" />}
+            icon={<BadgeCheck size={18} color="#10B981" />}
             title="Student Verification"
             subtitle="Verify your status for the verified badge."
           />
@@ -360,7 +360,7 @@ export default function PrivacyAccountScreen() {
                       variant="outline"
                       size="sm"
                       loading={evidenceUploading}
-                      leftIcon={<Download size={14} color="#818CF8" />}
+                      leftIcon={<Download size={14} color="#E5A93C" />}
                       onPress={handlePickEvidence}
                     >
                       Attach supporting document (optional)
@@ -439,14 +439,14 @@ export default function PrivacyAccountScreen() {
         {isModerator && (
           <Card className="p-5 mb-5 bg-surface-container border border-amber/40 shadow-sm">
             <SectionHeader
-              icon={<Shield size={18} color="#FBBF24" />}
+              icon={<Shield size={18} color="#E5A93C" />}
               title="Moderator Tools"
               subtitle="Review flagged content and take action."
             />
             <Button
               variant="secondary"
               size="md"
-              leftIcon={<AlertTriangle size={16} color="#818CF8" />}
+              leftIcon={<AlertTriangle size={16} color="#E5A93C" />}
               onPress={() => {
                 AppHaptics.medium();
                 router.push("/moderation" as any);
@@ -459,7 +459,7 @@ export default function PrivacyAccountScreen() {
 
         {/* Blocked Users */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <SectionHeader icon={<UserX size={18} color="#F87171" />} title="Blocked Users" subtitle="People you have blocked." />
+          <SectionHeader icon={<UserX size={18} color="#F43F5E" />} title="Blocked Users" subtitle="People you have blocked." />
 
           {blockedUsers.length === 0 ? (
             <Typography variant="body-sm" className="text-on-surface-variant normal-case">
@@ -494,7 +494,7 @@ export default function PrivacyAccountScreen() {
 
         {/* Legal & In-App Browser Links */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <Typography variant="headline-sm" className="text-on-surface font-bold mb-3">
+          <Typography variant="headline-sm" className="text-on-surface font-headline font-bold mb-3">
             Legal & Trust
           </Typography>
 
@@ -508,7 +508,7 @@ export default function PrivacyAccountScreen() {
             <Typography variant="label-md" className="text-on-surface font-bold normal-case">
               Privacy Policy
             </Typography>
-            <ExternalLink size={16} color="#818CF8" />
+            <ExternalLink size={16} color="#E5A93C" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -521,13 +521,13 @@ export default function PrivacyAccountScreen() {
             <Typography variant="label-md" className="text-on-surface font-bold normal-case">
               Terms of Service
             </Typography>
-            <ExternalLink size={16} color="#818CF8" />
+            <ExternalLink size={16} color="#E5A93C" />
           </TouchableOpacity>
         </Card>
 
         {/* Data & Account Deletion */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <SectionHeader icon={<Shield size={18} color="#818CF8" />} title="Data Management" subtitle="Export or permanently erase your profile." />
+          <SectionHeader icon={<Shield size={18} color="#E5A93C" />} title="Data Management" subtitle="Export or permanently erase your profile." />
 
           {exportMessage ? (
             <Typography variant="label-sm" className="text-tertiary mb-2 normal-case">
@@ -539,7 +539,7 @@ export default function PrivacyAccountScreen() {
             variant="secondary"
             size="md"
             loading={isExporting}
-            leftIcon={<Download size={16} color="#818CF8" />}
+            leftIcon={<Download size={16} color="#E5A93C" />}
             onPress={handleExportData}
             className="mb-3"
           >
@@ -550,7 +550,7 @@ export default function PrivacyAccountScreen() {
             variant="danger"
             size="md"
             loading={isDeleting}
-            leftIcon={<Trash2 size={16} color="#F87171" />}
+            leftIcon={<Trash2 size={16} color="#F43F5E" />}
             onPress={handleDeleteAccount}
           >
             Delete Account
@@ -578,7 +578,7 @@ function SectionHeader({ icon, title, subtitle }: { icon: React.ReactNode; title
         {icon}
       </View>
       <View className="flex-1">
-        <Typography variant="headline-sm" className="text-on-surface font-bold">
+        <Typography variant="headline-sm" className="text-on-surface font-headline font-bold">
           {title}
         </Typography>
         <Typography variant="label-sm" className="text-on-surface-variant/80 normal-case">
@@ -620,8 +620,8 @@ function SettingRow({
         value={value}
         onValueChange={onChange}
         disabled={disabled}
-        trackColor={{ false: "#1E293B", true: "#4338CA" }}
-        thumbColor={disabled ? "#64748B" : value ? "#818CF8" : "#94A3B8"}
+        trackColor={{ false: "#19222C", true: "#875C17" }}
+        thumbColor={disabled ? "#475569" : value ? "#E5A93C" : "#A1B0C2"}
       />
     </View>
   );

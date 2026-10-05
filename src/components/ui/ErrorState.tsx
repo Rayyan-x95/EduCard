@@ -60,7 +60,7 @@ export function ErrorState({
             <Button
               variant="primary"
               size="lg"
-              leftIcon={<RefreshCw size={18} color="#0F172A" />}
+              leftIcon={<RefreshCw size={18} color="#181104" />}
               onPress={onRetry}
               className="w-full"
             >
@@ -71,7 +71,7 @@ export function ErrorState({
           <Button
             variant="secondary"
             size="lg"
-            leftIcon={<Home size={18} color="#818CF8" />}
+            leftIcon={<Home size={18} color="#E5A93C" />}
             onPress={onGoHome || (() => router.replace("/(tabs)" as any))}
             className="w-full"
           >

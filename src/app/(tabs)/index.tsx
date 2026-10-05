@@ -28,7 +28,7 @@ import { queryKeys } from "@/lib/query-client";
 import { useUIStore, FeedFilter as UIFeedFilter } from "@/stores/uiStore";
 import { useAuthStore, Profile } from "@/stores/authStore";
 import { AppHaptics } from "@/lib/haptics";
-import { Search, Inbox } from "lucide-react-native";
+import { Search, Inbox, Plus } from "lucide-react-native";
 
 const FILTERS = [
   { label: "For You", value: "all" },
@@ -222,55 +222,10 @@ export default function HomeScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#818CF8"
+              tintColor="#E5A93C"
             />
           }
-          ListHeaderComponent={
-            <View className="mb-2">
-              {/* Quick Ask / Post Prompt Card */}
-              <View className="p-3.5 mb-4 bg-surface-container border border-white/[0.08] border-t-white/[0.16] rounded-2xl flex-row items-center shadow-md shadow-black/30 backdrop-blur-sm">
-                <Avatar
-                  name={profile?.display_name || "User"}
-                  uri={profile?.avatar_path}
-                  size="sm"
-                  role={profile?.current_status || "undergraduate"}
-                  isVerified={profile?.is_verified}
-                />
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  accessibilityLabel="Ask a question or share a thought"
-                  activeOpacity={0.85}
-                  onPress={() => {
-                    AppHaptics.light();
-                    router.push("/question/new");
-                  }}
-                  className="flex-1 bg-surface-container-high/60 border border-white/[0.06] rounded-xl px-3.5 py-2.5 flex-row items-center web:cursor-pointer select-none active:bg-surface-container-high mx-2"
-                >
-                  <Typography variant="body-md" className="text-on-surface-variant/80 text-[14px]">
-                    What are you trying to solve?
-                  </Typography>
-                </TouchableOpacity>
-                <View className="flex-row items-center">
-                  <View className="mr-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onPress={() => router.push("/post/new" as any)}
-                    >
-                      Post
-                    </Button>
-                  </View>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onPress={() => router.push("/question/new")}
-                  >
-                    Ask
-                  </Button>
-                </View>
-              </View>
-            </View>
-          }
+          ListHeaderComponent={<View className="h-2" />}
           ListFooterComponent={() => {
             if (isFetchingNextPage) {
               return (
@@ -307,10 +262,10 @@ export default function HomeScreen() {
               </View>
             ) : (
               <EmptyState
-                icon={<Inbox size={32} color="#818CF8" />}
-                title="No questions in this feed yet"
-                description="Be the first to ask a question or join a community."
-                actionLabel="Ask a Question"
+                icon={<Inbox size={32} color="#E5A93C" />}
+                title="No inquiries in this feed yet"
+                description="Be the first to pose an academic inquiry or join a scholarly guild."
+                actionLabel="Pose an Inquiry"
                 onAction={() => {
                   AppHaptics.medium();
                   router.push("/question/new");
@@ -332,20 +287,33 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
     <View className="w-full items-center border-b border-white/[0.08] bg-surface/95 backdrop-blur-md z-10">
       <View className="w-full max-w-[720px] flex-row items-center justify-between px-5 pt-3 pb-3">
         <View className="flex-row items-center">
-          <View className="mr-3 w-10 h-10 rounded-xl bg-primary-container/40 border border-primary/40 items-center justify-center shadow-md shadow-primary/25">
+          <View className="mr-3 w-10 h-10 rounded-xl bg-primary-container/60 border border-primary/40 items-center justify-center shadow-sm shadow-black/30">
             <Logo variant="simple" size="sm" width={22} height={22} />
           </View>
           <View>
-            <Typography variant="headline-md" className="text-on-surface leading-tight font-bold tracking-tight">
+            <Typography variant="headline-md" className="text-on-surface leading-tight font-headline font-bold text-xl tracking-tight">
               EduCard
             </Typography>
-            <Typography variant="label-sm" className="text-on-surface-variant/70 text-[12px]">
-              Student Knowledge Network
+            <Typography variant="label-sm" className="text-on-surface-variant/70 text-[10px] tracking-wider uppercase">
+              Academic Knowledge Guild
             </Typography>
           </View>
         </View>
 
         <View className="flex-row items-center">
+          <Button
+            variant="primary"
+            size="sm"
+            leftIcon={<Plus size={15} color="#181104" strokeWidth={2.6} />}
+            onPress={() => {
+              AppHaptics.medium();
+              router.push("/question/new");
+            }}
+            className="mr-2 px-3 py-1.5 h-9"
+          >
+            Inquire
+          </Button>
+
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Search"
@@ -354,9 +322,9 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
               AppHaptics.light();
               router.push("/search" as any);
             }}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container-high/80 items-center justify-center border border-white/[0.08] web:hover:border-white/[0.18] active:bg-surface-container-highest web:cursor-pointer select-none active:scale-95 transition-all mr-2.5"
+            className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-surface-container-high items-center justify-center border border-white/[0.08] web:hover:border-white/[0.14] active:bg-surface-container-highest web:cursor-pointer select-none active:scale-95 transition-all mr-2"
           >
-            <Search size={18} color="#94A3B8" />
+            <Search size={16} color="#A1B0C2" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -368,7 +336,7 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
               AppHaptics.light();
               router.push("/(tabs)/profile" as any);
             }}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] items-center justify-center web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="w-9 h-9 min-w-[36px] min-h-[36px] items-center justify-center web:cursor-pointer select-none active:scale-95 transition-transform"
           >
             <Avatar
               name={profile?.display_name || "User"}

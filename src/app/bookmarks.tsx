@@ -153,19 +153,19 @@ export default function BookmarksScreen() {
   return (
     <SafeAreaView className="flex-1 bg-surface">
       {/* Header */}
-      <View className="px-5 py-3 border-b border-surface-container-high/80 flex-row items-center justify-between">
+      <View className="px-5 py-3 border-b border-white/[0.08] flex-row items-center justify-between">
         <View className="flex-row items-center">
           <TouchableOpacity
             onPress={handleBack}
             accessibilityRole="button"
             accessibilityLabel="Go back"
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 mr-3 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] mr-3 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
           >
-            <ArrowLeft size={20} color="#F8FAFC" />
+            <ArrowLeft size={20} color="#F4F6F8" />
           </TouchableOpacity>
           <Typography variant="label-lg" className="text-on-surface font-bold">
-            Saved Library
+            Archival Library
           </Typography>
         </View>
 
@@ -180,11 +180,11 @@ export default function BookmarksScreen() {
               setIsStudyModeOpen(true);
               Analytics.track("study_mode_entered", { count: studyDeck.length });
             }}
-            className="flex-row items-center gap-x-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-primary-container/40 border border-primary/40 active:bg-primary-container/60 web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="flex-row items-center gap-x-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-primary-container/60 border border-primary/40 active:bg-primary-container/80 web:cursor-pointer select-none active:scale-95 transition-transform"
           >
-            <Sparkles size={14} color="#818CF8" />
+            <Sparkles size={14} color="#E5A93C" />
             <Typography variant="label-sm" className="text-primary font-bold">
-              Study Mode
+              Study Deck
             </Typography>
           </TouchableOpacity>
         )}
@@ -199,14 +199,14 @@ export default function BookmarksScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#818CF8"
+              tintColor="#E5A93C"
             />
           }
           renderItem={({ item }) => {
             if (item.type === "header") {
               return (
                 <View>
-                  <Typography variant="headline-lg" className="text-on-surface mb-1 font-bold text-2xl">
+                  <Typography variant="headline-lg" className="text-on-surface mb-1 font-headline font-bold text-2xl tracking-tight">
                     Bookmarks & Collections
                   </Typography>
                   <Typography variant="body-md" className="text-on-surface-variant mb-5 leading-relaxed">
@@ -379,7 +379,7 @@ export default function BookmarksScreen() {
               return (
                 <View className="flex-1 items-center justify-center py-12">
                   <EmptyState
-                    icon={<Bookmark size={32} color="#818CF8" />}
+                    icon={<Bookmark size={32} color="#E5A93C" />}
                     title="No bookmarks yet"
                     description="Your reading list is currently empty. Save insightful questions and key resources to build your personal knowledge base."
                     actionLabel="Explore Content"
@@ -405,13 +405,13 @@ export default function BookmarksScreen() {
       >
         <SafeAreaView className="flex-1 bg-surface">
           {/* Study Mode Header */}
-          <View className="px-5 py-3 border-b border-surface-container-high/80 flex-row items-center justify-between">
+          <View className="px-5 py-3 border-b border-white/[0.08] flex-row items-center justify-between">
             <View className="flex-row items-center gap-x-2">
-              <View className="w-8 h-8 rounded-lg bg-primary-container/40 items-center justify-center">
-                <BookOpen size={16} color="#818CF8" />
+              <View className="w-8 h-8 rounded-lg bg-primary-container/60 border border-primary/40 items-center justify-center">
+                <BookOpen size={16} color="#E5A93C" />
               </View>
               <Typography variant="label-lg" className="text-on-surface font-bold">
-                Study Review
+                Scholar Review Deck
               </Typography>
             </View>
 
@@ -422,9 +422,9 @@ export default function BookmarksScreen() {
                 AppHaptics.light();
                 setIsStudyModeOpen(false);
               }}
-              className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high"
+              className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high"
             >
-              <X size={18} color="#F8FAFC" />
+              <X size={18} color="#F4F6F8" />
             </TouchableOpacity>
           </View>
 
@@ -437,8 +437,8 @@ export default function BookmarksScreen() {
                     Card {studyIndex + 1} of {studyDeck.length}
                   </Typography>
                   {studyDeck[studyIndex]?.status === "solved" && (
-                    <View className="flex-row items-center gap-x-1 px-2.5 py-1 rounded-full bg-tertiary-container/30 border border-tertiary/40">
-                      <CheckCircle2 size={12} color="#34D399" />
+                    <View className="flex-row items-center gap-x-1 px-2.5 py-1 rounded-full bg-[#07241A] border border-tertiary/40">
+                      <CheckCircle2 size={12} color="#10B981" />
                       <Typography variant="label-sm" className="text-tertiary font-bold text-xs normal-case">
                         Verified Solution
                       </Typography>
@@ -447,8 +447,8 @@ export default function BookmarksScreen() {
                 </View>
 
                 {/* Question Card */}
-                <Card className="p-5 mb-4 bg-surface-container border border-outline-variant/60 shadow-md">
-                  <Typography variant="headline-md" className="text-on-surface font-bold mb-3 leading-snug">
+                <Card className="p-5 mb-4 bg-surface-container border border-white/[0.08] shadow-md">
+                  <Typography variant="headline-md" className="text-on-surface font-headline font-bold mb-3 leading-snug text-xl tracking-tight">
                     {studyDeck[studyIndex]?.title}
                   </Typography>
                   <Typography variant="body-md" className="text-on-surface-variant leading-relaxed">

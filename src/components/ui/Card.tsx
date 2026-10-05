@@ -42,7 +42,7 @@ function PressableCard({
       style={animatedStyle}
       className={cn(
         cardStyles,
-        "active:border-primary/40 active:bg-surface-container-high/90 web:cursor-pointer web:transition-colors duration-150",
+        "active:border-primary/40 active:bg-surface-container-high web:cursor-pointer web:transition-all duration-150",
         className
       )}
       {...props}
@@ -53,12 +53,12 @@ function PressableCard({
 }
 
 export function Card({ onPress, className, isSolved = false, children, ...props }: CardProps) {
-  // Apple iOS / Material 3 Luxury Elevation & Depth with Glass Borders
+  // Oxford Editorial Dignified Card with Tactile Archival Depth
   const cardStyles = cn(
-    "rounded-2xl p-5 mb-4 shadow-md backdrop-blur-sm",
+    "rounded-2xl p-5 mb-3.5",
     isSolved
-      ? "bg-tertiary-container/15 border border-tertiary/40 border-t-tertiary/60 shadow-tertiary/10"
-      : "bg-surface-container border border-white/[0.08] border-t-white/[0.16] shadow-black/30 web:hover:border-white/[0.18]"
+      ? "bg-[#0A1A14] border border-tertiary/30 border-t-tertiary/50 shadow-sm shadow-tertiary/10"
+      : "bg-surface-container border border-white/[0.07] border-t-white/[0.12] shadow-sm shadow-black/40 web:hover:border-white/[0.14]"
   );
 
   if (onPress) {

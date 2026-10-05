@@ -48,16 +48,16 @@ export function TextInput({
           error
             ? "border-error bg-error-container/10"
             : isFocused
-            ? "border-primary bg-surface-container shadow-sm shadow-primary/20"
-            : "border-outline-variant/60"
+            ? "border-primary bg-surface-container shadow-sm shadow-black/20"
+            : "border-white/[0.08]"
         )}
       >
         {leftIcon && <View aria-hidden className="mr-3">{leftIcon}</View>}
         <RNTextInput
           className={clsx("flex-1 text-on-surface text-base font-body", className)}
           style={[{ paddingVertical: Platform.OS === 'android' ? 8 : 12, minHeight: props.multiline ? undefined : 48 }, props.style as any]}
-          placeholderTextColor="#94A3B8"
-          selectionColor="#818CF8"
+          placeholderTextColor="#6D7E92"
+          selectionColor="#E5A93C"
           accessibilityLabel={accessibilityLabel ?? label}
           accessibilityHint={error ?? helperText}
           aria-invalid={Boolean(error)}

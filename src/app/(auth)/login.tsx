@@ -91,17 +91,17 @@ export default function LoginScreen() {
           <View className="p-3.5 rounded-3xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-3 shadow-lg shadow-primary/20">
             <Logo variant="simple" size="xl" />
           </View>
-          <Typography variant="headline-lg" className="text-on-surface text-center mb-1.5 font-extrabold text-3xl">
+          <Typography variant="headline-lg" className="text-on-surface text-center mb-1.5 font-headline font-bold text-3xl">
             EduCard
           </Typography>
-          <Typography variant="body-md" className="text-center text-on-surface-variant max-w-[280px] leading-relaxed">
-            Ask questions, share knowledge, and connect with students and alumni.
+          <Typography variant="body-md" className="text-center text-on-surface-variant max-w-[290px] leading-relaxed">
+            The academic knowledge network for scholars, researchers, and students.
           </Typography>
         </View>
 
         {/* Login Card */}
-        <Card className="mb-6 p-6 border border-white/[0.08] shadow-xl shadow-black/40">
-          <Typography variant="headline-md" className="text-on-surface mb-5 text-xl font-bold">
+        <Card className="mb-6 p-6 border border-white/[0.08] shadow-xl shadow-black/40 bg-surface-container">
+          <Typography variant="headline-md" className="text-on-surface mb-5 text-xl font-headline font-bold">
             Sign In
           </Typography>
 
@@ -120,7 +120,7 @@ export default function LoginScreen() {
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            leftIcon={<Mail size={18} color="#818CF8" />}
+            leftIcon={<Mail size={18} color="#E5A93C" />}
           />
 
           <TextInput
@@ -129,7 +129,7 @@ export default function LoginScreen() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            leftIcon={<Lock size={18} color="#818CF8" />}
+            leftIcon={<Lock size={18} color="#E5A93C" />}
           />
 
           <Button

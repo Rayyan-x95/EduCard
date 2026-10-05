@@ -57,22 +57,22 @@ export default function ForgotPasswordScreen() {
           }}
           className="w-10 h-10 rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 mr-3 active:bg-surface-container-high"
         >
-          <ArrowLeft size={20} color="#F8FAFC" />
+          <ArrowLeft size={20} color="#F4F6F8" />
         </TouchableOpacity>
-        <Typography variant="label-lg" className="text-on-surface font-bold">
+        <Typography variant="label-lg" className="text-on-surface font-headline font-bold">
           Reset Password
         </Typography>
       </View>
 
       <ScrollView className="flex-1 px-6 py-8" keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 32 }}>
-        <Card className="p-6 border border-white/[0.08] shadow-xl shadow-black/40">
+        <Card className="p-6 border border-white/[0.08] shadow-xl shadow-black/40 bg-surface-container">
           <View className="items-center mb-5">
             <View className="p-3 rounded-2xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-2 shadow-sm shadow-primary/20">
               <Logo variant="simple" size="md" />
             </View>
           </View>
 
-          <Typography variant="headline-md" className="text-on-surface mb-2 text-xl font-bold">
+          <Typography variant="headline-md" className="text-on-surface mb-2 text-xl font-headline font-bold">
             Account Recovery
           </Typography>
           <Typography variant="body-md" className="text-on-surface-variant mb-6 leading-relaxed">
@@ -82,7 +82,7 @@ export default function ForgotPasswordScreen() {
           {sent ? (
             <View className="bg-tertiary-container/25 border border-tertiary/40 rounded-2xl p-4 mb-4 shadow-sm">
               <View className="flex-row items-center gap-x-2 mb-1.5">
-                <CheckCircle2 size={18} color="#34D399" />
+                <CheckCircle2 size={18} color="#10B981" />
                 <Typography variant="label-md" className="text-tertiary font-bold normal-case">
                   Recovery Link Dispatched
                 </Typography>
@@ -108,7 +108,7 @@ export default function ForgotPasswordScreen() {
                 onChangeText={setEmail}
                 autoCapitalize="none"
                 keyboardType="email-address"
-                leftIcon={<Mail size={18} color="#818CF8" />}
+                leftIcon={<Mail size={18} color="#E5A93C" />}
               />
 
               <Button

@@ -279,7 +279,7 @@ export default function OnboardingScreen() {
           /* Step 1: Choose Your Path */
           <View>
             <View className="items-center mb-6">
-              <Typography variant="headline-lg" className="text-on-surface text-center mb-2 font-bold text-2xl">
+              <Typography variant="headline-lg" className="text-on-surface text-center mb-2 font-headline font-bold text-2xl">
                 Choose Your Path
               </Typography>
               <Typography variant="body-md" className="text-on-surface-variant text-center max-w-xs leading-relaxed">
@@ -313,10 +313,10 @@ export default function OnboardingScreen() {
                           isSelected ? "bg-primary-container/50 shadow-sm" : "bg-surface-container-high"
                         }`}
                       >
-                        <Icon size={20} color={isSelected ? "#818CF8" : "#94A3B8"} />
+                        <Icon size={20} color={isSelected ? "#E5A93C" : "#A1B0C2"} />
                       </View>
                       <View className="flex-1">
-                        <Typography variant="label-lg" className="text-on-surface font-bold mb-0.5">
+                        <Typography variant="label-lg" className="text-on-surface font-headline font-bold mb-0.5">
                           {r.title}
                         </Typography>
                         <Typography variant="body-sm" className="text-on-surface-variant leading-relaxed">
@@ -346,7 +346,7 @@ export default function OnboardingScreen() {
           /* Step 2: Education Profile */
           <View>
             <View className="items-center mb-6">
-              <Typography variant="headline-lg" className="text-on-surface text-center mb-2 font-bold text-2xl">
+              <Typography variant="headline-lg" className="text-on-surface text-center mb-2 font-headline font-bold text-2xl">
                 Your Profile
               </Typography>
               <Typography variant="body-md" className="text-on-surface-variant text-center max-w-xs leading-relaxed">
@@ -379,7 +379,7 @@ export default function OnboardingScreen() {
                 setInstitutionName(val);
                 setError("");
               }}
-              leftIcon={<School size={18} color="#818CF8" />}
+              leftIcon={<School size={18} color="#E5A93C" />}
             />
 
             <TextInput
@@ -390,7 +390,7 @@ export default function OnboardingScreen() {
                 setField(val);
                 setError("");
               }}
-              leftIcon={<BookOpen size={18} color="#818CF8" />}
+              leftIcon={<BookOpen size={18} color="#E5A93C" />}
             />
 
             <TextInput
@@ -494,7 +494,7 @@ export default function OnboardingScreen() {
           /* Step 3: Topics & Interests */
           <View>
             <View className="items-center mb-6">
-              <Typography variant="headline-lg" className="text-on-surface text-center mb-2 font-bold text-2xl">
+              <Typography variant="headline-lg" className="text-on-surface text-center mb-2 font-headline font-bold text-2xl">
                 Topics & Interests
               </Typography>
               <Typography variant="body-md" className="text-on-surface-variant text-center max-w-xs leading-relaxed">
@@ -504,7 +504,7 @@ export default function OnboardingScreen() {
 
             {topicsLoading ? (
               <View className="py-8 items-center justify-center mb-8">
-                <ActivityIndicator size="small" color="#818CF8" />
+                <ActivityIndicator size="small" color="#E5A93C" />
                 <Typography variant="body-md" className="text-on-surface-variant text-center mt-3 normal-case">
                   Loading topic catalog...
                 </Typography>
@@ -527,7 +527,7 @@ export default function OnboardingScreen() {
                     >
                       {isSelected && (
                         <View className="mr-1.5">
-                          <Check size={14} color="#818CF8" strokeWidth={2.6} />
+                          <Check size={14} color="#E5A93C" strokeWidth={2.6} />
                         </View>
                       )}
                       <Typography
@@ -573,10 +573,10 @@ export default function OnboardingScreen() {
           /* Step 4: Your EduCard is Ready */
           <View className="items-center text-center py-10">
             <View className="w-28 h-28 rounded-3xl bg-tertiary-container/30 border-2 border-tertiary/60 items-center justify-center mb-8 shadow-xl shadow-tertiary/20">
-              <CheckCircle2 size={56} color="#34D399" />
+              <CheckCircle2 size={56} color="#10B981" />
             </View>
 
-            <Typography variant="headline-lg" className="text-on-surface text-center mb-3 font-extrabold text-3xl">
+            <Typography variant="headline-lg" className="text-on-surface text-center mb-3 font-headline font-bold text-3xl">
               Your EduCard is Ready!
             </Typography>
 
@@ -588,24 +588,18 @@ export default function OnboardingScreen() {
               variant="primary"
               size="lg"
               loading={enteringFeed}
-              rightIcon={<ArrowRight size={18} color="#0F172A" />}
+              rightIcon={<ArrowRight size={18} color="#181104" />}
               onPress={async () => {
                 if (enteringFeed) return;
                 AppHaptics.medium();
                 setEnteringFeed(true);
                 try {
-                  // Always resolve the profile before navigating so the auth
-                  // guard's `isOnboarded` check sees the completed profile.
-                  // `pendingProfile` is pre-fetched in handleFinish; the
-                  // fallback re-fetches in the rare case it is missing.
                   const resolved =
                     pendingProfile ??
                     (user?.id ? await AuthService.getCurrentProfile(user.id) : null);
                   if (resolved) setProfile(resolved);
                   router.replace("/(tabs)" as any);
                 } catch {
-                  // Profile re-fetch failed; navigate anyway — the guard will
-                  // use the cached onboarding flag to avoid bouncing the user.
                   router.replace("/(tabs)" as any);
                 } finally {
                   setEnteringFeed(false);

@@ -297,9 +297,9 @@ export default function NewQuestionModal() {
           onPress={handleClose}
           className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
-          <X size={20} color="#F8FAFC" />
+          <X size={20} color="#F4F6F8" />
         </TouchableOpacity>
-        <Typography variant="label-lg" className="text-on-surface font-bold">
+        <Typography variant="label-lg" className="text-on-surface font-headline font-bold">
           Ask a Question
         </Typography>
         <Button
@@ -326,7 +326,7 @@ export default function NewQuestionModal() {
         {/* Community destination banner — makes scope explicit before posting */}
         {targetCommunity && (
           <View className="flex-row items-center mb-5 px-4 py-3 rounded-xl bg-primary-container/25 border border-primary/40">
-            <View className="mr-2.5"><Users size={16} color="#818CF8" /></View>
+            <View className="mr-2.5"><Users size={16} color="#E5A93C" /></View>
             <View className="flex-1">
               <Typography variant="label-sm" className="text-on-surface-variant/80 normal-case">
                 Posting to
@@ -338,7 +338,7 @@ export default function NewQuestionModal() {
           </View>
         )}
 
-        <Typography variant="headline-lg" className="text-on-surface mb-1 font-bold text-2xl">
+        <Typography variant="headline-lg" className="text-on-surface mb-1 font-headline font-bold text-2xl">
           What is your question?
         </Typography>
         <Typography variant="body-md" className="text-on-surface-variant mb-6 leading-relaxed">
@@ -359,7 +359,7 @@ export default function NewQuestionModal() {
           <View className="mb-6 p-4 rounded-2xl bg-surface-container-high/90 border border-primary/40 shadow-sm">
             <View className="flex-row items-center justify-between mb-2">
               <View className="flex-row items-center">
-                <View className="mr-2"><Sparkles size={16} color="#818CF8" /></View>
+                <View className="mr-2"><Sparkles size={16} color="#E5A93C" /></View>
                 <Typography variant="label-md" className="text-on-surface font-bold">
                   Similar questions already asked
                 </Typography>
@@ -396,7 +396,7 @@ export default function NewQuestionModal() {
                     </View>
                     {hasSolution && (
                       <View className="flex-row items-center px-2 py-1 rounded-md bg-tertiary-container/40 border border-tertiary/40">
-                        <View className="mr-1"><CheckCircle2 size={12} color="#34D399" /></View>
+                        <View className="mr-1"><CheckCircle2 size={12} color="#10B981" /></View>
                         <Typography variant="label-sm" className="text-tertiary font-bold text-[11px] normal-case">
                           Solved
                         </Typography>
@@ -431,7 +431,7 @@ export default function NewQuestionModal() {
               >
                 {isSelected && (
                   <View className="mr-1.5">
-                    <Check size={14} color="#818CF8" strokeWidth={2.6} />
+                    <Check size={14} color="#E5A93C" strokeWidth={2.6} />
                   </View>
                 )}
                 <Typography
@@ -466,7 +466,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + " **bold** ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <Bold size={16} color="#818CF8" />
+                <Bold size={16} color="#E5A93C" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -475,7 +475,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + " *italic* ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <Italic size={16} color="#818CF8" />
+                <Italic size={16} color="#E5A93C" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -484,7 +484,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + " `code` ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <Code size={16} color="#818CF8" />
+                <Code size={16} color="#E5A93C" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -493,7 +493,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + "\n- ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <List size={16} color="#818CF8" />
+                <List size={16} color="#E5A93C" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -502,7 +502,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + " [link](url) ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <Link2 size={16} color="#818CF8" />
+                <Link2 size={16} color="#E5A93C" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -512,7 +512,7 @@ export default function NewQuestionModal() {
                 disabled={uploadingImage}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <ImageIcon size={16} color={uploadingImage ? "#64748B" : "#818CF8"} />
+                <ImageIcon size={16} color={uploadingImage ? "#6D7E92" : "#E5A93C"} />
               </TouchableOpacity>
             </View>
 
@@ -542,7 +542,7 @@ export default function NewQuestionModal() {
                       <View
                         className="w-20 h-20 rounded-xl bg-surface-container-high border border-outline-variant/60 items-center justify-center"
                       >
-                        <ImageIcon size={22} color="#818CF8" />
+                        <ImageIcon size={22} color="#E5A93C" />
                       </View>
                       <TouchableOpacity
                         accessibilityRole="button"
@@ -551,7 +551,7 @@ export default function NewQuestionModal() {
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                         className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-error border-2 border-surface items-center justify-center"
                       >
-                        <X size={12} color="#450A0A" strokeWidth={3} />
+                        <X size={12} color="#FFFFFF" strokeWidth={3} />
                       </TouchableOpacity>
                     </View>
                   ))}
@@ -567,10 +567,10 @@ export default function NewQuestionModal() {
         </View>
 
         {/* Who Might Answer Preview */}
-        <Card className="p-4 mb-6 bg-surface-container-low border border-outline-variant/60 shadow-sm">
+        <Card className="p-4 mb-6 bg-surface-container border border-outline-variant/60 shadow-sm">
           <View className="flex-row items-center gap-x-2.5 mb-2">
             <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30">
-              <Lightbulb size={16} color="#818CF8" />
+              <Lightbulb size={16} color="#E5A93C" />
             </View>
             <Typography variant="label-md" className="text-primary font-bold normal-case">
               Who might answer this?

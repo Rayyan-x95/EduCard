@@ -58,13 +58,13 @@ export default function ResetPasswordScreen() {
         className="px-6 py-8"
         keyboardShouldPersistTaps="handled"
       >
-        <Card className="p-6 border border-white/[0.08] shadow-xl shadow-black/40">
+        <Card className="p-6 border border-white/[0.08] shadow-xl shadow-black/40 bg-surface-container">
           <View className="items-center mb-5">
             <View className="p-3 rounded-2xl bg-primary-container/30 border border-primary/30 items-center justify-center mb-2 shadow-sm shadow-primary/20">
               {done ? (
-                <CheckCircle2 size={28} color="#34D399" />
+                <CheckCircle2 size={28} color="#10B981" />
               ) : (
-                <Lock size={24} color="#818CF8" />
+                <Lock size={24} color="#E5A93C" />
               )}
             </View>
             <Logo variant="simple" size="md" />
@@ -72,7 +72,7 @@ export default function ResetPasswordScreen() {
 
           {done ? (
             <>
-              <Typography variant="headline-md" className="text-on-surface text-center text-xl font-bold mb-2">
+              <Typography variant="headline-md" className="text-on-surface text-center text-xl font-headline font-bold mb-2">
                 Password Updated
               </Typography>
               <Typography variant="body-md" className="text-on-surface-variant text-center mb-6 leading-relaxed">
@@ -88,7 +88,7 @@ export default function ResetPasswordScreen() {
             </>
           ) : (
             <>
-              <Typography variant="headline-md" className="text-on-surface text-xl font-bold mb-2">
+              <Typography variant="headline-md" className="text-on-surface text-xl font-headline font-bold mb-2">
                 Set a New Password
               </Typography>
               <Typography variant="body-md" className="text-on-surface-variant mb-6 leading-relaxed">
