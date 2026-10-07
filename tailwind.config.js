@@ -7,79 +7,82 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Oxford Editorial & Academic Guild Luxury Dark Palette
+        // Archival Obsidian & Academic Guild Anti-Slop Palette
+        ground: "#0A0D11",
         surface: {
-          DEFAULT: "#0C1014", // Deep archival ink-obsidian ground
-          dim: "#080B0E",
-          bright: "#242E3B",
-          "container-lowest": "#06080A",
-          "container-low": "#0F141A",
-          container: "#131920", // Primary scholarly card surface
-          "container-high": "#19222C", // Secondary elevated surface / controls
-          "container-highest": "#212C38", // Active chips / pressed states
-          variant: "#212C38",
-          glass: "rgba(19, 25, 32, 0.88)",
+          DEFAULT: "#0A0D11", // Deep archival ink-obsidian ground
+          dim: "#06080B",
+          bright: "#1D2530",
+          "container-lowest": "#05070A",
+          "container-low": "#0D1117",
+          container: "#11161D", // Primary scholarly card surface
+          "container-high": "#18202A", // Secondary elevated surface / controls
+          "container-highest": "#212C39", // Active chips / pressed states
+          variant: "#212C39",
+          glass: "rgba(17, 22, 29, 0.90)",
         },
         "on-surface": {
-          DEFAULT: "#F4F6F8", // Crisp warm ivory text (high contrast ≥ 12:1)
-          variant: "#A1B0C2", // Legible warm slate (high contrast ≥ 4.8:1)
-          muted: "#6D7E92",
+          DEFAULT: "#F5F7FA", // Crisp warm ivory text (16.4:1 contrast on ground, WCAG AAA)
+          variant: "#A3B3C4", // Warm tinted slate (9.0:1 on ground, 8.1:1 on card, WCAG AAA)
+          muted: "#76889B", // Legible secondary/caption slate (5.0:1 on ground, 4.5:1 on card, WCAG AA)
         },
         "inverse-surface": {
-          DEFAULT: "#F4F6F8",
+          DEFAULT: "#F5F7FA",
         },
         "inverse-on-surface": {
-          DEFAULT: "#0C1014",
+          DEFAULT: "#0A0D11",
         },
         outline: {
-          DEFAULT: "rgba(255, 255, 255, 0.12)",
-          variant: "rgba(255, 255, 255, 0.08)", // Refined hairline
-          subtle: "rgba(255, 255, 255, 0.05)",
+          DEFAULT: "rgba(215, 230, 250, 0.12)",
+          variant: "rgba(215, 230, 250, 0.08)", // Tinted hairline with slate-obsidian undertone
+          subtle: "rgba(215, 230, 250, 0.05)",
         },
         primary: {
-          DEFAULT: "#E5A93C", // Oxford Academic Amber / Warm Antique Brass
-          light: "#F5C772",
-          container: "#2B1F08",
-          "on-container": "#F5C772",
-          "on-primary": "#1A1203",
-          inverse: "#B87F1E",
+          DEFAULT: "#D49B35", // Oxford Antique Brass / Academic Gold
+          light: "#F6CB76",
+          dim: "#B58024",
+          container: "#2B1D08",
+          "on-container": "#F6CB76",
+          "on-primary": "#181003",
+          inverse: "#A87217",
           fixed: "#FDF0D5",
-          "fixed-dim": "#E5A93C",
+          "fixed-dim": "#D49B35",
         },
         secondary: {
           DEFAULT: "#38BDF8", // Scholar Blue / Research accent
           light: "#7DD3FC",
-          container: "#0C4A6E",
+          container: "#0C2E42",
           "on-container": "#BAE6FD",
-          "on-secondary": "#082F49",
+          "on-secondary": "#051D2B",
           fixed: "#E0F2FE",
           "fixed-dim": "#38BDF8",
         },
         tertiary: {
-          DEFAULT: "#10B981", // Oxford Botanical Emerald — Solved / Accepted Answer
-          light: "#6EE7B7",
-          container: "#063726",
-          "on-container": "#A7F3D0",
-          "on-tertiary": "#022C22",
+          DEFAULT: "#2EBF7B", // Oxford Botanical Emerald — Solved / Accepted Answer
+          light: "#7FE2AF",
+          container: "#0C2519",
+          "on-container": "#7FE2AF",
+          "on-tertiary": "#022013",
           fixed: "#D1FAE5",
         },
         amber: {
-          DEFAULT: "#E5A93C", // Scholar Gold / Reputation
-          light: "#FDE68A",
-          container: "#382305",
-          "on-container": "#FCD34D",
+          DEFAULT: "#D49B35", // Scholar Gold / Reputation
+          light: "#F6CB76",
+          container: "#2B1D08",
+          "on-container": "#F6CB76",
         },
         error: {
-          DEFAULT: "#F43F5E", // Scholarly Coral Crimson
-          container: "#4C0519",
-          "on-container": "#FECDD3",
-          "on-error": "#4C0519",
+          DEFAULT: "#EF4E61", // Scholarly Carmine Crimson
+          light: "#FFCCD3",
+          container: "#2E1015",
+          "on-container": "#FFCCD3",
+          "on-error": "#2A070D",
         },
         background: {
-          DEFAULT: "#0C1014",
+          DEFAULT: "#0A0D11",
         },
         "on-background": {
-          DEFAULT: "#F4F6F8",
+          DEFAULT: "#F5F7FA",
         },
       },
       fontFamily: {

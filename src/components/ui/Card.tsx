@@ -57,8 +57,8 @@ export function Card({ onPress, className, isSolved = false, children, ...props 
   const cardStyles = cn(
     "rounded-2xl p-5 mb-3.5",
     isSolved
-      ? "bg-[#0A1A14] border border-tertiary/30 border-t-tertiary/50 shadow-sm shadow-tertiary/10"
-      : "bg-surface-container border border-white/[0.07] border-t-white/[0.12] shadow-sm shadow-black/40 web:hover:border-white/[0.14]"
+      ? "bg-tertiary-container border border-tertiary/30 border-t-tertiary/50 shadow-sm shadow-black/30"
+      : "bg-surface-container border border-outline-variant border-t-outline/20 shadow-sm shadow-black/40 web:hover:border-outline"
   );
 
   if (onPress) {

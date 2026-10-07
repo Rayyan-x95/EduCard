@@ -226,20 +226,20 @@ export default function QuestionDetailScreen() {
             <RefreshControl
               refreshing={false}
               onRefresh={() => { qRefetch(); refetchAnswers(); }}
-              tintColor="#E5A93C"
+              tintColor="#D49B35"
             />
           }
           ListHeaderComponent={
             <View className="mb-2">
               {/* Solved Status Banner */}
               {isSolved && (
-                <View className="flex-row items-center bg-[#07241A] border border-tertiary/40 rounded-2xl px-4 py-3.5 mb-6 shadow-sm shadow-black/20">
-                  <View className="mr-3"><CheckCircle2 size={20} color="#10B981" /></View>
+                <View className="flex-row items-center bg-tertiary-container border border-tertiary/40 rounded-2xl px-4 py-3.5 mb-6 shadow-sm shadow-black/20">
+                  <View className="mr-3"><CheckCircle2 size={20} color="#2EBF7B" /></View>
                   <View className="flex-1">
                     <Typography variant="label-md" className="font-bold text-tertiary">
                       Accepted Answer
                     </Typography>
-                    <Typography variant="label-sm" className="text-on-surface-variant/90 normal-case">
+                    <Typography variant="label-sm" className="text-on-surface-variant font-medium normal-case">
                       The author marked this answer as the accepted solution.
                     </Typography>
                   </View>
@@ -586,76 +586,76 @@ function HeaderBar({
 }) {
   const router = useRouter();
   return (
-    <View className="flex-row items-center px-5 pt-3 pb-1 border-b border-white/[0.08]">
+    <View className="flex-row items-center px-5 py-3 border-b border-outline-variant">
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel="Go back"
-        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         onPress={() => {
           AppHaptics.light();
           onBack();
         }}
-        className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3 mb-2"
+        className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3"
       >
-        <ArrowLeft size={20} color="#F4F6F8" />
+        <ArrowLeft size={19} color="#D7E6FA" />
       </TouchableOpacity>
-      <Typography variant="label-lg" className="text-on-surface font-headline font-bold text-[17px] tracking-tight flex-1 mr-2" numberOfLines={1}>
+      <Typography variant="label-lg" className="text-on-surface font-headline font-bold text-[18px] tracking-tight flex-1 mr-2" numberOfLines={1}>
         Inquiry
       </Typography>
-      <View className="flex-row items-center flex-wrap justify-end">
+      <View className="flex-row items-center gap-x-2">
         {isAuthor && (
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Delete this question"
             disabled={isDeleting}
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             onPress={() => {
               AppHaptics.medium();
               onDelete?.();
             }}
-            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20 web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20 web:cursor-pointer select-none active:scale-95 transition-transform"
           >
-            <Trash2 size={18} color="#F43F5E" />
+            <Trash2 size={18} color="#FF5A65" />
           </TouchableOpacity>
         )}
 
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Share this question"
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           onPress={() => {
             AppHaptics.light();
             if (questionTitle && id) {
               ShareService.shareQuestion(questionTitle, id);
             }
           }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
-          <Share2 size={18} color="#A1B0C2" />
+          <Share2 size={18} color="#A3B3C4" />
         </TouchableOpacity>
 
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={isBookmarked ? "Remove bookmark" : "Bookmark question"}
           accessibilityState={{ selected: !!isBookmarked }}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           onPress={() => {
             AppHaptics.light();
             if (bookmarkMutation && !bookmarkMutation.isPending) bookmarkMutation.mutate();
           }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
           <Bookmark
             size={18}
-            color={isBookmarked ? "#E5A93C" : "#A1B0C2"}
-            fill={isBookmarked ? "#E5A93C" : "none"}
+            color={isBookmarked ? "#D49B35" : "#A3B3C4"}
+            fill={isBookmarked ? "#D49B35" : "none"}
           />
         </TouchableOpacity>
 
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Report this question"
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           onPress={() => {
             AppHaptics.light();
             router.push({
@@ -663,9 +663,9 @@ function HeaderBar({
               params: { targetType: "question", targetId: id || "", targetUserId: "" },
             } as any);
           }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
-          <Flag size={18} color="#A1B0C2" />
+          <Flag size={18} color="#A3B3C4" />
         </TouchableOpacity>
       </View>
     </View>

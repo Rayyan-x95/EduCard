@@ -38,14 +38,14 @@ export const PostCard = React.memo(function PostCard({ post, onPress, onHelpfulP
 
   const subtitle = post.community_name ? (
     <View className="flex-row items-center mt-1">
-      <View className="px-2 py-0.5 rounded-md bg-primary-container/60 border border-primary/35">
+      <View className="px-2 py-0.5 rounded-md bg-primary-container border border-primary/40">
         <Typography variant="label-sm" className="text-primary-light font-bold text-[11px]">
           {post.community_name}
         </Typography>
       </View>
     </View>
   ) : (
-    <Typography variant="label-sm" className="text-on-surface-variant/70 mt-0.5">
+    <Typography variant="label-sm" className="text-on-surface-muted font-medium mt-0.5">
       Discussion
     </Typography>
   );
@@ -60,7 +60,7 @@ export const PostCard = React.memo(function PostCard({ post, onPress, onHelpfulP
         isVerified={post.author_is_verified}
         subtitle={subtitle}
         rightAccessory={
-          <Typography variant="label-sm" className="text-on-surface-variant/60 font-medium">
+          <Typography variant="label-sm" className="text-on-surface-muted font-medium">
             {formatDate(post.created_at)}
           </Typography>
         }
@@ -72,11 +72,11 @@ export const PostCard = React.memo(function PostCard({ post, onPress, onHelpfulP
       </Typography>
 
       {/* Footer Metrics */}
-      <View className="flex-row items-center justify-between pt-3 border-t border-white/[0.07]">
+      <View className="flex-row items-center justify-between pt-3.5 border-t border-outline-variant">
         <View className="flex-row items-center">
-          <View className="flex-row items-center mr-2.5 min-h-[38px] px-3.5 py-1.5 rounded-full bg-surface-container-high border border-white/[0.07]">
-            <View className="mr-1.5"><MessageSquare size={14} color="#A1B0C2" /></View>
-            <Typography variant="label-md" className="text-on-surface-variant/90 font-medium tracking-tight">
+          <View className="flex-row items-center mr-2.5 min-h-[40px] px-3.5 py-1.5 rounded-full bg-surface-container-high border border-outline-variant">
+            <View className="mr-1.5"><MessageSquare size={14} color="#A3B3C4" /></View>
+            <Typography variant="label-md" className="text-on-surface-variant font-medium tracking-tight">
               {post.comment_count} {post.comment_count === 1 ? "comment" : "comments"}
             </Typography>
           </View>

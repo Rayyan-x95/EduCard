@@ -25,20 +25,34 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "rgba(10, 13, 16, 0.96)",
-          borderTopColor: "rgba(255, 255, 255, 0.07)",
-          borderTopWidth: 1,
-          height: 60 + insets.bottom,
-          paddingBottom: 6 + insets.bottom,
-          paddingTop: 8,
-          elevation: 8,
+          position: "absolute",
+          left: 18,
+          right: 18,
+          bottom: Math.max(insets.bottom, 12),
+          height: 64,
+          borderRadius: 32,
+          backgroundColor: "rgba(15, 20, 26, 0.94)",
+          borderColor: "rgba(215, 230, 250, 0.12)",
+          borderWidth: 1,
+          paddingHorizontal: 8,
+          paddingBottom: 6,
+          paddingTop: 6,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.45,
+          shadowRadius: 20,
+          elevation: 12,
         },
         tabBarActiveTintColor: "#D49B35",
-        tabBarInactiveTintColor: "#6D7E92",
+        tabBarInactiveTintColor: "#76889B",
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: "600",
           letterSpacing: -0.1,
+          marginTop: -2,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 3,
         },
       }}
     >
@@ -47,11 +61,12 @@ export default function TabLayout() {
         options={{
           title: "Dispatch",
           tabBarIcon: ({ color, focused }) => (
-            <View className="items-center">
-              <Home size={21} color={color} strokeWidth={focused ? 2.4 : 1.9} />
-              {focused && (
-                <View className="w-1 h-1 rounded-full bg-primary mt-1 shadow-sm shadow-primary/40" />
-              )}
+            <View
+              className={`items-center justify-center w-12 h-7 rounded-full ${
+                focused ? "bg-surface-container-high/90 border border-outline/30" : ""
+              }`}
+            >
+              <Home size={19} color={color} strokeWidth={focused ? 2.4 : 1.9} />
             </View>
           ),
         }}
@@ -64,11 +79,12 @@ export default function TabLayout() {
         options={{
           title: "Guilds",
           tabBarIcon: ({ color, focused }) => (
-            <View className="items-center">
-              <Users size={21} color={color} strokeWidth={focused ? 2.4 : 1.9} />
-              {focused && (
-                <View className="w-1 h-1 rounded-full bg-primary mt-1 shadow-sm shadow-primary/40" />
-              )}
+            <View
+              className={`items-center justify-center w-12 h-7 rounded-full ${
+                focused ? "bg-surface-container-high/90 border border-outline/30" : ""
+              }`}
+            >
+              <Users size={19} color={color} strokeWidth={focused ? 2.4 : 1.9} />
             </View>
           ),
         }}
@@ -87,23 +103,24 @@ export default function TabLayout() {
         options={{
           title: "Alerts",
           tabBarIcon: ({ color, focused }) => (
-            <View className="items-center">
+            <View
+              className={`items-center justify-center w-12 h-7 rounded-full ${
+                focused ? "bg-surface-container-high/90 border border-outline/30" : ""
+              }`}
+            >
               <View className="relative">
-                <Bell size={21} color={color} strokeWidth={focused ? 2.4 : 1.9} />
+                <Bell size={19} color={color} strokeWidth={focused ? 2.4 : 1.9} />
                 {unreadCount > 0 && (
-                  <View className="absolute -top-1.5 -right-2.5 bg-error rounded-full min-w-[16px] h-[16px] px-1 items-center justify-center border border-[#0A0D10]">
+                  <View className="absolute -top-1.5 -right-2 bg-error rounded-full min-w-[15px] h-[15px] px-1 items-center justify-center border border-[#0A0D10]">
                     <Typography
                       variant="label-sm"
-                      className="text-white text-[9px] font-extrabold leading-none text-center"
+                      className="text-white text-[8px] font-extrabold leading-none text-center"
                     >
                       {unreadCount > 99 ? "99+" : unreadCount}
                     </Typography>
                   </View>
                 )}
               </View>
-              {focused && (
-                <View className="w-1 h-1 rounded-full bg-primary mt-1 shadow-sm shadow-primary/40" />
-              )}
             </View>
           ),
         }}
@@ -116,11 +133,12 @@ export default function TabLayout() {
         options={{
           title: "Dossier",
           tabBarIcon: ({ color, focused }) => (
-            <View className="items-center">
-              <User size={21} color={color} strokeWidth={focused ? 2.4 : 1.9} />
-              {focused && (
-                <View className="w-1 h-1 rounded-full bg-primary mt-1 shadow-sm shadow-primary/40" />
-              )}
+            <View
+              className={`items-center justify-center w-12 h-7 rounded-full ${
+                focused ? "bg-surface-container-high/90 border border-outline/30" : ""
+              }`}
+            >
+              <User size={19} color={color} strokeWidth={focused ? 2.4 : 1.9} />
             </View>
           ),
         }}

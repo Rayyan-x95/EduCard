@@ -45,7 +45,7 @@ export const AuthorHeader = React.memo(function AuthorHeader({
             {displayName}
           </Typography>
           {typeof subtitle === "string" ? (
-            <Typography variant="label-sm" className="text-on-surface-variant/70 mt-0.5">
+            <Typography variant="label-sm" className="text-on-surface-muted font-medium mt-0.5">
               {subtitle}
             </Typography>
           ) : (

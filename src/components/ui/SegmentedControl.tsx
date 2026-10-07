@@ -26,7 +26,7 @@ export function SegmentedControl<T extends string>({
   return (
     <View
       className={cn(
-        "flex-row bg-surface-container-low/90 p-1.5 rounded-2xl border border-white/[0.08] backdrop-blur-md shadow-inner",
+        "flex-row bg-surface-container-low/95 p-1 rounded-2xl border border-outline-variant/80 backdrop-blur-md shadow-inner",
         className
       )}
     >
@@ -43,16 +43,16 @@ export function SegmentedControl<T extends string>({
               onChange(opt.value);
             }}
             className={cn(
-              "flex-1 py-2.5 min-h-[42px] rounded-xl items-center justify-center transition-all web:cursor-pointer select-none active:scale-[0.98]",
+              "flex-1 py-2 min-h-[44px] rounded-xl items-center justify-center transition-all web:cursor-pointer select-none active:scale-[0.98]",
               isActive
-                ? "bg-surface-container-high border border-white/[0.12] border-t-white/[0.22] shadow-md shadow-black/40"
+                ? "bg-surface-container-high border border-outline/30 border-t-outline/50 shadow-sm shadow-black/40"
                 : "border border-transparent active:bg-surface-container-low/60"
             )}
           >
             <Typography
               variant="label-md"
               className={cn(
-                "tracking-tight",
+                "tracking-tight text-[13px]",
                 isActive ? "text-primary font-bold" : "text-on-surface-variant font-medium hover:text-on-surface"
               )}
             >

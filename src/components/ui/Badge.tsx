@@ -30,39 +30,39 @@ export function Badge({
   // Oxford Academic Guild Badges & Seals
   const variantStyles: Record<BadgeVariant, { container: string; text: string }> = {
     student: {
-      container: "bg-surface-container-high border border-white/[0.08]",
+      container: "bg-surface-container-high border border-outline-variant",
       text: "text-on-surface-variant font-medium",
     },
     alumni: {
-      container: "bg-primary-container/60 border border-primary/40",
+      container: "bg-primary-container border border-primary/40",
       text: "text-primary-light font-semibold",
     },
     professional: {
-      container: "bg-[#0C2233] border border-secondary/40",
+      container: "bg-secondary-container/50 border border-secondary/40",
       text: "text-secondary-light font-semibold",
     },
     mentor: {
-      container: "bg-primary-container/80 border border-primary/60",
-      text: "text-primary font-bold",
+      container: "bg-primary-container border border-primary/60",
+      text: "text-primary-light font-bold",
     },
     solved: {
-      container: "bg-[#07241A] border border-tertiary/40",
+      container: "bg-tertiary-container border border-tertiary/40",
       text: "text-tertiary font-bold",
     },
     open: {
-      container: "bg-surface-container-high border border-white/[0.08]",
+      container: "bg-surface-container-high border border-outline-variant",
       text: "text-on-surface-variant font-medium",
     },
     topic: {
-      container: "bg-surface-container-high/80 border border-white/[0.07]",
+      container: "bg-surface-container-high border border-outline-variant",
       text: "text-on-surface font-medium",
     },
     category: {
-      container: "bg-primary-container/40 border border-primary/35 active:bg-primary-container/60",
+      container: "bg-primary-container/60 border border-primary/40 active:bg-primary-container/80",
       text: "text-primary-light font-medium",
     },
     neutral: {
-      container: "bg-surface-container-low border border-white/[0.06]",
+      container: "bg-surface-container-low border border-outline-variant/60",
       text: "text-on-surface-variant font-medium",
     },
   };

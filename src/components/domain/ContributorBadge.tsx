@@ -60,7 +60,7 @@ export function ContributorBadge({
         isVerified ? (
           <Check
             size={11}
-            color={variant === "mentor" ? "#D8B4FE" : "#34D399"}
+            color={variant === "mentor" ? "#F6CB76" : "#2EBF7B"}
             strokeWidth={2.8}
           />
         ) : undefined

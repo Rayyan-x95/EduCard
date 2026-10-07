@@ -41,29 +41,29 @@ export const HelpfulChip = React.memo(function HelpfulChip({
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       onPress={handlePress}
       className={cn(
-        "flex-row items-center gap-x-1.5 px-3.5 py-1.5 min-h-[38px] rounded-full border web:cursor-pointer select-none active:scale-[0.96] transition-all duration-150",
+        "flex-row items-center gap-x-1.5 px-3.5 py-1.5 min-h-[40px] rounded-full border web:cursor-pointer select-none active:scale-[0.96] transition-all duration-150",
         disabled
           ? "bg-surface-container-high/40 border-outline-variant/30 opacity-60"
           : isHelpful
-          ? "bg-primary-container/70 border-primary/60 shadow-sm shadow-black/30"
-          : "bg-surface-container-high/80 border-white/[0.08] web:hover:border-white/[0.14] active:bg-surface-container-highest",
+          ? "bg-primary-container border-primary/60 shadow-sm shadow-black/30"
+          : "bg-surface-container-high border-outline-variant active:bg-surface-container-highest",
         className
       )}
     >
       <ThumbsUp
         size={14}
-        color={disabled ? "#637588" : isHelpful ? "#E5A93C" : "#A1B0C2"}
-        fill={!disabled && isHelpful ? "#E5A93C" : "none"}
+        color={disabled ? "#4E5D6E" : isHelpful ? "#D49B35" : "#A3B3C4"}
+        fill={!disabled && isHelpful ? "#D49B35" : "none"}
       />
       <Typography
         variant="label-md"
         className={cn(
           "tracking-tight",
           disabled
-            ? "text-on-surface-variant/60 font-medium"
+            ? "text-on-surface-muted font-medium"
             : isHelpful
             ? "text-primary-light font-bold"
-            : "text-on-surface-variant/90 font-medium"
+            : "text-on-surface-variant font-medium"
         )}
       >
         {label ? `${label} (${count})` : count}

@@ -46,18 +46,18 @@ export function TextInput({
         className={clsx(
           "flex-row items-center bg-surface-container-low border rounded-xl px-4 min-h-[50px] web:transition-all",
           error
-            ? "border-error bg-error-container/10"
+            ? "border-error bg-error-container/20"
             : isFocused
             ? "border-primary bg-surface-container shadow-sm shadow-black/20"
-            : "border-white/[0.08]"
+            : "border-outline-variant"
         )}
       >
         {leftIcon && <View aria-hidden className="mr-3">{leftIcon}</View>}
         <RNTextInput
           className={clsx("flex-1 text-on-surface text-base font-body", className)}
           style={[{ paddingVertical: Platform.OS === 'android' ? 8 : 12, minHeight: props.multiline ? undefined : 48 }, props.style as any]}
-          placeholderTextColor="#6D7E92"
-          selectionColor="#E5A93C"
+          placeholderTextColor="#76889B"
+          selectionColor="#D49B35"
           accessibilityLabel={accessibilityLabel ?? label}
           accessibilityHint={error ?? helperText}
           aria-invalid={Boolean(error)}
@@ -78,7 +78,7 @@ export function TextInput({
           {error}
         </Typography>
       ) : helperText ? (
-        <Typography variant="label-sm" className="text-on-surface-variant/70 mt-1.5">
+        <Typography variant="label-sm" className="text-on-surface-muted mt-1.5">
           {helperText}
         </Typography>
       ) : null}

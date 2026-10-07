@@ -44,19 +44,19 @@ export function Button({
   const variantStyles = {
     // Oxford Academic Guild Controls
     primary: "bg-primary active:bg-primary-light/90 shadow-sm shadow-black/40 border border-primary-light/40 focus:ring-2 focus:ring-primary/50",
-    secondary: "bg-surface-container-high active:bg-surface-container-highest border border-white/[0.08] focus:ring-2 focus:ring-primary/30",
+    secondary: "bg-surface-container-high active:bg-surface-container-highest border border-outline-variant focus:ring-2 focus:ring-primary/30",
     outline: "bg-transparent border border-primary/40 active:bg-primary-container/30 focus:ring-2 focus:ring-primary/40",
     ghost: "bg-transparent active:bg-surface-container-high/60 focus:ring-2 focus:ring-primary/30",
-    danger: "bg-error-container active:bg-error-container/80 border border-error/30 shadow-sm shadow-black/30 focus:ring-2 focus:ring-error/40",
-    solved: "bg-[#07241A] active:bg-[#0A2E22] border border-tertiary/40 shadow-sm shadow-black/30 focus:ring-2 focus:ring-tertiary/40",
+    danger: "bg-error-container active:bg-error-container/80 border border-error/40 shadow-sm shadow-black/30 focus:ring-2 focus:ring-error/40",
+    solved: "bg-tertiary-container active:bg-tertiary-container/80 border border-tertiary/40 shadow-sm shadow-black/30 focus:ring-2 focus:ring-tertiary/40",
   };
 
   const textVariantStyles = {
-    primary: "text-[#181104] font-bold text-center",
+    primary: "text-primary-on-primary font-bold text-center",
     secondary: "text-on-surface font-semibold text-center",
     outline: "text-primary font-semibold text-center",
     ghost: "text-on-surface font-medium text-center",
-    danger: "text-error font-bold text-center",
+    danger: "text-error-light font-bold text-center",
     solved: "text-tertiary font-bold text-center",
   };
 
@@ -91,7 +91,7 @@ export function Button({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "primary" ? "#181104" : "#E5A93C"} size="small" />
+        <ActivityIndicator color={variant === "primary" ? "#181003" : "#D49B35"} size="small" />
       ) : (
         <View className="flex-row items-center justify-center">
           {leftIcon && <View className="mr-2">{leftIcon}</View>}

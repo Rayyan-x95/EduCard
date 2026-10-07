@@ -84,14 +84,14 @@ export const AnswerCard = React.memo(function AnswerCard({
       isSolved={answer.is_accepted}
       className={
         answer.is_accepted
-          ? "bg-[#0A1A14] border-tertiary/40 mb-4"
-          : "bg-surface-container border-white/[0.07] mb-4"
+          ? "bg-tertiary-container border-tertiary/40 mb-4"
+          : "bg-surface-container border-outline-variant mb-4"
       }
     >
       {/* Verified Solution Banner for Accepted Answer */}
       {answer.is_accepted && (
-        <View className="flex-row items-center bg-[#07241A] border border-tertiary/40 rounded-xl px-3.5 py-2.5 mb-4">
-          <View className="mr-2.5"><CheckCircle2 size={16} color="#10B981" /></View>
+        <View className="flex-row items-center bg-tertiary-container border border-tertiary/40 rounded-xl px-3.5 py-2.5 mb-4">
+          <View className="mr-2.5"><CheckCircle2 size={16} color="#2EBF7B" /></View>
           <Typography variant="label-md" className="font-bold text-tertiary">
             Verified Solution by Question Author
           </Typography>
@@ -121,7 +121,7 @@ export const AnswerCard = React.memo(function AnswerCard({
       </Typography>
 
       {/* Footer Actions */}
-      <View className="flex-row items-center justify-between pt-3 border-t border-white/[0.07]">
+      <View className="flex-row items-center justify-between pt-3 border-t border-outline-variant">
         {/* Helpful Reaction */}
         <HelpfulChip
           count={answer.helpful_count}
@@ -145,15 +145,15 @@ export const AnswerCard = React.memo(function AnswerCard({
             AppHaptics.light();
             setShowComments((v) => !v);
           }}
-          className="flex-row items-center px-3.5 py-2 min-h-[44px] rounded-full bg-surface-container-high border border-white/[0.08] web:cursor-pointer select-none active:bg-surface-container-highest"
+          className="flex-row items-center px-3.5 py-2 min-h-[44px] rounded-full bg-surface-container-high border border-outline-variant web:cursor-pointer select-none active:bg-surface-container-highest"
         >
           {showComments ? (
-            <View className="mr-1.5"><ChevronUp size={14} color="#A1B0C2" /></View>
+            <View className="mr-1.5"><ChevronUp size={14} color="#A3B3C4" /></View>
           ) : (
-            <View className="mr-1.5"><ChevronDown size={14} color="#A1B0C2" /></View>
+            <View className="mr-1.5"><ChevronDown size={14} color="#A3B3C4" /></View>
           )}
-          <View className="mr-1.5"><MessageSquare size={13} color="#A1B0C2" /></View>
-          <Typography variant="label-md" className="text-on-surface-variant">
+          <View className="mr-1.5"><MessageSquare size={13} color="#A3B3C4" /></View>
+          <Typography variant="label-md" className="text-on-surface-variant font-medium">
             ({comments.length})
           </Typography>
         </TouchableOpacity>
@@ -164,7 +164,7 @@ export const AnswerCard = React.memo(function AnswerCard({
             variant="solved"
             size="sm"
             loading={isAccepting}
-            leftIcon={<CheckCircle2 size={14} color="#10B981" />}
+            leftIcon={<CheckCircle2 size={14} color="#2EBF7B" />}
             onPress={() => onAcceptPress?.(answer.id)}
           >
             Accept
@@ -221,12 +221,12 @@ export const AnswerCard = React.memo(function AnswerCard({
               className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-full items-center justify-center web:cursor-pointer select-none active:scale-95 transition-transform ${
                 commentText.trim().length >= 1
                   ? "bg-primary shadow-sm shadow-black/30"
-                  : "bg-surface-container-high border border-white/[0.08]"
+                  : "bg-surface-container-high border border-outline-variant"
               }`}
             >
               <Send
                 size={17}
-                color={commentText.trim().length >= 1 ? "#181104" : "#637588"}
+                color={commentText.trim().length >= 1 ? "#181003" : "#4E5D6E"}
               />
             </TouchableOpacity>
           </View>

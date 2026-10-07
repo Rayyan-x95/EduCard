@@ -213,7 +213,7 @@ export default function HomeScreen() {
           data={questions}
           keyExtractor={(item) => `${item.item_type}:${item.id}`}
           extraData={activeFeedFilter}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 10, paddingBottom: 24 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 110 }}
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -222,14 +222,14 @@ export default function HomeScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#E5A93C"
+              tintColor="#D49B35"
             />
           }
-          ListHeaderComponent={<View className="h-2" />}
+          ListHeaderComponent={<View className="h-1" />}
           ListFooterComponent={() => {
             if (isFetchingNextPage) {
               return (
-                <View className="py-3">
+                <View className="py-4">
                   <QuestionCardSkeleton />
                 </View>
               );
@@ -243,7 +243,7 @@ export default function HomeScreen() {
                   accessibilityRole="button"
                   accessibilityLabel="Retry loading more feed items"
                 >
-                  <View className="mx-1 my-3 p-4 rounded-xl bg-error-container/30 border border-error/40 items-center">
+                  <View className="mx-1 my-4 p-4 rounded-2xl bg-error-container/30 border border-error/40 items-center">
                     <Typography variant="label-sm" className="text-on-surface-variant text-center">
                       Couldn't load newer content. Tap to retry.
                     </Typography>
@@ -262,7 +262,7 @@ export default function HomeScreen() {
               </View>
             ) : (
               <EmptyState
-                icon={<Inbox size={32} color="#E5A93C" />}
+                icon={<Inbox size={32} color="#D49B35" />}
                 title="No inquiries in this feed yet"
                 description="Be the first to pose an academic inquiry or join a scholarly guild."
                 actionLabel="Pose an Inquiry"
@@ -284,17 +284,17 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
   const router = useRouter();
 
   return (
-    <View className="w-full items-center border-b border-white/[0.08] bg-surface/95 backdrop-blur-md z-10">
-      <View className="w-full max-w-[720px] flex-row items-center justify-between px-5 pt-3 pb-3">
+    <View className="w-full items-center border-b border-outline-variant bg-surface/95 backdrop-blur-md z-10">
+      <View className="w-full max-w-[720px] flex-row items-center justify-between px-5 py-3">
         <View className="flex-row items-center">
-          <View className="mr-3 w-10 h-10 rounded-xl bg-primary-container/60 border border-primary/40 items-center justify-center shadow-sm shadow-black/30">
+          <View className="mr-3 w-10 h-10 rounded-xl bg-primary-container border border-primary/40 items-center justify-center shadow-sm shadow-black/30">
             <Logo variant="simple" size="sm" width={22} height={22} />
           </View>
           <View>
             <Typography variant="headline-md" className="text-on-surface leading-tight font-headline font-bold text-xl tracking-tight">
               EduCard
             </Typography>
-            <Typography variant="label-sm" className="text-on-surface-variant/70 text-[10px] tracking-wider uppercase">
+            <Typography variant="label-sm" className="text-on-surface-muted text-[10px] tracking-wider uppercase font-semibold">
               Academic Knowledge Guild
             </Typography>
           </View>
@@ -304,12 +304,12 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
           <Button
             variant="primary"
             size="sm"
-            leftIcon={<Plus size={15} color="#181104" strokeWidth={2.6} />}
+            leftIcon={<Plus size={15} color="#181003" strokeWidth={2.6} />}
             onPress={() => {
               AppHaptics.medium();
               router.push("/question/new");
             }}
-            className="mr-2 px-3 py-1.5 h-9"
+            className="mr-2 px-3.5 h-10 rounded-full"
           >
             Inquire
           </Button>
@@ -317,26 +317,26 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Search"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             onPress={() => {
               AppHaptics.light();
               router.push("/search" as any);
             }}
-            className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-surface-container-high items-center justify-center border border-white/[0.08] web:hover:border-white/[0.14] active:bg-surface-container-highest web:cursor-pointer select-none active:scale-95 transition-all mr-2"
+            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container-high items-center justify-center border border-outline-variant active:bg-surface-container-highest web:cursor-pointer select-none active:scale-95 transition-all mr-2"
           >
-            <Search size={16} color="#A1B0C2" />
+            <Search size={17} color="#A3B3C4" />
           </TouchableOpacity>
 
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Your profile"
             accessibilityHint="Opens your profile"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             onPress={() => {
               AppHaptics.light();
               router.push("/(tabs)/profile" as any);
             }}
-            className="w-9 h-9 min-w-[36px] min-h-[36px] items-center justify-center web:cursor-pointer select-none active:scale-95 transition-transform"
+            className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center web:cursor-pointer select-none active:scale-95 transition-transform"
           >
             <Avatar
               name={profile?.display_name || "User"}

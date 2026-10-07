@@ -70,7 +70,7 @@ export const QuestionCard = React.memo(function QuestionCard({
             <Badge
               variant="solved"
               label="Solved"
-              icon={<CheckCircle2 size={13} color="#34D399" />}
+              icon={<CheckCircle2 size={13} color="#2EBF7B" />}
             />
           ) : (
             <Badge variant="open" label="Open" />
@@ -87,32 +87,32 @@ export const QuestionCard = React.memo(function QuestionCard({
       </Typography>
       <Typography
         variant="body-md"
-        className="text-on-surface-variant/90 leading-relaxed mb-4 text-[14px]"
+        className="text-on-surface-variant leading-relaxed mb-4 text-[14px]"
         numberOfLines={3}
       >
         {question.body}
       </Typography>
 
       {/* Footer Metrics with Tactile Interactive Chips */}
-      <View className="flex-row items-center justify-between pt-3 border-t border-white/[0.07]">
+      <View className="flex-row items-center justify-between pt-3.5 border-t border-outline-variant">
         <View className="flex-row items-center">
           {/* Answers Chip with Solved Indicator */}
           <View
-            className={`flex-row items-center min-h-[38px] px-3.5 py-1.5 rounded-full border mr-2.5 ${
+            className={`flex-row items-center min-h-[40px] px-3.5 py-1.5 rounded-full border mr-2.5 ${
               isSolved
-                ? "bg-[#07241A] border-tertiary/40 shadow-sm shadow-black/20"
+                ? "bg-tertiary-container border-tertiary/40 shadow-sm shadow-black/20"
                 : question.answer_count > 0
-                ? "bg-primary-container/50 border-primary/40 shadow-sm shadow-black/20"
-                : "bg-surface-container-high border-white/[0.07]"
+                ? "bg-primary-container border-primary/40 shadow-sm shadow-black/20"
+                : "bg-surface-container-high border-outline-variant"
             }`}
           >
             {isSolved ? (
-              <View className="mr-1.5"><CheckCircle2 size={14} color="#10B981" /></View>
+              <View className="mr-1.5"><CheckCircle2 size={14} color="#2EBF7B" /></View>
             ) : (
               <View className="mr-1.5">
                 <MessageSquare
                   size={14}
-                  color={question.answer_count > 0 ? "#E5A93C" : "#A1B0C2"}
+                  color={question.answer_count > 0 ? "#D49B35" : "#A3B3C4"}
                 />
               </View>
             )}
@@ -123,7 +123,7 @@ export const QuestionCard = React.memo(function QuestionCard({
                   ? "text-tertiary font-bold tracking-tight"
                   : question.answer_count > 0
                   ? "text-primary-light font-bold tracking-tight"
-                  : "text-on-surface-variant/90 font-medium"
+                  : "text-on-surface-variant font-medium"
               }
             >
               {question.answer_count} {question.answer_count === 1 ? "answer" : "answers"}
@@ -139,7 +139,7 @@ export const QuestionCard = React.memo(function QuestionCard({
           />
         </View>
 
-        <Typography variant="label-sm" className="text-on-surface-variant/60 font-medium">
+        <Typography variant="label-sm" className="text-on-surface-muted font-medium">
           {formatDate(question.created_at)}
         </Typography>
       </View>

@@ -91,22 +91,22 @@ export default function ProfileScreen() {
     <SafeAreaView className="flex-1 bg-surface">
       <View className="flex-1 w-full max-w-2xl mx-auto">
         {/* Top Header */}
-        <View className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-white/[0.08]">
+        <View className="flex-row items-center justify-between px-5 py-3 border-b border-outline-variant">
           <Typography variant="headline-md" className="text-on-surface font-headline font-bold text-2xl tracking-tight flex-1 mr-2" numberOfLines={1}>
             Scholar Dossier
           </Typography>
 
-          <View className="flex-row items-center flex-wrap justify-end">
+          <View className="flex-row items-center gap-x-2">
             {isModerator && (
               <TouchableOpacity
                 accessibilityRole="button"
                 accessibilityLabel="Moderation Dashboard"
-                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={() => {
                   AppHaptics.light();
                   router.push("/moderation" as any);
                 }}
-                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-secondary/40 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-secondary/30 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
               >
                 <ShieldCheck size={18} color="#38BDF8" />
               </TouchableOpacity>
@@ -115,49 +115,49 @@ export default function ProfileScreen() {
             <TouchableOpacity
               accessibilityRole="button"
               accessibilityLabel="Saved Bookmarks"
-              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               onPress={() => {
                 AppHaptics.light();
                 router.push("/bookmarks" as any);
               }}
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
             >
-              <Bookmark size={18} color="#E5A93C" />
+              <Bookmark size={18} color="#D49B35" />
             </TouchableOpacity>
 
             {profile?.username && (
               <TouchableOpacity
                 accessibilityRole="button"
                 accessibilityLabel="Share Profile"
-                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={() => {
                   AppHaptics.light();
                   ShareService.shareProfile(profile.username!, profile.display_name);
                 }}
-                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
               >
-                <Share2 size={18} color="#A1B0C2" />
+                <Share2 size={18} color="#A3B3C4" />
               </TouchableOpacity>
             )}
 
             <TouchableOpacity
               accessibilityRole="button"
               accessibilityLabel="Settings and Privacy"
-              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               onPress={() => {
                 AppHaptics.light();
                 router.push("/settings/privacy" as any);
               }}
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-white/[0.08] active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
             >
-              <Settings size={18} color="#A1B0C2" />
+              <Settings size={18} color="#A3B3C4" />
             </TouchableOpacity>
           </View>
         </View>
 
-        <ScrollView className="flex-1 px-5 py-5" contentContainerStyle={{ paddingBottom: 32 }}>
+        <ScrollView className="flex-1 px-5 py-4" contentContainerStyle={{ paddingBottom: 110 }}>
           {/* Identity Card */}
-          <Card className="mb-5 p-6 items-center border border-white/[0.08] shadow-sm shadow-black/40">
+          <Card className="mb-5 p-6 items-center border border-outline-variant shadow-sm shadow-black/40">
             <Avatar
               name={profile?.display_name || "User"}
               uri={profile?.avatar_path}
@@ -186,9 +186,9 @@ export default function ProfileScreen() {
                 AppHaptics.light();
                 router.push("/settings/edit-profile" as any);
               }}
-              className="flex-row items-center px-4 py-2 rounded-xl bg-surface-container-high border border-white/[0.08] active:bg-surface-container-highest"
+              className="flex-row items-center px-5 py-2.5 min-h-[40px] rounded-full bg-surface-container-high border border-outline-variant active:bg-surface-container-highest"
             >
-              <View className="mr-1.5"><Edit3 size={14} color="#E5A93C" /></View>
+              <View className="mr-1.5"><Edit3 size={14} color="#D49B35" /></View>
               <Typography variant="label-md" className="text-primary font-bold">
                 Edit Profile
               </Typography>
@@ -198,7 +198,7 @@ export default function ProfileScreen() {
           {/* Moderator Access Tile */}
           {isModerator && (
             <Card
-              className="p-4 mb-5 border border-secondary/40 bg-[#0C2233]"
+              className="p-4 mb-5 border border-secondary/30 bg-surface-container"
               onPress={() => {
                 AppHaptics.light();
                 router.push("/moderation" as any);
@@ -213,7 +213,7 @@ export default function ProfileScreen() {
                     <Typography variant="label-lg" className="text-secondary font-bold">
                       Moderation Dashboard
                     </Typography>
-                    <Typography variant="body-sm" className="text-on-surface-variant/70">
+                    <Typography variant="body-sm" className="text-on-surface-variant font-medium">
                       Review flagged questions and moderation queue
                     </Typography>
                   </View>
@@ -224,7 +224,7 @@ export default function ProfileScreen() {
           )}
 
           {/* Oxford Archival Scholar Standing Masthead */}
-          <Card className="mb-5 p-5 border border-white/[0.08] bg-surface-container/70 shadow-sm shadow-black/30">
+          <Card className="mb-5 p-5 border border-outline-variant bg-surface-container/70 shadow-sm shadow-black/30">
             <View className="flex-row items-center justify-between">
               {/* Primary Scholarly Metric */}
               <View className="flex-1 mr-4">
@@ -237,39 +237,39 @@ export default function ProfileScreen() {
                 <Typography variant="display-lg" className="text-primary-light font-headline font-bold text-3xl tracking-tight leading-none">
                   {profile?.reputation_score || 0}
                 </Typography>
-                <Typography variant="body-sm" className="text-on-surface-variant/70 text-[12px] mt-1">
+                <Typography variant="body-sm" className="text-on-surface-muted text-[12px] mt-1 font-medium">
                   Peer-validated research points
                 </Typography>
               </View>
 
               {/* Vertical Hairline Divider */}
-              <View className="w-[1px] h-14 bg-white/[0.08] mr-4" />
+              <View className="w-[1px] h-14 bg-outline-variant mr-4" />
 
               {/* Secondary Scholarly Telemetry */}
               <View className="justify-center gap-y-2">
                 <View className="flex-row items-center">
-                  <View className="w-7 h-7 rounded-lg bg-[#07241A] border border-tertiary/40 items-center justify-center mr-2">
-                    <ShieldCheck size={14} color="#10B981" />
+                  <View className="w-7 h-7 rounded-lg bg-tertiary-container border border-tertiary/40 items-center justify-center mr-2">
+                    <ShieldCheck size={14} color="#2EBF7B" />
                   </View>
                   <View>
                     <Typography variant="label-md" className="text-tertiary font-bold leading-tight">
                       {profile?.is_verified ? "Verified Scholar" : "Active Member"}
                     </Typography>
-                    <Typography variant="label-sm" className="text-on-surface-variant/60 text-[10px]">
+                    <Typography variant="label-sm" className="text-on-surface-muted text-[10px] font-medium">
                       Institutional Status
                     </Typography>
                   </View>
                 </View>
 
                 <View className="flex-row items-center">
-                  <View className="w-7 h-7 rounded-lg bg-surface-container-high border border-white/[0.08] items-center justify-center mr-2">
-                    <MessageSquare size={14} color="#A1B0C2" />
+                  <View className="w-7 h-7 rounded-lg bg-surface-container-high border border-outline-variant items-center justify-center mr-2">
+                    <MessageSquare size={14} color="#A3B3C4" />
                   </View>
                   <View>
                     <Typography variant="label-md" className="text-on-surface font-bold leading-tight">
                       {profile?.total_answers || 0} Contributions
                     </Typography>
-                    <Typography variant="label-sm" className="text-on-surface-variant/60 text-[10px]">
+                    <Typography variant="label-sm" className="text-on-surface-muted text-[10px] font-medium">
                       Answers & Solutions
                     </Typography>
                   </View>
@@ -282,7 +282,7 @@ export default function ProfileScreen() {
           {badges.length > 0 && (
             <View className="mb-6">
               <View className="flex-row items-center gap-x-2 mb-3">
-                <Sparkles size={16} color="#E5A93C" />
+                <Sparkles size={16} color="#D49B35" />
                 <Typography variant="label-lg" className="text-on-surface font-bold">
                   Academic Credentials
                 </Typography>
@@ -291,16 +291,14 @@ export default function ProfileScreen() {
                 {badges.map((b) => (
                   <View
                     key={b.id}
-                    className="flex-row items-center gap-x-2.5 px-3.5 py-2.5 rounded-xl bg-surface-container border border-white/[0.08]"
+                    className="flex-row items-center gap-x-2.5 px-3.5 py-2.5 rounded-xl bg-surface-container border border-outline-variant"
                   >
                     <Award
                       size={16}
                       color={
                         b.variant === "tertiary"
-                          ? "#10B981"
-                          : b.variant === "accent"
-                          ? "#E5A93C"
-                          : "#E5A93C"
+                          ? "#2EBF7B"
+                          : "#D49B35"
                       }
                     />
                     <View>
@@ -309,7 +307,7 @@ export default function ProfileScreen() {
                       </Typography>
                       <Typography
                         variant="label-sm"
-                        className="text-on-surface-variant/70 text-[11px] normal-case"
+                        className="text-on-surface-muted text-[11px] normal-case font-medium"
                         numberOfLines={1}
                       >
                         {b.description}
@@ -324,14 +322,14 @@ export default function ProfileScreen() {
           {/* Academic Background Section */}
           <View className="mb-6">
             <View className="flex-row items-center mb-3">
-              <View className="mr-2"><School size={16} color="#E5A93C" /></View>
+              <View className="mr-2"><School size={16} color="#D49B35" /></View>
               <Typography variant="label-lg" className="text-on-surface font-bold">
                 Academic Background
               </Typography>
             </View>
 
             {profile?.bio && (
-              <Card className="mb-3.5 p-4 bg-surface-container border border-white/[0.08]">
+              <Card className="mb-3.5 p-4 bg-surface-container border border-outline-variant">
                 <Typography variant="body-md" className="text-on-surface leading-relaxed">
                   {profile.bio}
                 </Typography>
@@ -340,17 +338,17 @@ export default function ProfileScreen() {
 
             {profile?.education && profile.education.length > 0 ? (
               profile.education.map((edu, idx) => (
-                <Card key={edu.id || idx} className="p-4 mb-3 border border-white/[0.08]">
+                <Card key={edu.id || idx} className="p-4 mb-3 border border-outline-variant">
                   <View className="mb-2 flex-row items-center">
-                    <View className="p-2 rounded-lg bg-primary-container/60 border border-primary/40 mr-3">
-                      <School size={16} color="#E5A93C" />
+                    <View className="p-2 rounded-lg bg-primary-container border border-primary/40 mr-3">
+                      <School size={16} color="#D49B35" />
                     </View>
                     <Typography variant="label-lg" className="text-on-surface font-bold flex-1">
                       {edu.institution_name}
                     </Typography>
                   </View>
                   <View className="flex-row items-start pl-1">
-                    <View className="mt-0.5 mr-3"><BookOpen size={15} color="#A1B0C2" /></View>
+                    <View className="mt-0.5 mr-3"><BookOpen size={15} color="#A3B3C4" /></View>
                     <Typography variant="body-sm" className="text-on-surface-variant flex-1">
                       {edu.degree} in {edu.field} ({edu.start_year}{edu.end_year ? ` – ${edu.end_year}` : " – Present"})
                     </Typography>
@@ -358,9 +356,9 @@ export default function ProfileScreen() {
                 </Card>
               ))
             ) : (
-              <Card className="p-4 border border-white/[0.08]">
+              <Card className="p-4 border border-outline-variant">
                 <View className="flex-row items-center mb-2">
-                  <View className="mr-3"><School size={18} color="#E5A93C" /></View>
+                  <View className="mr-3"><School size={18} color="#D49B35" /></View>
                   <Typography variant="body-md" className="text-on-surface-variant italic">
                     No academic records listed. You can update your educational background in Edit Profile.
                   </Typography>
@@ -387,7 +385,7 @@ export default function ProfileScreen() {
                 myQuestions.map((q: QuestionListItem) => (
                   <Card
                     key={q.id}
-                    className="p-4 mb-3 border border-white/[0.08]"
+                    className="p-4 mb-3 border border-outline-variant"
                     onPress={() => {
                       AppHaptics.light();
                       router.push(`/question/${q.id}` as any);
@@ -396,8 +394,8 @@ export default function ProfileScreen() {
                     <View className="flex-row items-start justify-between mb-2">
                       <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
                       <View className="flex-row items-center">
-                        <View className="mr-1"><MessageSquare size={12} color="#A1B0C2" /></View>
-                        <Typography variant="label-sm" className="text-on-surface-variant/70">
+                        <View className="mr-1"><MessageSquare size={12} color="#A3B3C4" /></View>
+                        <Typography variant="label-sm" className="text-on-surface-muted font-medium">
                           {q.answer_count ?? 0}
                         </Typography>
                       </View>
@@ -408,8 +406,8 @@ export default function ProfileScreen() {
                   </Card>
                 ))
               ) : (
-                <Card className="p-5 items-center border border-white/[0.08]">
-                  <View className="mb-1.5"><MessageSquare size={20} color="#A1B0C2" /></View>
+                <Card className="p-5 items-center border border-outline-variant">
+                  <View className="mb-1.5"><MessageSquare size={20} color="#A3B3C4" /></View>
                   <Typography variant="body-sm" className="text-on-surface-variant text-center">
                     No questions asked yet.
                   </Typography>
@@ -420,7 +418,7 @@ export default function ProfileScreen() {
                 myPosts.map((p: PostListItem) => (
                   <Card
                     key={p.id}
-                    className="p-4 mb-3 border border-white/[0.08]"
+                    className="p-4 mb-3 border border-outline-variant"
                     onPress={() => {
                       AppHaptics.light();
                       router.push(`/post/${p.id}` as any);
@@ -429,12 +427,12 @@ export default function ProfileScreen() {
                     <View className="flex-row items-start justify-between mb-2">
                       <Badge variant="category" label="Discussion" />
                       <View className="flex-row items-center">
-                        <View className="mr-3"><Typography variant="label-sm" className="text-on-surface-variant/70">
+                        <View className="mr-3"><Typography variant="label-sm" className="text-on-surface-muted font-medium">
                           {p.helpful_count ?? 0} helpful
                         </Typography></View>
                         <View className="flex-row items-center">
-                          <View className="mr-1"><MessageSquare size={12} color="#A1B0C2" /></View>
-                          <Typography variant="label-sm" className="text-on-surface-variant/70">
+                          <View className="mr-1"><MessageSquare size={12} color="#A3B3C4" /></View>
+                          <Typography variant="label-sm" className="text-on-surface-muted font-medium">
                             {p.comment_count ?? 0}
                           </Typography>
                         </View>
@@ -446,8 +444,8 @@ export default function ProfileScreen() {
                   </Card>
                 ))
               ) : (
-                <Card className="p-5 items-center border border-white/[0.08]">
-                  <View className="mb-1.5"><PenSquare size={20} color="#A1B0C2" /></View>
+                <Card className="p-5 items-center border border-outline-variant">
+                  <View className="mb-1.5"><PenSquare size={20} color="#A3B3C4" /></View>
                   <Typography variant="body-sm" className="text-on-surface-variant text-center">
                     No discussion posts shared yet.
                   </Typography>
@@ -460,7 +458,7 @@ export default function ProfileScreen() {
           <Button
             variant="danger"
             size="md"
-            leftIcon={<LogOut size={16} color="#F43F5E" />}
+            leftIcon={<LogOut size={16} color="#FFCCD3" />}
             onPress={handleSignOut}
             className="w-full mb-6"
           >
