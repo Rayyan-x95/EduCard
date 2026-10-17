@@ -87,15 +87,20 @@ export async function clearOnboardingFlag(userId?: string): Promise<void> {
     // Full reset: wipe every per-user key tracked in the registry.
     const raw = await SecureStore.getItemAsync(REGISTRY_KEY);
     const ids = raw ? raw.split(",").filter(Boolean) : [];
+    const failedIds: string[] = [];
     for (const id of ids) {
       try {
         await SecureStore.deleteItemAsync(keyFor(id));
       } catch {
-        // Ignore per-key failures.
+        failedIds.push(id);
       }
     }
     try {
-      await SecureStore.deleteItemAsync(REGISTRY_KEY);
+      if (failedIds.length === 0) {
+        await SecureStore.deleteItemAsync(REGISTRY_KEY);
+      } else {
+        await SecureStore.setItemAsync(REGISTRY_KEY, failedIds.join(","));
+      }
     } catch {
       // Ignore.
     }

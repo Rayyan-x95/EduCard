@@ -131,6 +131,7 @@ export const PostsService = {
     community_id?: string | null;
     media_paths?: string[];
     visibility?: "public" | "community" | "unlisted" | "removed";
+    client_mutation_id?: string;
   }): Promise<{ id: string }> {
     const { data: postId, error } = await supabase.rpc("rpc_create_post", {
       p_body: input.body,
@@ -138,7 +139,7 @@ export const PostsService = {
       p_topic_ids: input.topic_ids || [],
       p_image_paths: input.media_paths || [],
       p_visibility: (input.visibility as any) || "public",
-      p_client_mutation_id: generateUUID(),
+      p_client_mutation_id: input.client_mutation_id || generateUUID(),
     });
     if (error) throw error;
     return { id: postId as string };
@@ -224,6 +225,7 @@ export const PostsService = {
     questionId?: string;
     answerId?: string;
     body: string;
+    client_mutation_id?: string;
   }): Promise<{ id: string }> {
     if (!input.postId && !input.questionId && !input.answerId) {
       throw Object.assign(new Error("A comment target is required."), { code: "APP_ERROR" });
@@ -241,7 +243,7 @@ export const PostsService = {
         answer_id: input.answerId ?? null,
         author_id: authorId,
         body: input.body,
-        client_mutation_id: generateUUID(),
+        client_mutation_id: input.client_mutation_id || generateUUID(),
       })
       .select("id")
       .single();

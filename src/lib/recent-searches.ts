@@ -10,11 +10,12 @@ import * as SecureStore from "expo-secure-store";
 const STORE_KEY = "educard.recent-searches";
 const MAX_ENTRIES = 8;
 
-function keyFor(userId?: string): string {
-  return userId ? `${STORE_KEY}.${userId}` : STORE_KEY;
+function keyFor(userId: string): string {
+  return `${STORE_KEY}.${userId}`;
 }
 
 export async function getRecentSearches(userId?: string): Promise<string[]> {
+  if (!userId) return [];
   try {
     let raw: string | null = null;
     if (Platform.OS === "web") {
@@ -35,6 +36,7 @@ export async function getRecentSearches(userId?: string): Promise<string[]> {
 }
 
 export async function addRecentSearch(query: string, userId?: string): Promise<void> {
+  if (!userId) return;
   const trimmed = query.trim();
   if (trimmed.length < 2) return;
   try {
@@ -53,6 +55,7 @@ export async function addRecentSearch(query: string, userId?: string): Promise<v
 }
 
 export async function clearRecentSearches(userId?: string): Promise<void> {
+  if (!userId) return;
   try {
     if (Platform.OS === "web") {
       if (typeof localStorage !== "undefined") localStorage.removeItem(keyFor(userId));

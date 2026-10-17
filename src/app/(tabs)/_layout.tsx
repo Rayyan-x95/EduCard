@@ -28,8 +28,8 @@ export default function TabLayout() {
         tabBarStyle: {
           position: "absolute",
           alignSelf: "center",
-          left: "15%",
-          right: "15%",
+          left: 16,
+          right: 16,
           bottom: Math.max(insets.bottom, 24),
           height: 64,
           borderRadius: 32,
@@ -45,7 +45,7 @@ export default function TabLayout() {
         tabBarBackground: () => (
           <BlurView intensity={100} tint="dark" style={StyleSheet.absoluteFill} />
         ),
-        tabBarActiveTintColor: "#000000",
+        tabBarActiveTintColor: "#FFFFFF",
         tabBarInactiveTintColor: "#76889B",
         tabBarLabelStyle: {
           fontSize: 10,

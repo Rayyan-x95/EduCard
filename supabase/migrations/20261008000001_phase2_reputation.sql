@@ -8,8 +8,7 @@ CREATE TABLE IF NOT EXISTS public.reputation_events (
     entity_type VARCHAR(50) NOT NULL,
     entity_id UUID NOT NULL,
     score_delta INT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT TIMEZONE('utc', NOW()),
-    UNIQUE(event_type, entity_type, entity_id)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT TIMEZONE('utc', NOW())
 );
 
 -- RLS for reputation_events
@@ -17,7 +16,7 @@ ALTER TABLE public.reputation_events ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view their own reputation events"
 ON public.reputation_events FOR SELECT
-USING (auth.uid() = user_id);
+USING ((select auth.uid()) = user_id);
 
 -- Only admins/service_role can insert/update/delete (handled inherently by lack of policies)
 -- The SECURITY DEFINER functions will bypass RLS to insert into this table.
@@ -47,18 +46,22 @@ DECLARE
     v_answer_author_id UUID;
     v_prev_accepted_id UUID;
     v_prev_author_id UUID;
+    v_prev_is_accepted BOOLEAN;
+    v_is_already_accepted BOOLEAN;
 BEGIN
     SELECT author_id, accepted_answer_id INTO v_author_id, v_prev_accepted_id 
     FROM public.questions 
-    WHERE id = p_question_id AND deleted_at IS NULL;
+    WHERE id = p_question_id AND deleted_at IS NULL
+    FOR UPDATE;
 
     IF v_author_id IS NULL OR v_author_id != auth.uid() THEN
         RAISE EXCEPTION 'Only the question author can accept an answer' USING ERRCODE = '42501';
     END IF;
 
-    SELECT author_id INTO v_answer_author_id 
+    SELECT author_id, is_accepted INTO v_answer_author_id, v_is_already_accepted 
     FROM public.answers 
-    WHERE id = p_answer_id AND question_id = p_question_id AND deleted_at IS NULL;
+    WHERE id = p_answer_id AND question_id = p_question_id AND deleted_at IS NULL
+    FOR UPDATE;
 
     IF v_answer_author_id IS NULL THEN
         RAISE EXCEPTION 'Invalid answer' USING ERRCODE = '42501';
@@ -68,46 +71,47 @@ BEGIN
         RAISE EXCEPTION 'Question authors cannot accept their own answer' USING ERRCODE = '42501';
     END IF;
 
+    -- If another answer was previously accepted, unaccept it and revoke reputation
     IF v_prev_accepted_id IS NOT NULL AND v_prev_accepted_id != p_answer_id THEN
-        SELECT author_id INTO v_prev_author_id FROM public.answers WHERE id = v_prev_accepted_id;
-        UPDATE public.answers SET is_accepted = FALSE WHERE id = v_prev_accepted_id;
+        SELECT author_id, is_accepted INTO v_prev_author_id, v_prev_is_accepted 
+        FROM public.answers 
+        WHERE id = v_prev_accepted_id
+        FOR UPDATE;
         
-        -- Revoke reputation via ledger
-        IF v_prev_author_id IS NOT NULL THEN
-            BEGIN
+        IF v_prev_is_accepted THEN
+            UPDATE public.answers SET is_accepted = FALSE, updated_at = NOW() WHERE id = v_prev_accepted_id;
+            
+            -- Revoke reputation via ledger
+            IF v_prev_author_id IS NOT NULL THEN
                 INSERT INTO public.reputation_events (user_id, event_type, entity_type, entity_id, score_delta)
                 VALUES (v_prev_author_id, 'answer_unaccepted', 'answer', v_prev_accepted_id, -15);
-            EXCEPTION WHEN unique_violation THEN
-                -- Do nothing if already unaccepted
-            END;
+            END IF;
         END IF;
     END IF;
 
-    -- If the new answer is already accepted, do nothing
-    IF v_prev_accepted_id = p_answer_id THEN
+    -- If this answer is already accepted, nothing to change
+    IF v_prev_accepted_id = p_answer_id AND v_is_already_accepted THEN
         RETURN;
     END IF;
 
-    UPDATE public.answers SET is_accepted = TRUE, updated_at = NOW() WHERE id = p_answer_id;
+    IF NOT v_is_already_accepted THEN
+        UPDATE public.answers SET is_accepted = TRUE, updated_at = NOW() WHERE id = p_answer_id;
 
-    UPDATE public.questions 
-    SET accepted_answer_id = p_answer_id,
-        status = 'solved',
-        solved_at = NOW(),
-        updated_at = NOW()
-    WHERE id = p_question_id;
+        UPDATE public.questions 
+        SET accepted_answer_id = p_answer_id,
+            status = 'solved',
+            solved_at = NOW(),
+            updated_at = NOW()
+        WHERE id = p_question_id;
 
-    -- Award reputation via ledger
-    BEGIN
+        -- Award reputation via ledger
         INSERT INTO public.reputation_events (user_id, event_type, entity_type, entity_id, score_delta)
         VALUES (v_answer_author_id, 'answer_accepted', 'answer', p_answer_id, 15);
-    EXCEPTION WHEN unique_violation THEN
-        -- Do nothing if already accepted
-    END;
 
-    IF v_answer_author_id != auth.uid() THEN
-        INSERT INTO public.notifications (recipient_id, actor_id, type, entity_type, entity_id)
-        VALUES (v_answer_author_id, auth.uid(), 'answer_accepted', 'question', p_question_id);
+        IF v_answer_author_id != auth.uid() THEN
+            INSERT INTO public.notifications (recipient_id, actor_id, type, entity_type, entity_id)
+            VALUES (v_answer_author_id, auth.uid(), 'answer_accepted', 'question', p_question_id);
+        END IF;
     END IF;
 END;
 $$;
@@ -119,27 +123,31 @@ DECLARE
     v_author_id UUID;
     v_prev_accepted_id UUID;
     v_prev_author_id UUID;
+    v_prev_is_accepted BOOLEAN;
 BEGIN
     SELECT author_id, accepted_answer_id INTO v_author_id, v_prev_accepted_id 
     FROM public.questions 
-    WHERE id = p_question_id AND deleted_at IS NULL;
+    WHERE id = p_question_id AND deleted_at IS NULL
+    FOR UPDATE;
 
     IF v_author_id IS NULL OR v_author_id != auth.uid() THEN
         RAISE EXCEPTION 'Only the question author can unaccept an answer' USING ERRCODE = '42501';
     END IF;
 
     IF v_prev_accepted_id IS NOT NULL THEN
-        SELECT author_id INTO v_prev_author_id FROM public.answers WHERE id = v_prev_accepted_id;
-        UPDATE public.answers SET is_accepted = FALSE WHERE id = v_prev_accepted_id;
+        SELECT author_id, is_accepted INTO v_prev_author_id, v_prev_is_accepted 
+        FROM public.answers 
+        WHERE id = v_prev_accepted_id
+        FOR UPDATE;
         
-        -- Revoke reputation via ledger
-        IF v_prev_author_id IS NOT NULL THEN
-            BEGIN
+        IF v_prev_is_accepted THEN
+            UPDATE public.answers SET is_accepted = FALSE, updated_at = NOW() WHERE id = v_prev_accepted_id;
+            
+            -- Revoke reputation via ledger
+            IF v_prev_author_id IS NOT NULL THEN
                 INSERT INTO public.reputation_events (user_id, event_type, entity_type, entity_id, score_delta)
                 VALUES (v_prev_author_id, 'answer_unaccepted', 'answer', v_prev_accepted_id, -15);
-            EXCEPTION WHEN unique_violation THEN
-                -- Do nothing if already unaccepted
-            END;
+            END IF;
         END IF;
     END IF;
 

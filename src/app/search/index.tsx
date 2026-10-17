@@ -46,7 +46,16 @@ export default function GlobalSearchScreen() {
 
   // Load recent history once; refreshed after each recorded search.
   useEffect(() => {
-    void getRecentSearches(userId).then(setRecentSearches);
+    let active = true;
+    void getRecentSearches(userId).then((results) => {
+      if (active) {
+        setRecentSearches(results);
+      }
+    });
+    return () => {
+      active = false;
+      setRecentSearches([]);
+    };
   }, [userId]);
 
   useEffect(() => {

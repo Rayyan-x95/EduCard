@@ -48,6 +48,8 @@ export const PostCard = React.memo(function PostCard({ post, onPress, onHelpfulP
       <Typography variant="label-sm" className="text-on-surface-muted font-medium normal-case">
         {post.author_status === "professional" || post.author_status === "mentor"
           ? "Professional"
+          : post.author_status === "alumni"
+          ? "Alumni"
           : "Student"}
       </Typography>
     </View>
