@@ -171,7 +171,7 @@ export default function SignupScreen() {
                 variant="secondary"
                 size="md"
                 className="mt-4"
-                leftIcon={<Send size={16} color="#E5A93C" />}
+                leftIcon={<Send size={16} color="#D49B35" />}
                 loading={resendLoading}
                 disabled={resendCooldown > 0}
                 onPress={handleResend}
@@ -205,7 +205,7 @@ export default function SignupScreen() {
             placeholder="Sarah Chen"
             value={displayName}
             onChangeText={setDisplayName}
-            leftIcon={<User size={18} color="#E5A93C" />}
+            leftIcon={<User size={18} color="#D49B35" />}
           />
 
           <TextInput
@@ -215,7 +215,7 @@ export default function SignupScreen() {
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            leftIcon={<Mail size={18} color="#E5A93C" />}
+            leftIcon={<Mail size={18} color="#D49B35" />}
             helperText="Use your university or school email if available."
           />
 
@@ -225,7 +225,7 @@ export default function SignupScreen() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            leftIcon={<Lock size={18} color="#E5A93C" />}
+            leftIcon={<Lock size={18} color="#D49B35" />}
           />
 
           <Button

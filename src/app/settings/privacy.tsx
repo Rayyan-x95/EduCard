@@ -241,7 +241,7 @@ export default function PrivacyAccountScreen() {
 
         {/* Visibility Section */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <SectionHeader icon={<Eye size={18} color="#E5A93C" />} title="Visibility" subtitle="Control who can view your credentials and activity." />
+          <SectionHeader icon={<Eye size={18} color="#D49B35" />} title="Visibility" subtitle="Control who can view your credentials and activity." />
 
           <SettingRow
             title="Public Profile"
@@ -261,7 +261,7 @@ export default function PrivacyAccountScreen() {
 
         {/* Notifications Section */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <SectionHeader icon={<Bell size={18} color="#E5A93C" />} title="Notification Preferences" subtitle="Select which alerts reach your device." />
+          <SectionHeader icon={<Bell size={18} color="#D49B35" />} title="Notification Preferences" subtitle="Select which alerts reach your device." />
 
           <SettingRow
             title="Answer Alerts"
@@ -360,7 +360,7 @@ export default function PrivacyAccountScreen() {
                       variant="outline"
                       size="sm"
                       loading={evidenceUploading}
-                      leftIcon={<Download size={14} color="#E5A93C" />}
+                      leftIcon={<Download size={14} color="#D49B35" />}
                       onPress={handlePickEvidence}
                     >
                       Attach supporting document (optional)
@@ -439,14 +439,14 @@ export default function PrivacyAccountScreen() {
         {isModerator && (
           <Card className="p-5 mb-5 bg-surface-container border border-amber/40 shadow-sm">
             <SectionHeader
-              icon={<Shield size={18} color="#E5A93C" />}
+              icon={<Shield size={18} color="#D49B35" />}
               title="Moderator Tools"
               subtitle="Review flagged content and take action."
             />
             <Button
               variant="secondary"
               size="md"
-              leftIcon={<AlertTriangle size={16} color="#E5A93C" />}
+              leftIcon={<AlertTriangle size={16} color="#D49B35" />}
               onPress={() => {
                 AppHaptics.medium();
                 router.push("/moderation" as any);
@@ -508,7 +508,7 @@ export default function PrivacyAccountScreen() {
             <Typography variant="label-md" className="text-on-surface font-bold normal-case">
               Privacy Policy
             </Typography>
-            <ExternalLink size={16} color="#E5A93C" />
+            <ExternalLink size={16} color="#D49B35" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -521,13 +521,13 @@ export default function PrivacyAccountScreen() {
             <Typography variant="label-md" className="text-on-surface font-bold normal-case">
               Terms of Service
             </Typography>
-            <ExternalLink size={16} color="#E5A93C" />
+            <ExternalLink size={16} color="#D49B35" />
           </TouchableOpacity>
         </Card>
 
         {/* Data & Account Deletion */}
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
-          <SectionHeader icon={<Shield size={18} color="#E5A93C" />} title="Data Management" subtitle="Export or permanently erase your profile." />
+          <SectionHeader icon={<Shield size={18} color="#D49B35" />} title="Data Management" subtitle="Export or permanently erase your profile." />
 
           {exportMessage ? (
             <Typography variant="label-sm" className="text-tertiary mb-2 normal-case">
@@ -539,7 +539,7 @@ export default function PrivacyAccountScreen() {
             variant="secondary"
             size="md"
             loading={isExporting}
-            leftIcon={<Download size={16} color="#E5A93C" />}
+            leftIcon={<Download size={16} color="#D49B35" />}
             onPress={handleExportData}
             className="mb-3"
           >
@@ -621,7 +621,7 @@ function SettingRow({
         onValueChange={onChange}
         disabled={disabled}
         trackColor={{ false: "#19222C", true: "#875C17" }}
-        thumbColor={disabled ? "#475569" : value ? "#E5A93C" : "#A1B0C2"}
+        thumbColor={disabled ? "#475569" : value ? "#D49B35" : "#A1B0C2"}
       />
     </View>
   );

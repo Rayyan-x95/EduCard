@@ -113,6 +113,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Update: {
           id?: string;
@@ -137,6 +138,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Relationships: [
           {
@@ -401,6 +403,7 @@ export interface Database {
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
+                  client_mutation_id: string | null;
         };
         Insert: {
           id?: string;
@@ -414,6 +417,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Update: {
           id?: string;
@@ -427,6 +431,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Relationships: [
           {
@@ -459,6 +464,7 @@ export interface Database {
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
+                  client_mutation_id: string | null;
         };
         Insert: {
           id?: string;
@@ -475,6 +481,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Update: {
           id?: string;
@@ -491,6 +498,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Relationships: [
           {
@@ -582,6 +590,7 @@ export interface Database {
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
+                  client_mutation_id: string | null;
         };
         Insert: {
           id?: string;
@@ -595,6 +604,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Update: {
           id?: string;
@@ -608,6 +618,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Relationships: [
           {
@@ -635,6 +646,7 @@ export interface Database {
           created_at: string;
           updated_at: string;
           deleted_at: string | null;
+                  client_mutation_id: string | null;
         };
         Insert: {
           id?: string;
@@ -646,6 +658,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Update: {
           id?: string;
@@ -657,6 +670,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           deleted_at?: string | null;
+            client_mutation_id?: string | null;
         };
         Relationships: [
           {
@@ -695,6 +709,7 @@ export interface Database {
           comment_id: string | null;
           reaction_type: ReactionTypeEnum;
           created_at: string;
+                  client_mutation_id: string | null;
         };
         Insert: {
           id?: string;
@@ -1208,6 +1223,43 @@ export interface Database {
           }
         ];
       };
+      reputation_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          event_type: string;
+          entity_type: string;
+          entity_id: string;
+          score_delta: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          event_type: string;
+          entity_type: string;
+          entity_id: string;
+          score_delta: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          event_type?: string;
+          entity_type?: string;
+          entity_id?: string;
+          score_delta?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reputation_events_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1336,6 +1388,7 @@ export interface Database {
           p_community_id?: string | null;
           p_topic_ids?: string[];
           p_image_paths?: string[];
+                  p_client_mutation_id?: string | null;
         };
         Returns: string;
       };
@@ -1346,6 +1399,7 @@ export interface Database {
           p_topic_ids?: string[];
           p_image_paths?: string[];
           p_visibility?: ContentVisibilityEnum;
+                  p_client_mutation_id?: string | null;
         };
         Returns: string;
       };

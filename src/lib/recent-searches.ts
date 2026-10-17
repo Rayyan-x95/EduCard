@@ -10,15 +10,19 @@ import * as SecureStore from "expo-secure-store";
 const STORE_KEY = "educard.recent-searches";
 const MAX_ENTRIES = 8;
 
-export async function getRecentSearches(): Promise<string[]> {
+function keyFor(userId?: string): string {
+  return userId ? `${STORE_KEY}.${userId}` : STORE_KEY;
+}
+
+export async function getRecentSearches(userId?: string): Promise<string[]> {
   try {
     let raw: string | null = null;
     if (Platform.OS === "web") {
       if (typeof localStorage !== "undefined") {
-        raw = localStorage.getItem(STORE_KEY);
+        raw = localStorage.getItem(keyFor(userId));
       }
     } else {
-      raw = await SecureStore.getItemAsync(STORE_KEY);
+      raw = await SecureStore.getItemAsync(keyFor(userId));
     }
     if (!raw) return [];
     const parsed = JSON.parse(raw);
@@ -30,31 +34,31 @@ export async function getRecentSearches(): Promise<string[]> {
   }
 }
 
-export async function addRecentSearch(query: string): Promise<void> {
+export async function addRecentSearch(query: string, userId?: string): Promise<void> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return;
   try {
-    const current = await getRecentSearches();
+    const current = await getRecentSearches(userId);
     const next = [trimmed, ...current.filter((s) => s.toLowerCase() !== trimmed.toLowerCase())]
       .slice(0, MAX_ENTRIES);
     const payload = JSON.stringify(next);
     if (Platform.OS === "web") {
-      if (typeof localStorage !== "undefined") localStorage.setItem(STORE_KEY, payload);
+      if (typeof localStorage !== "undefined") localStorage.setItem(keyFor(userId), payload);
       return;
     }
-    await SecureStore.setItemAsync(STORE_KEY, payload);
+    await SecureStore.setItemAsync(keyFor(userId), payload);
   } catch {
     // Best-effort.
   }
 }
 
-export async function clearRecentSearches(): Promise<void> {
+export async function clearRecentSearches(userId?: string): Promise<void> {
   try {
     if (Platform.OS === "web") {
-      if (typeof localStorage !== "undefined") localStorage.removeItem(STORE_KEY);
+      if (typeof localStorage !== "undefined") localStorage.removeItem(keyFor(userId));
       return;
     }
-    await SecureStore.deleteItemAsync(STORE_KEY);
+    await SecureStore.deleteItemAsync(keyFor(userId));
   } catch {
     // Ignore.
   }

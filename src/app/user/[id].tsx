@@ -236,7 +236,7 @@ export default function UserProfileScreen() {
                   loading={followMutation.isPending}
                   leftIcon={
                     isFollowing ? (
-                      <UserCheck size={16} color="#E5A93C" />
+                      <UserCheck size={16} color="#D49B35" />
                     ) : (
                       <UserPlus size={16} color="#181104" />
                     )
@@ -320,10 +320,10 @@ export default function UserProfileScreen() {
         {/* Stats */}
         <View className="flex-row gap-x-3 mb-5">
           <StatTile
-            icon={<Award size={20} color="#E5A93C" />}
+            icon={<Award size={20} color="#D49B35" />}
             value={String(profile.reputation_score ?? 0)}
             label="Reputation"
-            tone="#E5A93C"
+            tone="#D49B35"
           />
           <StatTile
             icon={<ShieldCheck size={20} color="#10B981" />}
@@ -346,7 +346,7 @@ export default function UserProfileScreen() {
           return (
             <View className="mb-6">
               <View className="flex-row items-center gap-x-2 mb-3">
-                <Sparkles size={16} color="#E5A93C" />
+                <Sparkles size={16} color="#D49B35" />
                 <Typography variant="label-lg" className="text-on-surface font-headline font-bold">
                   Academic Credentials
                 </Typography>
@@ -363,7 +363,7 @@ export default function UserProfileScreen() {
                         b.variant === "tertiary"
                           ? "#10B981"
                           : b.variant === "accent"
-                          ? "#E5A93C"
+                          ? "#D49B35"
                           : "#38BDF8"
                       }
                     />
@@ -396,7 +396,7 @@ export default function UserProfileScreen() {
               <Card key={edu.id || idx} className="p-4 mb-3 border border-outline-variant/60 bg-surface-container">
                 <View className="flex-row items-center gap-x-3 mb-2">
                   <View className="p-2 rounded-lg bg-primary-container/40 border border-primary/30">
-                    <School size={16} color="#E5A93C" />
+                    <School size={16} color="#D49B35" />
                   </View>
                   <Typography variant="label-lg" className="text-on-surface font-bold flex-1">
                     {edu.institution_name}
@@ -529,7 +529,7 @@ function Header({ onBack, onShare }: { onBack: () => void; onShare?: () => void 
           }}
           className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
-          <Share2 size={18} color="#E5A93C" />
+          <Share2 size={18} color="#D49B35" />
         </TouchableOpacity>
       ) : (
         <View className="w-11" />
@@ -550,12 +550,12 @@ function StatTile({
   tone: string;
 }) {
   const containerMap: Record<string, string> = {
-    "#E5A93C": "bg-amber-container/40 border-amber/40",
+    "#D49B35": "bg-amber-container/40 border-amber/40",
     "#10B981": "bg-tertiary-container/40 border-tertiary/40",
     "#38BDF8": "bg-secondary-container/40 border-secondary/40",
   };
   const textMap: Record<string, string> = {
-    "#E5A93C": "text-primary",
+    "#D49B35": "text-primary",
     "#10B981": "text-tertiary",
     "#38BDF8": "text-secondary",
   };

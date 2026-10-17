@@ -45,7 +45,7 @@ export function SegmentedControl<T extends string>({
             className={cn(
               "flex-1 py-2 min-h-[44px] rounded-xl items-center justify-center transition-all web:cursor-pointer select-none active:scale-[0.98]",
               isActive
-                ? "bg-surface-container-high border border-outline/30 border-t-outline/50 shadow-sm shadow-black/40"
+                ? "bg-primary-container border border-primary/40 shadow-sm shadow-black/40"
                 : "border border-transparent active:bg-surface-container-low/60"
             )}
           >

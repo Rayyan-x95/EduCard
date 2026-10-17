@@ -155,10 +155,10 @@ export default function NotificationsScreen() {
         <View className="flex-row items-center justify-between px-5 py-3 border-b border-outline-variant">
         <View className="flex-1 mr-3">
           <Typography variant="headline-md" className="text-on-surface font-headline font-bold text-2xl tracking-tight">
-            Alerts & Dispatch
+            Notifications
           </Typography>
           <Typography variant="body-sm" className="text-on-surface-variant font-medium">
-            Answers, peer reviews, and guild updates
+            Answers, replies, and activity updates
           </Typography>
         </View>
 
@@ -186,7 +186,7 @@ export default function NotificationsScreen() {
           }
         >
           <ErrorState
-            title="Couldn't load alerts"
+            title="Couldn't load notifications"
             message="Please check your connection and pull down or tap retry."
             errorCode="NOTIFICATIONS_LOAD_FAILED"
             onRetry={refetch}

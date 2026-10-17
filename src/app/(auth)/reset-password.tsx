@@ -64,7 +64,7 @@ export default function ResetPasswordScreen() {
               {done ? (
                 <CheckCircle2 size={28} color="#10B981" />
               ) : (
-                <Lock size={24} color="#E5A93C" />
+                <Lock size={24} color="#D49B35" />
               )}
             </View>
             <Logo variant="simple" size="md" />

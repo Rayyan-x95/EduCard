@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { Card } from "./Card";
+
 import { Typography } from "./Typography";
 import { Button } from "./Button";
 import { cn } from "@/lib/cn";
@@ -23,9 +23,9 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <Card
+    <View
       className={cn(
-        "p-8 items-center justify-center my-6 bg-surface-container border border-outline-variant/60 shadow-lg shadow-black/30",
+        "p-8 items-center justify-center my-6",
         className
       )}
     >
@@ -49,6 +49,6 @@ export function EmptyState({
           {actionLabel}
         </Button>
       )}
-    </Card>
+    </View>
   );
 }

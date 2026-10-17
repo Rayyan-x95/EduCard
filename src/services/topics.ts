@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { Telemetry } from "@/lib/telemetry";
 
 export interface TopicRecord {
   id: string;
@@ -25,7 +26,12 @@ export const TopicsService = {
 
       if (error) throw error;
       return data || [];
-    } catch {
+    } catch (err) {
+      // Log so a missing seed or RLS issue is diagnosable instead of a
+      // silent empty topic list.
+      Telemetry.recordError(err instanceof Error ? err : new Error(String(err)), {
+        source: "topics.getTopics",
+      });
       return [];
     }
   },

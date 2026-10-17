@@ -18,6 +18,7 @@ import * as SecureStore from "expo-secure-store";
  */
 
 const keyFor = (userId: string) => `educard.onboarded.${userId}`;
+const REGISTRY_KEY = "educard.onboarded.users";
 
 export async function saveOnboardingFlag(
   userId: string,
@@ -32,6 +33,14 @@ export async function saveOnboardingFlag(
       return;
     }
     await SecureStore.setItemAsync(keyFor(userId), completed ? "1" : "0");
+    // Track known user ids so clearOnboardingFlag() can wipe per-user keys
+    // on sign-out (SecureStore has no list API).
+    const raw = await SecureStore.getItemAsync(REGISTRY_KEY);
+    const ids = raw ? raw.split(",").filter(Boolean) : [];
+    if (!ids.includes(userId)) {
+      ids.push(userId);
+      await SecureStore.setItemAsync(REGISTRY_KEY, ids.join(","));
+    }
   } catch {
     // Cache is best-effort by design.
   }
@@ -59,22 +68,36 @@ export async function readOnboardingFlag(
 
 export async function clearOnboardingFlag(userId?: string): Promise<void> {
   try {
-    // Without a userId (full reset), clear every known EduCard flag we can
-    // reach; per-user keys left behind by unknown ids are harmless because
-    // reads are keyed strictly by uid.
-    const targets = userId ? [keyFor(userId)] : ["educard.onboarded"];
-    for (const base of targets) {
-      if (Platform.OS === "web") {
-        if (typeof localStorage !== "undefined") {
-          if (userId) localStorage.removeItem(base);
-          else
-            Object.keys(localStorage)
-              .filter((k) => k.startsWith(base))
-              .forEach((k) => localStorage.removeItem(k));
+    if (Platform.OS === "web") {
+      if (typeof localStorage !== "undefined") {
+        if (userId) {
+          localStorage.removeItem(keyFor(userId));
+        } else {
+          Object.keys(localStorage)
+            .filter((k) => k.startsWith("educard.onboarded."))
+            .forEach((k) => localStorage.removeItem(k));
         }
-      } else if (userId) {
-        await SecureStore.deleteItemAsync(base);
       }
+      return;
+    }
+    if (userId) {
+      await SecureStore.deleteItemAsync(keyFor(userId));
+      return;
+    }
+    // Full reset: wipe every per-user key tracked in the registry.
+    const raw = await SecureStore.getItemAsync(REGISTRY_KEY);
+    const ids = raw ? raw.split(",").filter(Boolean) : [];
+    for (const id of ids) {
+      try {
+        await SecureStore.deleteItemAsync(keyFor(id));
+      } catch {
+        // Ignore per-key failures.
+      }
+    }
+    try {
+      await SecureStore.deleteItemAsync(REGISTRY_KEY);
+    } catch {
+      // Ignore.
     }
   } catch {
     // Ignore.

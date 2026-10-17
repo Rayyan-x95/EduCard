@@ -1,7 +1,8 @@
 import React from "react";
-import { View, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, ScrollView, TouchableOpacity, Alert, useWindowDimensions } from "react-native";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
 import { useQuery } from "@tanstack/react-query";
 import { Typography } from "@/components/ui/Typography";
 import { Avatar } from "@/components/ui/Avatar";
@@ -20,6 +21,8 @@ import { normalizeError } from "@/lib/errors";
 import { AppHaptics } from "@/lib/haptics";
 import { ShareService } from "@/lib/sharing";
 import { getBadgesForProfile } from "@/lib/reputation-badges";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { formatDate } from "@/lib/date";
 import {
   Award,
   BookOpen,
@@ -38,9 +41,20 @@ import {
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const profile = useAuthStore((s) => s.profile);
   const reset = useAuthStore((s) => s.reset);
   const [activeTab, setActiveTab] = React.useState<"questions" | "posts">("questions");
+  const insets = useSafeAreaInsets();
+
+  const isNarrow = width < 380;
+  const headerBtnClass = isNarrow
+    ? "w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+    : "w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform";
+  const modBtnClass = isNarrow
+    ? "w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-surface-container items-center justify-center border border-secondary/30 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+    : "w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-secondary/30 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform";
+  const headerIconSize = isNarrow ? 16 : 18;
 
   const badges = profile ? getBadgesForProfile(profile) : [];
 
@@ -87,78 +101,30 @@ export default function ProfileScreen() {
     ]);
   };
 
-  return (
-    <SafeAreaView className="flex-1 bg-surface">
-      <View className="flex-1 w-full max-w-2xl mx-auto">
-        {/* Top Header */}
-        <View className="flex-row items-center justify-between px-5 py-3 border-b border-outline-variant">
-          <Typography variant="headline-md" className="text-on-surface font-headline font-bold text-2xl tracking-tight flex-1 mr-2" numberOfLines={1}>
-            Scholar Dossier
-          </Typography>
-
-          <View className="flex-row items-center gap-x-2">
-            {isModerator && (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel="Moderation Dashboard"
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                onPress={() => {
-                  AppHaptics.light();
-                  router.push("/moderation" as any);
-                }}
-                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-secondary/30 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
-              >
-                <ShieldCheck size={18} color="#38BDF8" />
-              </TouchableOpacity>
-            )}
-
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel="Saved Bookmarks"
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              onPress={() => {
-                AppHaptics.light();
-                router.push("/bookmarks" as any);
-              }}
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
-            >
-              <Bookmark size={18} color="#D49B35" />
-            </TouchableOpacity>
-
-            {profile?.username && (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel="Share Profile"
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                onPress={() => {
-                  AppHaptics.light();
-                  ShareService.shareProfile(profile.username!, profile.display_name);
-                }}
-                className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
-              >
-                <Share2 size={18} color="#A3B3C4" />
-              </TouchableOpacity>
-            )}
-
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel="Settings and Privacy"
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              onPress={() => {
-                AppHaptics.light();
-                router.push("/settings/privacy" as any);
-              }}
-              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
-            >
-              <Settings size={18} color="#A3B3C4" />
-            </TouchableOpacity>
+  if (!profile) {
+    return (
+      <SafeAreaView className="flex-1 bg-surface">
+        <View className="flex-1 w-full max-w-2xl mx-auto px-5 pt-8 gap-y-6">
+          <View className="items-center">
+            <Skeleton height={120} width={120} className="rounded-full bg-surface-container-high mb-4 shadow-md" />
+            <Skeleton height={28} width={200} className="bg-surface-container-high mb-2" />
+            <Skeleton height={16} width={120} className="bg-surface-container-high" />
           </View>
+          <Skeleton height={100} className="bg-surface-container-high rounded-2xl" />
+          <Skeleton height={150} className="bg-surface-container-high rounded-2xl" />
         </View>
+      </SafeAreaView>
+    );
+  }
 
-        <ScrollView className="flex-1 px-5 py-4" contentContainerStyle={{ paddingBottom: 110 }}>
+  return (
+    <View className="flex-1 bg-surface">
+      <View className="flex-1 w-full max-w-2xl mx-auto">
+        <ScrollView className="flex-1 px-6" contentContainerStyle={{ paddingTop: Math.max(insets.top, 16) + 70, paddingBottom: 140 }}>
           {/* Identity Card */}
-          <Card className="mb-5 p-6 items-center border border-outline-variant shadow-sm shadow-black/40">
-            <Avatar
+          <View className="mb-8">
+            <Card className="p-8 items-center">
+              <Avatar
               name={profile?.display_name || "User"}
               uri={profile?.avatar_path}
               size="xl"
@@ -194,6 +160,7 @@ export default function ProfileScreen() {
               </Typography>
             </TouchableOpacity>
           </Card>
+          </View>
 
           {/* Moderator Access Tile */}
           {isModerator && (
@@ -231,14 +198,14 @@ export default function ProfileScreen() {
                 <View className="flex-row items-center mb-1.5">
                   <Award size={16} color="#D49B35" />
                   <Typography variant="label-sm" className="text-primary font-bold ml-1.5 tracking-wider uppercase">
-                    Reputation Standing
+                    Reputation
                   </Typography>
                 </View>
                 <Typography variant="display-lg" className="text-primary-light font-headline font-bold text-3xl tracking-tight leading-none">
                   {profile?.reputation_score || 0}
                 </Typography>
                 <Typography variant="body-sm" className="text-on-surface-muted text-[12px] mt-1 font-medium">
-                  Peer-validated research points
+                  reputation
                 </Typography>
               </View>
 
@@ -256,7 +223,7 @@ export default function ProfileScreen() {
                       {profile?.is_verified ? "Verified Scholar" : "Active Member"}
                     </Typography>
                     <Typography variant="label-sm" className="text-on-surface-muted text-[10px] font-medium">
-                      Institutional Status
+                      Status
                     </Typography>
                   </View>
                 </View>
@@ -284,7 +251,7 @@ export default function ProfileScreen() {
               <View className="flex-row items-center gap-x-2 mb-3">
                 <Sparkles size={16} color="#D49B35" />
                 <Typography variant="label-lg" className="text-on-surface font-bold">
-                  Academic Credentials
+                  Achievements
                 </Typography>
               </View>
               <View className="flex-row flex-wrap gap-2.5">
@@ -324,7 +291,7 @@ export default function ProfileScreen() {
             <View className="flex-row items-center mb-3">
               <View className="mr-2"><School size={16} color="#D49B35" /></View>
               <Typography variant="label-lg" className="text-on-surface font-bold">
-                Academic Background
+                Education
               </Typography>
             </View>
 
@@ -403,6 +370,9 @@ export default function ProfileScreen() {
                     <Typography variant="label-md" className="text-on-surface font-bold mb-1" numberOfLines={2}>
                       {q.title}
                     </Typography>
+                    <Typography variant="label-sm" className="text-on-surface-muted normal-case mt-1">
+                      {formatDate(q.created_at)}
+                    </Typography>
                   </Card>
                 ))
               ) : (
@@ -441,6 +411,9 @@ export default function ProfileScreen() {
                     <Typography variant="body-md" className="text-on-surface leading-relaxed mb-1" numberOfLines={3}>
                       {p.body}
                     </Typography>
+                    <Typography variant="label-sm" className="text-on-surface-muted normal-case mt-1.5">
+                      {formatDate(p.created_at)}
+                    </Typography>
                   </Card>
                 ))
               ) : (
@@ -462,10 +435,83 @@ export default function ProfileScreen() {
             onPress={handleSignOut}
             className="w-full mb-6"
           >
-            Sign Out of Account
+            Sign Out
           </Button>
         </ScrollView>
+
+        {/* Absolute Top Header */}
+        <BlurView intensity={80} tint="dark" className="absolute top-0 left-0 right-0 z-10 w-full border-b border-white/5" style={{ paddingTop: Math.max(insets.top, 16) }}>
+          <View className="flex-row items-center justify-between px-6 py-4">
+            <Typography variant="headline-md" className="text-on-surface font-headline font-bold text-2xl tracking-tight flex-1 mr-2" numberOfLines={1}>
+              Profile
+            </Typography>
+
+            <View
+              className={
+                isNarrow
+                  ? "flex-row items-center justify-end flex-wrap max-w-[84px] gap-1.5"
+                  : "flex-row items-center gap-x-2"
+              }
+            >
+              {isModerator && (
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Moderation Dashboard"
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  onPress={() => {
+                    AppHaptics.light();
+                    router.push("/moderation" as any);
+                  }}
+                  className={modBtnClass}
+                >
+                  <ShieldCheck size={headerIconSize} color="#38BDF8" />
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Saved Bookmarks"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                onPress={() => {
+                  AppHaptics.light();
+                  router.push("/bookmarks" as any);
+                }}
+                className={headerBtnClass}
+              >
+                <Bookmark size={headerIconSize} color="#D49B35" />
+              </TouchableOpacity>
+
+              {profile?.username && (
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Share Profile"
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  onPress={() => {
+                    AppHaptics.light();
+                    ShareService.shareProfile(profile.username!, profile.display_name);
+                  }}
+                  className={headerBtnClass}
+                >
+                  <Share2 size={headerIconSize} color="#A3B3C4" />
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="Settings and Privacy"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                onPress={() => {
+                  AppHaptics.light();
+                  router.push("/settings/privacy" as any);
+                }}
+                className={headerBtnClass}
+              >
+                <Settings size={headerIconSize} color="#A3B3C4" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BlurView>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

@@ -79,7 +79,7 @@ export function Badge({
     >
       {icon && <View className="mr-1.5">{icon}</View>}
       <Typography variant="label-sm" className={clsx("tracking-normal", current.text)}>
-        {label.charAt(0).toUpperCase() + label.slice(1).toLowerCase()}
+        {label}
       </Typography>
     </View>
   );

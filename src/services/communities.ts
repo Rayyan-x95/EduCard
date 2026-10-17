@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { Database } from "@/types/database";
+import { mapPostRow } from "@/services/posts";
 
 export type CommunityRow = Database["public"]["Tables"]["communities"]["Row"];
 
@@ -144,21 +145,7 @@ export const CommunitiesService = {
       .limit(limit);
 
     if (error) throw error;
-    return ((data as any[]) || []).map((p) => ({
-      id: p.id,
-      author_id: p.author_id,
-      author_username: p.profiles?.username ?? "",
-      author_display_name: p.profiles?.display_name ?? "User",
-      author_avatar_path: p.profiles?.avatar_path ?? null,
-      author_status: p.profiles?.current_status ?? "undergraduate",
-      author_is_verified: p.profiles?.is_verified ?? false,
-      community_id: p.community_id,
-      body: p.body,
-      helpful_count: p.helpful_count ?? 0,
-      comment_count: p.comment_count ?? 0,
-      image_paths: p.image_paths,
-      created_at: p.created_at,
-    }));
+    return ((data as any[]) || []).map(mapPostRow);
   },
 
   async createCommunity(payload: {

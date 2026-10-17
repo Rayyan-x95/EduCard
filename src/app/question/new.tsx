@@ -326,7 +326,7 @@ export default function NewQuestionModal() {
         {/* Community destination banner — makes scope explicit before posting */}
         {targetCommunity && (
           <View className="flex-row items-center mb-5 px-4 py-3 rounded-xl bg-primary-container/25 border border-primary/40">
-            <View className="mr-2.5"><Users size={16} color="#E5A93C" /></View>
+            <View className="mr-2.5"><Users size={16} color="#D49B35" /></View>
             <View className="flex-1">
               <Typography variant="label-sm" className="text-on-surface-variant/80 normal-case">
                 Posting to
@@ -359,7 +359,7 @@ export default function NewQuestionModal() {
           <View className="mb-6 p-4 rounded-2xl bg-surface-container-high/90 border border-primary/40 shadow-sm">
             <View className="flex-row items-center justify-between mb-2">
               <View className="flex-row items-center">
-                <View className="mr-2"><Sparkles size={16} color="#E5A93C" /></View>
+                <View className="mr-2"><Sparkles size={16} color="#D49B35" /></View>
                 <Typography variant="label-md" className="text-on-surface font-bold">
                   Similar questions already asked
                 </Typography>
@@ -431,7 +431,7 @@ export default function NewQuestionModal() {
               >
                 {isSelected && (
                   <View className="mr-1.5">
-                    <Check size={14} color="#E5A93C" strokeWidth={2.6} />
+                    <Check size={14} color="#D49B35" strokeWidth={2.6} />
                   </View>
                 )}
                 <Typography
@@ -466,7 +466,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + " **bold** ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <Bold size={16} color="#E5A93C" />
+                <Bold size={16} color="#D49B35" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -475,7 +475,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + " *italic* ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <Italic size={16} color="#E5A93C" />
+                <Italic size={16} color="#D49B35" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -484,7 +484,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + " `code` ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <Code size={16} color="#E5A93C" />
+                <Code size={16} color="#D49B35" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -493,7 +493,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + "\n- ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <List size={16} color="#E5A93C" />
+                <List size={16} color="#D49B35" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -502,7 +502,7 @@ export default function NewQuestionModal() {
                 onPress={() => setBody((prev) => prev + " [link](url) ")}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <Link2 size={16} color="#E5A93C" />
+                <Link2 size={16} color="#D49B35" />
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -512,7 +512,7 @@ export default function NewQuestionModal() {
                 disabled={uploadingImage}
                 className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
               >
-                <ImageIcon size={16} color={uploadingImage ? "#6D7E92" : "#E5A93C"} />
+                <ImageIcon size={16} color={uploadingImage ? "#6D7E92" : "#D49B35"} />
               </TouchableOpacity>
             </View>
 
@@ -542,7 +542,7 @@ export default function NewQuestionModal() {
                       <View
                         className="w-20 h-20 rounded-xl bg-surface-container-high border border-outline-variant/60 items-center justify-center"
                       >
-                        <ImageIcon size={22} color="#E5A93C" />
+                        <ImageIcon size={22} color="#D49B35" />
                       </View>
                       <TouchableOpacity
                         accessibilityRole="button"
@@ -570,7 +570,7 @@ export default function NewQuestionModal() {
         <Card className="p-4 mb-6 bg-surface-container border border-outline-variant/60 shadow-sm">
           <View className="flex-row items-center gap-x-2.5 mb-2">
             <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30">
-              <Lightbulb size={16} color="#E5A93C" />
+              <Lightbulb size={16} color="#D49B35" />
             </View>
             <Typography variant="label-md" className="text-primary font-bold normal-case">
               Who might answer this?

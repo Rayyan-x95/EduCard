@@ -173,7 +173,7 @@ export default function ModerationScreen() {
           contentContainerStyle={{ flexGrow: 1, alignItems: "center", justifyContent: "center" }}
           className="px-6 py-12"
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#E5A93C" />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#D49B35" />
           }
         >
           <View className="w-16 h-16 rounded-2xl bg-tertiary-container/30 border border-tertiary/40 items-center justify-center mb-4">
@@ -191,7 +191,7 @@ export default function ModerationScreen() {
           className="flex-1 px-5 py-5"
           contentContainerStyle={{ paddingBottom: 32 }}
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#E5A93C" />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#D49B35" />
           }
         >
           {actionError ? (
@@ -272,7 +272,7 @@ export default function ModerationScreen() {
                       actionMutation.variables?.reportId === r.id &&
                       actionMutation.variables?.action === "report_dismissed"
                     }
-                    leftIcon={<EyeOff size={14} color="#94A3B8" />}
+                    leftIcon={<EyeOff size={14} color="#A3B3C4" />}
                     onPress={() => confirmAction(r, "report_dismissed")}
                     className="flex-1"
                   >

@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-client";
+import { useAuthStore } from "@/stores/authStore";
 import { Typography } from "@/components/ui/Typography";
 import { TextInput } from "@/components/ui/TextInput";
 import { Button } from "@/components/ui/Button";
@@ -36,6 +37,7 @@ const EMPTY: SearchResults = { questions: [], posts: [], communities: [], profil
 
 export default function GlobalSearchScreen() {
   const router = useRouter();
+  const userId = useAuthStore((s) => s.user?.id);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [activeTab, setActiveTab] = useState<SearchFilterTab>("top");
@@ -44,8 +46,8 @@ export default function GlobalSearchScreen() {
 
   // Load recent history once; refreshed after each recorded search.
   useEffect(() => {
-    void getRecentSearches().then(setRecentSearches);
-  }, []);
+    void getRecentSearches(userId).then(setRecentSearches);
+  }, [userId]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -67,8 +69,8 @@ export default function GlobalSearchScreen() {
     queryFn: async () => {
       const trimmed = debouncedQuery.trim();
       const res = await SearchService.searchAll(trimmed);
-      void addRecentSearch(trimmed).then(() =>
-        getRecentSearches().then(setRecentSearches)
+      void addRecentSearch(trimmed, userId).then(() =>
+        getRecentSearches(userId).then(setRecentSearches)
       );
       Analytics.track("search_performed", { query_length: trimmed.length });
       return res;
@@ -141,7 +143,7 @@ export default function GlobalSearchScreen() {
             onChangeText={setQuery}
             autoFocus
             accessibilityLabel="Search queries"
-            leftIcon={<SearchIcon size={18} color="#E5A93C" />}
+            leftIcon={<SearchIcon size={18} color="#D49B35" />}
             rightIcon={
               query.length > 0 ? (
                 <TouchableOpacity
@@ -177,7 +179,7 @@ export default function GlobalSearchScreen() {
               accessibilityLabel="Clear recent searches"
               onPress={() => {
                 AppHaptics.light();
-                void clearRecentSearches().then(() => setRecentSearches([]));
+                void clearRecentSearches(userId).then(() => setRecentSearches([]));
               }}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
@@ -283,7 +285,7 @@ export default function GlobalSearchScreen() {
             return (
               <View className="items-center py-16">
                 <View className="w-16 h-16 rounded-2xl bg-surface-container-high border border-outline-variant/60 items-center justify-center mb-4 shadow-sm">
-                  <HelpCircle size={32} color="#E5A93C" />
+                  <HelpCircle size={32} color="#D49B35" />
                 </View>
                 <Typography variant="headline-md" className="text-on-surface text-center mb-1 font-headline font-bold">
                   No results found
@@ -349,7 +351,7 @@ export default function GlobalSearchScreen() {
                   {c.description}
                 </Typography>
                 <View className="flex-row items-center">
-                  <View className="mr-1.5"><Users size={13} color="#94A3B8" /></View>
+                  <View className="mr-1.5"><Users size={13} color="#A3B3C4" /></View>
                   <Typography variant="label-sm" className="text-on-surface-variant/70 normal-case font-medium">
                     {(c.member_count ?? 0).toLocaleString()} members
                   </Typography>

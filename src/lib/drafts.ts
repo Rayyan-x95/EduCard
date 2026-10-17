@@ -84,7 +84,8 @@ export async function readQuestionDraft(userId: string): Promise<QuestionDraft |
     if (
       typeof parsed?.title !== "string" ||
       typeof parsed?.body !== "string" ||
-      !Array.isArray(parsed?.topicIds)
+      !Array.isArray(parsed?.topicIds) ||
+      (parsed?.mediaPaths !== undefined && !Array.isArray(parsed?.mediaPaths))
     ) {
       return null;
     }
@@ -138,7 +139,8 @@ export async function readPostDraft(userId: string): Promise<PostDraft | null> {
     const parsed = JSON.parse(raw) as PostDraft;
     if (
       typeof parsed?.body !== "string" ||
-      !Array.isArray(parsed?.topicIds)
+      !Array.isArray(parsed?.topicIds) ||
+      (parsed?.mediaPaths !== undefined && !Array.isArray(parsed?.mediaPaths))
     ) {
       return null;
     }

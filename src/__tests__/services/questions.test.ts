@@ -75,6 +75,7 @@ describe("QuestionsService", () => {
       p_community_id: null,
       p_topic_ids: ["topic-1", "topic-2"],
       p_image_paths: ["u-1/123_attachment.png"],
+      p_client_mutation_id: expect.any(String),
     });
     expect(result.id).toBe("new-question-id");
   });
@@ -106,6 +107,7 @@ describe("QuestionsService", () => {
       question_id: "q-1",
       author_id: "u-9",
       body: "Raft elects a leader first.",
+      client_mutation_id: expect.any(String),
     });
     expect(result.id).toBe("a-1");
   });

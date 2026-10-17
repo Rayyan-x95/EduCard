@@ -55,7 +55,7 @@ const FRIENDLY_MESSAGES: FriendlyRule[] = [
   { match: /email not confirmed/i, message: "Please confirm your email address first — check your inbox for the verification link.", code: "EMAIL_NOT_CONFIRMED", category: "AUTH_ERROR", severity: "info", retryable: false },
   { match: /user already registered/i, message: "An account with this email already exists. Try signing in instead.", code: "EMAIL_TAKEN", category: "AUTH_ERROR", severity: "info", retryable: false },
   { match: /rate limit exceeded|too many requests/i, message: "Too many attempts. Please wait a moment and try again.", code: "RATE_LIMITED", category: "RATE_LIMIT_ERROR", severity: "warning", retryable: true },
-  { match: /password should be at least/i, message: "Password must be at least 6 characters.", code: "VALIDATION_PASSWORD", category: "VALIDATION_ERROR", severity: "info", retryable: false },
+  { match: /password should be at least/i, message: "Password must be at least 8 characters.", code: "VALIDATION_PASSWORD", category: "VALIDATION_ERROR", severity: "info", retryable: false },
   { match: /same password/i, message: "Your new password must be different from the old one.", code: "VALIDATION_PASSWORD_SAME", category: "VALIDATION_ERROR", severity: "info", retryable: false },
   { match: /refresh token not found|invalid refresh token/i, message: "Your session has expired. Please sign in again.", code: "SESSION_EXPIRED", category: "AUTH_ERROR", severity: "warning", retryable: false },
 

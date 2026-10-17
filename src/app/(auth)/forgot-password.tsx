@@ -108,7 +108,7 @@ export default function ForgotPasswordScreen() {
                 onChangeText={setEmail}
                 autoCapitalize="none"
                 keyboardType="email-address"
-                leftIcon={<Mail size={18} color="#E5A93C" />}
+                leftIcon={<Mail size={18} color="#D49B35" />}
               />
 
               <Button

@@ -313,7 +313,7 @@ export default function OnboardingScreen() {
                           isSelected ? "bg-primary-container/50 shadow-sm" : "bg-surface-container-high"
                         }`}
                       >
-                        <Icon size={20} color={isSelected ? "#E5A93C" : "#A1B0C2"} />
+                        <Icon size={20} color={isSelected ? "#D49B35" : "#A1B0C2"} />
                       </View>
                       <View className="flex-1">
                         <Typography variant="label-lg" className="text-on-surface font-headline font-bold mb-0.5">
@@ -323,6 +323,11 @@ export default function OnboardingScreen() {
                           {r.subtitle}
                         </Typography>
                       </View>
+                      {isSelected && (
+                        <View className="ml-2 items-center justify-center h-full">
+                          <CheckCircle2 size={20} color="#D49B35" />
+                        </View>
+                      )}
                     </View>
                   </TouchableOpacity>
                 );
@@ -379,7 +384,7 @@ export default function OnboardingScreen() {
                 setInstitutionName(val);
                 setError("");
               }}
-              leftIcon={<School size={18} color="#E5A93C" />}
+              leftIcon={<School size={18} color="#D49B35" />}
             />
 
             <TextInput
@@ -390,7 +395,7 @@ export default function OnboardingScreen() {
                 setField(val);
                 setError("");
               }}
-              leftIcon={<BookOpen size={18} color="#E5A93C" />}
+              leftIcon={<BookOpen size={18} color="#D49B35" />}
             />
 
             <TextInput
@@ -504,7 +509,7 @@ export default function OnboardingScreen() {
 
             {topicsLoading ? (
               <View className="py-8 items-center justify-center mb-8">
-                <ActivityIndicator size="small" color="#E5A93C" />
+                <ActivityIndicator size="small" color="#D49B35" />
                 <Typography variant="body-md" className="text-on-surface-variant text-center mt-3 normal-case">
                   Loading topic catalog...
                 </Typography>
@@ -527,7 +532,7 @@ export default function OnboardingScreen() {
                     >
                       {isSelected && (
                         <View className="mr-1.5">
-                          <Check size={14} color="#E5A93C" strokeWidth={2.6} />
+                          <Check size={14} color="#D49B35" strokeWidth={2.6} />
                         </View>
                       )}
                       <Typography

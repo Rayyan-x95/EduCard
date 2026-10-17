@@ -166,7 +166,7 @@ export default function CommunityDetailScreen() {
                   queryClient.invalidateQueries({ queryKey: queryKeys.communityPosts(communityId) });
                 }
               }}
-              tintColor="#E5A93C"
+              tintColor="#D49B35"
             />
           }
           renderItem={({ item }: { item: any }) => {
@@ -177,7 +177,7 @@ export default function CommunityDetailScreen() {
                   <View className="flex-row items-center mb-3">
                     <View className="mr-2.5"><Badge variant="category" label="Community" /></View>
                     <View className="flex-row items-center px-2.5 py-1 rounded-full bg-surface-container-high border border-outline-variant/40">
-                      <View className="mr-1"><Users size={12} color="#94A3B8" /></View>
+                      <View className="mr-1"><Users size={12} color="#A3B3C4" /></View>
                       <Typography variant="label-sm" className="text-on-surface-variant/80 font-medium normal-case">
                         {(communityData.member_count || 1).toLocaleString()} members
                       </Typography>
@@ -210,7 +210,7 @@ export default function CommunityDetailScreen() {
                         loading={joinMutation.isPending}
                         leftIcon={
                           isMember ? (
-                            <UserCheck size={16} color="#E5A93C" />
+                            <UserCheck size={16} color="#D49B35" />
                           ) : (
                             <UserPlus size={16} color="#181104" />
                           )
@@ -246,7 +246,7 @@ export default function CommunityDetailScreen() {
                             <Button
                               variant="secondary"
                               size="md"
-                              leftIcon={<PenSquare size={16} color="#E5A93C" />}
+                              leftIcon={<PenSquare size={16} color="#D49B35" />}
                               onPress={() => {
                                 AppHaptics.medium();
                                 router.push({
@@ -272,7 +272,7 @@ export default function CommunityDetailScreen() {
                 <Card className="p-5 mb-5 border border-outline-variant/60">
                   <View className="flex-row items-center mb-3">
                     <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30 mr-2.5">
-                      <Shield size={16} color="#E5A93C" />
+                      <Shield size={16} color="#D49B35" />
                     </View>
                     <Typography variant="label-md" className="text-primary font-bold normal-case">
                       Space Guidelines & Integrity
@@ -303,7 +303,7 @@ export default function CommunityDetailScreen() {
             if (item.type === "empty_questions") {
               return (
                 <Card className="p-6 items-center border border-outline-variant/60">
-                  <MessageSquare size={24} color="#94A3B8" className="mb-2" />
+                  <MessageSquare size={24} color="#A3B3C4" className="mb-2" />
                   <Typography variant="body-sm" className="text-on-surface-variant text-center">
                     No questions asked in this Space yet.
                   </Typography>
@@ -314,7 +314,7 @@ export default function CommunityDetailScreen() {
             if (item.type === "empty_posts") {
               return (
                 <Card className="p-6 items-center border border-outline-variant/60">
-                  <PenSquare size={24} color="#94A3B8" className="mb-2" />
+                  <PenSquare size={24} color="#A3B3C4" className="mb-2" />
                   <Typography variant="body-sm" className="text-on-surface-variant text-center">
                     No discussion posts in this Space yet.
                   </Typography>
@@ -354,7 +354,7 @@ export default function CommunityDetailScreen() {
                   <View className="flex-row items-start justify-between mb-2">
                     <Badge variant={q.status === "solved" ? "solved" : "open"} label={q.status === "solved" ? "Solved" : "Open"} />
                     <View className="flex-row items-center gap-x-1">
-                      <MessageSquare size={12} color="#94A3B8" />
+                      <MessageSquare size={12} color="#A3B3C4" />
                       <Typography variant="label-sm" className="text-on-surface-variant/70">
                         {q.answer_count ?? 0}
                       </Typography>
@@ -407,7 +407,7 @@ function Header({ onBack, onShare }: { onBack: () => void; onShare?: () => void 
           }}
           className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
         >
-          <Share2 size={18} color="#E5A93C" />
+          <Share2 size={18} color="#D49B35" />
         </TouchableOpacity>
       ) : (
         <View className="w-11" />

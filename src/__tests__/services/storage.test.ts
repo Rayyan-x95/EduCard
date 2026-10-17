@@ -68,13 +68,14 @@ describe("StorageService", () => {
       "u/c.jpg",
     ]);
 
-    // One round-trip regardless of gallery size; failed entries dropped.
+    // One round-trip regardless of gallery size; failed entries become null
+    // so the result stays aligned with the input paths.
     expect(createSignedUrls).toHaveBeenCalledTimes(1);
     expect(createSignedUrls).toHaveBeenCalledWith(
       ["u/a.jpg", "u/b.jpg", "u/c.jpg"],
       3600
     );
-    expect(urls).toEqual(["https://signed/a", "https://signed/c"]);
+    expect(urls).toEqual(["https://signed/a", null, "https://signed/c"]);
   });
 
   it("returns an empty list without contacting storage when no paths given", async () => {

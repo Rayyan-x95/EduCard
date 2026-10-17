@@ -65,6 +65,24 @@ const COMMENT_SELECT = `
 // limit; 300 comfortably exceeds any realistic thread today.
 const COMMENTS_HARD_CAP = 300;
 
+export function mapPostRow(p: any): PostListItem {
+  return {
+    id: p.id,
+    author_id: p.author_id,
+    author_username: p.profiles?.username ?? "",
+    author_display_name: p.profiles?.display_name ?? "User",
+    author_avatar_path: p.profiles?.avatar_path ?? null,
+    author_status: p.profiles?.current_status ?? "undergraduate",
+    author_is_verified: p.profiles?.is_verified ?? false,
+    community_id: p.community_id,
+    body: p.body,
+    helpful_count: p.helpful_count ?? 0,
+    comment_count: p.comment_count ?? 0,
+    image_paths: p.image_paths,
+    created_at: p.created_at,
+  };
+}
+
 function mapComment(row: any): PostComment {
   return {
     id: row.id,
@@ -94,6 +112,18 @@ async function requireUserId(): Promise<string> {
   return userId;
 }
 
+/** Generates a random UUID for idempotency keys */
+function generateUUID() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export const PostsService = {
   async createPost(input: {
     body: string;
@@ -108,6 +138,7 @@ export const PostsService = {
       p_topic_ids: input.topic_ids || [],
       p_image_paths: input.media_paths || [],
       p_visibility: (input.visibility as any) || "public",
+      p_client_mutation_id: generateUUID(),
     });
     if (error) throw error;
     return { id: postId as string };
@@ -210,6 +241,7 @@ export const PostsService = {
         answer_id: input.answerId ?? null,
         author_id: authorId,
         body: input.body,
+        client_mutation_id: generateUUID(),
       })
       .select("id")
       .single();
@@ -236,21 +268,7 @@ export const PostsService = {
       .limit(limit);
 
     if (error) throw error;
-    return ((data as any[]) || []).map((p) => ({
-      id: p.id,
-      author_id: p.author_id,
-      author_username: p.profiles?.username ?? "",
-      author_display_name: p.profiles?.display_name ?? "User",
-      author_avatar_path: p.profiles?.avatar_path ?? null,
-      author_status: p.profiles?.current_status ?? "undergraduate",
-      author_is_verified: p.profiles?.is_verified ?? false,
-      community_id: p.community_id,
-      body: p.body,
-      helpful_count: p.helpful_count ?? 0,
-      comment_count: p.comment_count ?? 0,
-      image_paths: p.image_paths,
-      created_at: p.created_at,
-    }));
+    return ((data as any[]) || []).map(mapPostRow);
   },
 
   /** Discussion posts published inside a specific community. */
@@ -271,20 +289,6 @@ export const PostsService = {
       .limit(limit);
 
     if (error) throw error;
-    return ((data as any[]) || []).map((p) => ({
-      id: p.id,
-      author_id: p.author_id,
-      author_username: p.profiles?.username ?? "",
-      author_display_name: p.profiles?.display_name ?? "User",
-      author_avatar_path: p.profiles?.avatar_path ?? null,
-      author_status: p.profiles?.current_status ?? "undergraduate",
-      author_is_verified: p.profiles?.is_verified ?? false,
-      community_id: p.community_id,
-      body: p.body,
-      helpful_count: p.helpful_count ?? 0,
-      comment_count: p.comment_count ?? 0,
-      image_paths: p.image_paths,
-      created_at: p.created_at,
-    }));
+    return ((data as any[]) || []).map(mapPostRow);
   },
 };

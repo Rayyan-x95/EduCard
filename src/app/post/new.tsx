@@ -248,7 +248,7 @@ export default function NewPostModal() {
 
         {targetCommunity && (
           <View className="flex-row items-center gap-x-2.5 mb-5 px-4 py-3 rounded-xl bg-primary-container/25 border border-primary/40">
-            <Users size={16} color="#E5A93C" />
+            <Users size={16} color="#D49B35" />
             <View className="flex-1">
               <Typography variant="label-sm" className="text-on-surface-variant/80 normal-case">Posting to</Typography>
               <Typography variant="label-md" className="text-primary font-bold" numberOfLines={1}>{targetCommunity.name}</Typography>
@@ -283,7 +283,7 @@ export default function NewPostModal() {
                 onPress={() => toggleTopic(topic.id)}
                 className={`flex-row items-center px-4 py-2 rounded-full border ${isSelected ? "bg-primary-container/60 border-primary shadow-sm shadow-primary/20" : "bg-surface-container border-outline-variant/60 active:bg-surface-container-high"}`}
               >
-                {isSelected && <View className="mr-1.5"><Check size={14} color="#E5A93C" strokeWidth={2.6} /></View>}
+                {isSelected && <View className="mr-1.5"><Check size={14} color="#D49B35" strokeWidth={2.6} /></View>}
                 <Typography variant="label-sm" className={isSelected ? "text-primary font-bold normal-case" : "text-on-surface-variant font-medium normal-case"}>{topic.name}</Typography>
               </TouchableOpacity>
             );
@@ -293,7 +293,7 @@ export default function NewPostModal() {
         <View className="flex-row items-center justify-between mb-3">
           <Typography variant="label-md" className="text-on-surface font-bold">Attachments</Typography>
           <TouchableOpacity onPress={handleAttachImage} disabled={uploadingImage} className="px-3 py-1.5 rounded-full bg-surface-container border border-outline-variant/60">
-            <View className="flex-row items-center gap-x-1.5"><ImageIcon size={16} color={uploadingImage ? "#6D7E92" : "#E5A93C"} /><Typography variant="label-sm" className="text-primary font-semibold normal-case">{uploadingImage ? "Uploading..." : "Add image"}</Typography></View>
+            <View className="flex-row items-center gap-x-1.5"><ImageIcon size={16} color={uploadingImage ? "#6D7E92" : "#D49B35"} /><Typography variant="label-sm" className="text-primary font-semibold normal-case">{uploadingImage ? "Uploading..." : "Add image"}</Typography></View>
           </TouchableOpacity>
         </View>
 
@@ -303,7 +303,7 @@ export default function NewPostModal() {
               <View className="flex-row gap-2.5">
                 {mediaPaths.map((p) => (
                   <View key={p} className="relative">
-                    <View className="w-20 h-20 rounded-xl bg-surface-container-high border border-outline-variant/60 items-center justify-center"><ImageIcon size={22} color="#E5A93C" /></View>
+                    <View className="w-20 h-20 rounded-xl bg-surface-container-high border border-outline-variant/60 items-center justify-center"><ImageIcon size={22} color="#D49B35" /></View>
                     <TouchableOpacity accessibilityLabel={`Remove attachment ${p.split("/").pop()}`} onPress={() => removeAttachment(p)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-error border-2 border-surface items-center justify-center"><X size={12} color="#FFFFFF" strokeWidth={3} /></TouchableOpacity>
                   </View>
                 ))}
@@ -314,7 +314,7 @@ export default function NewPostModal() {
 
         <Card className="p-4 mb-6 bg-surface-container border border-outline-variant/60 shadow-sm">
           <View className="flex-row items-center gap-x-2.5 mb-2">
-            <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30"><Lightbulb size={16} color="#E5A93C" /></View>
+            <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30"><Lightbulb size={16} color="#D49B35" /></View>
             <Typography variant="label-md" className="text-primary font-bold normal-case">Tips</Typography>
           </View>
           <Typography variant="body-sm" className="text-on-surface-variant leading-relaxed">Posts appear in the home feed alongside questions. Add topics so the right peers discover your update.</Typography>

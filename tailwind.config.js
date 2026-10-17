@@ -7,35 +7,35 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Archival Obsidian & Academic Guild Anti-Slop Palette
-        ground: "#0A0D11",
+        // CRED Aesthetic Dark Mode Palette
+        ground: "#000000",
         surface: {
-          DEFAULT: "#0A0D11", // Deep archival ink-obsidian ground
-          dim: "#06080B",
-          bright: "#1D2530",
-          "container-lowest": "#05070A",
-          "container-low": "#0D1117",
-          container: "#11161D", // Primary scholarly card surface
-          "container-high": "#18202A", // Secondary elevated surface / controls
-          "container-highest": "#212C39", // Active chips / pressed states
-          variant: "#212C39",
-          glass: "rgba(17, 22, 29, 0.90)",
+          DEFAULT: "#000000", // True Pitch Black
+          dim: "#050505",
+          bright: "#1C1C1E",
+          "container-lowest": "#000000",
+          "container-low": "#0D0D0D",
+          container: "#121212", // Neumorphic dark glass base
+          "container-high": "#1C1C1E", // Elevated surface
+          "container-highest": "#2C2C2E", // Active chips / pressed states
+          variant: "#1C1C1E",
+          glass: "rgba(18, 18, 18, 0.90)",
         },
         "on-surface": {
-          DEFAULT: "#F5F7FA", // Crisp warm ivory text (16.4:1 contrast on ground, WCAG AAA)
-          variant: "#A3B3C4", // Warm tinted slate (9.0:1 on ground, 8.1:1 on card, WCAG AAA)
-          muted: "#76889B", // Legible secondary/caption slate (5.0:1 on ground, 4.5:1 on card, WCAG AA)
+          DEFAULT: "#FFFFFF", // Pure white for max contrast on #000
+          variant: "#8E8E93", // Cool metallic grey
+          muted: "#636366", // Deep tertiary text
         },
         "inverse-surface": {
-          DEFAULT: "#F5F7FA",
+          DEFAULT: "#FFFFFF",
         },
         "inverse-on-surface": {
-          DEFAULT: "#0A0D11",
+          DEFAULT: "#000000",
         },
         outline: {
-          DEFAULT: "rgba(215, 230, 250, 0.12)",
-          variant: "rgba(215, 230, 250, 0.08)", // Tinted hairline with slate-obsidian undertone
-          subtle: "rgba(215, 230, 250, 0.05)",
+          DEFAULT: "rgba(255, 255, 255, 0.12)",
+          variant: "rgba(255, 255, 255, 0.08)", // Sharp glass border
+          subtle: "rgba(255, 255, 255, 0.04)",
         },
         primary: {
           DEFAULT: "#D49B35", // Oxford Antique Brass / Academic Gold
@@ -58,11 +58,11 @@ module.exports = {
           "fixed-dim": "#38BDF8",
         },
         tertiary: {
-          DEFAULT: "#2EBF7B", // Oxford Botanical Emerald — Solved / Accepted Answer
-          light: "#7FE2AF",
-          container: "#0C2519",
-          "on-container": "#7FE2AF",
-          "on-tertiary": "#022013",
+          DEFAULT: "#00FF9D", // CRED Neon Mint for Success
+          light: "#66FFC4",
+          container: "#00331F",
+          "on-container": "#00FF9D",
+          "on-tertiary": "#002214",
           fixed: "#D1FAE5",
         },
         amber: {
@@ -79,14 +79,14 @@ module.exports = {
           "on-error": "#2A070D",
         },
         background: {
-          DEFAULT: "#0A0D11",
+          DEFAULT: "#000000",
         },
         "on-background": {
-          DEFAULT: "#F5F7FA",
+          DEFAULT: "#FFFFFF",
         },
       },
       fontFamily: {
-        headline: ["Georgia", "Times New Roman", "New York", "serif"],
+        headline: ["Inter", "-apple-system", "BlinkMacSystemFont", "System", "sans-serif"],
         serif: ["Georgia", "Times New Roman", "New York", "serif"],
         body: ["Inter", "-apple-system", "BlinkMacSystemFont", "System", "sans-serif"],
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "System", "sans-serif"],

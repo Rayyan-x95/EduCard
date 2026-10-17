@@ -143,6 +143,12 @@ class TelemetryService {
     const last = recentFingerprints.get(fingerprint);
     if (last && now - last < REPORT_COOLDOWN_MS) return;
     recentFingerprints.set(fingerprint, now);
+    // Bound the cooldown cache so long-running sessions cannot grow it
+    // without limit; drop the oldest entries first (Map keeps insertion order).
+    if (recentFingerprints.size > 1000) {
+      const oldest = recentFingerprints.keys().next().value;
+      if (oldest) recentFingerprints.delete(oldest);
+    }
 
     try {
       void supabase

@@ -16,7 +16,7 @@ interface ErrorStateProps {
 
 export function ErrorState({
   title = "Oops! Something went wrong.",
-  message = "We encountered an unexpected disruption while trying to access this knowledge node.",
+  message = "Something went wrong. Please try again.",
   errorCode,
   onRetry,
   onGoHome,
@@ -71,7 +71,7 @@ export function ErrorState({
           <Button
             variant="secondary"
             size="lg"
-            leftIcon={<Home size={18} color="#E5A93C" />}
+            leftIcon={<Home size={18} color="#D49B35" />}
             onPress={onGoHome || (() => router.replace("/(tabs)" as any))}
             className="w-full"
           >

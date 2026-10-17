@@ -25,7 +25,9 @@ export const SearchService = {
       return { questions: [], posts: [], communities: [], profiles: [], topics: [] };
     }
 
-    const likePattern = `%${safeFilter}%`;
+    // Escape LIKE wildcards so user input is matched literally, not as
+    // pattern syntax (prevents accidental broad matches like "a_b").
+    const likePattern = `%${safeFilter.replace(/[%_]/g, "\\$&")}%`;
 
     // Try Full-Text Search RPC for questions first, fallback to ilike
     const fetchQuestions = async () => {

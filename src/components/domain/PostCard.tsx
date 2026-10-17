@@ -36,22 +36,25 @@ export const PostCard = React.memo(function PostCard({ post, onPress, onHelpfulP
     onPress?.();
   };
 
-  const subtitle = post.community_name ? (
-    <View className="flex-row items-center mt-1">
-      <View className="px-2 py-0.5 rounded-md bg-primary-container border border-primary/40">
-        <Typography variant="label-sm" className="text-primary-light font-bold text-[11px]">
-          {post.community_name}
-        </Typography>
-      </View>
+  const subtitle = (
+    <View className="flex-row items-center mt-0.5">
+      {post.community_name && (
+        <View className="px-2 py-0.5 mr-2 rounded-md bg-primary-container/60 border border-primary/40">
+          <Typography variant="label-sm" className="text-primary-light font-bold text-[11px] normal-case">
+            {post.community_name}
+          </Typography>
+        </View>
+      )}
+      <Typography variant="label-sm" className="text-on-surface-muted font-medium normal-case">
+        {post.author_status === "professional" || post.author_status === "mentor"
+          ? "Professional"
+          : "Student"}
+      </Typography>
     </View>
-  ) : (
-    <Typography variant="label-sm" className="text-on-surface-muted font-medium mt-0.5">
-      Discussion
-    </Typography>
   );
 
   return (
-    <Card onPress={handlePress} className="mb-3.5">
+    <Card onPress={handlePress} className="mb-3.5 bg-surface-container-low/60 border-outline-variant/40 rounded-[20px]">
       {/* Author Header */}
       <AuthorHeader
         displayName={post.author_display_name}

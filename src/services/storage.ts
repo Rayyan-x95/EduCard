@@ -49,9 +49,6 @@ export const StorageService = {
    * stored in profiles.avatar_path and rendered directly.
    */
   async uploadAvatar(userId: string, imageUri: string): Promise<ImageUploadResult> {
-    const fileExt = imageUri.split(".").pop()?.toLowerCase() || "jpg";
-    const filePath = `${userId}/avatar_${Date.now()}.${fileExt}`;
-
     const response = await fetch(imageUri);
     const blob = await response.blob();
 
@@ -59,6 +56,9 @@ export const StorageService = {
     if ((blob as any).size > AVATAR_MAX_BYTES) {
       throw Object.assign(new Error("Avatar image is too large (max 5 MB)."), { code: "APP_ERROR" });
     }
+
+    const fileExt = (blob.type && blob.type.split("/")[1]) || (imageUri.split(".").pop()?.toLowerCase() || "jpg").split("?")[0];
+    const filePath = `${userId}/avatar_${Date.now()}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
       .from(AVATAR_BUCKET)
@@ -144,15 +144,18 @@ export const StorageService = {
    * Uses the batch createSignedUrls API — a single round-trip regardless of
    * gallery size instead of one request per image.
    */
-  async getSignedAttachmentUrls(paths: string[], expiresIn = 3600): Promise<string[]> {
+  async getSignedAttachmentUrls(paths: string[], expiresIn = 3600): Promise<(string | null)[]> {
     if (!paths || paths.length === 0) return [];
     const { data, error } = await supabase.storage
       .from(ATTACHMENT_BUCKET)
       .createSignedUrls(paths, expiresIn);
-    if (error || !data) return [];
-    return data
-      .filter((entry) => !entry.error && entry.signedUrl)
-      .map((entry) => entry.signedUrl as string);
+    if (error || !data) return paths.map(() => null);
+    // Keep the result aligned with `paths` so callers can map by index;
+    // dropped entries become null instead of shifting later images.
+    return paths.map((_, i) => {
+      const entry = data[i];
+      return entry && !entry.error && entry.signedUrl ? (entry.signedUrl as string) : null;
+    });
   },
 
   /**

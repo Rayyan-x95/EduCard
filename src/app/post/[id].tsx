@@ -153,7 +153,7 @@ export default function PostDetailScreen() {
               }}
               className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant/60 active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform ml-2 mb-2"
             >
-              <Share2 size={18} color="#E5A93C" />
+              <Share2 size={18} color="#D49B35" />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -169,8 +169,8 @@ export default function PostDetailScreen() {
             >
               <Bookmark
                 size={18}
-                color={isBookmarked ? "#E5A93C" : "#A1B0C2"}
-                fill={isBookmarked ? "#E5A93C" : "none"}
+                color={isBookmarked ? "#D49B35" : "#A1B0C2"}
+                fill={isBookmarked ? "#D49B35" : "none"}
               />
             </TouchableOpacity>
 
@@ -195,7 +195,7 @@ export default function PostDetailScreen() {
         <ScrollView
           className="flex-1 px-5 py-5"
           keyboardShouldPersistTaps="handled"
-          refreshControl={<RefreshControl refreshing={false} onRefresh={() => { refetch(); refetchComments(); }} tintColor="#E5A93C" />}
+          refreshControl={<RefreshControl refreshing={false} onRefresh={() => { refetch(); refetchComments(); }} tintColor="#D49B35" />}
           contentContainerStyle={{ paddingBottom: 16 }}
         >
           {/* Author header — tap to open public profile */}
@@ -221,7 +221,7 @@ export default function PostDetailScreen() {
           {imageUrls.length > 0 && (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6">
               <View className="flex-row gap-3">
-                {imageUrls.map((url, idx) => (
+                  {imageUrls.filter((u): u is string => Boolean(u)).map((url, idx) => (
                   <Image key={url} source={{ uri: url }} style={{ width: 180, height: 180, borderRadius: 16 }} contentFit="cover" recyclingKey={url} accessibilityLabel={`Attached image ${idx + 1}`} />
                 ))}
               </View>
@@ -235,7 +235,7 @@ export default function PostDetailScreen() {
               onPress={() => reactionMutation.mutate()}
               className="flex-row items-center mr-2 px-3.5 py-1.5 rounded-full bg-surface-container border border-outline-variant/60 active:bg-surface-container-high"
             >
-              <View className="mr-1.5"><ThumbsUp size={14} color="#E5A93C" /></View>
+              <View className="mr-1.5"><ThumbsUp size={14} color="#D49B35" /></View>
               <Typography variant="label-md" className="text-on-surface-variant font-medium">{post.helpful_count}</Typography>
             </TouchableOpacity>
             <View className="flex-row items-center px-3.5 py-1.5 rounded-full bg-surface-container border border-outline-variant/60">

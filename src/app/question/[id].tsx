@@ -7,6 +7,7 @@ import {
   Platform,
   RefreshControl,
   Alert,
+  useWindowDimensions,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
@@ -220,7 +221,7 @@ export default function QuestionDetailScreen() {
         <FlashList<AnswerCardData>
           data={aLoading || aIsError ? [] : ((answers as AnswerCardData[]) || [])}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16 }}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 16 }}
           keyboardShouldPersistTaps="handled"
           refreshControl={
             <RefreshControl
@@ -282,7 +283,7 @@ export default function QuestionDetailScreen() {
                   }}
                   className="self-start flex-row items-center px-3 py-1.5 rounded-full bg-primary-container/60 border border-primary/40 mb-6 active:bg-primary-container/80"
                 >
-                  <View className="mr-1.5"><MessageSquare size={13} color="#E5A93C" /></View>
+                  <View className="mr-1.5"><MessageSquare size={13} color="#D49B35" /></View>
                   <Typography variant="label-sm" className="text-primary-light font-bold normal-case">
                     {communityName.name}
                   </Typography>
@@ -298,7 +299,7 @@ export default function QuestionDetailScreen() {
                         (attachmentImagePaths ?? []).map((_, idx) => (
                           <Skeleton key={idx} width={180} height={180} className="bg-surface-container rounded-2xl" />
                         ))
-                      : imageUrls.map((url, idx) => (
+                      : imageUrls.filter((u): u is string => Boolean(u)).map((url, idx) => (
                           <Image
                             key={url}
                             source={{ uri: url }}
@@ -316,7 +317,7 @@ export default function QuestionDetailScreen() {
               {/* Answers Header */}
               <View className="flex-row items-center justify-between pt-5 pb-4 border-t border-white/[0.08]">
                 <View className="flex-row items-center">
-                  <View className="mr-2"><MessageSquare size={18} color="#E5A93C" /></View>
+                  <View className="mr-2"><MessageSquare size={18} color="#D49B35" /></View>
                   <Typography variant="headline-sm" className="text-on-surface font-bold">
                     {answers?.length || 0} {answers?.length === 1 ? "Answer" : "Answers"}
                   </Typography>
@@ -376,7 +377,7 @@ export default function QuestionDetailScreen() {
               {/* Discussion Thread — clarifying questions & follow-ups on the question itself */}
               <View className="mt-6 pt-5 border-t border-surface-container-high/80">
                 <View className="flex-row items-center mb-3">
-                  <View className="mr-2"><MessageSquare size={16} color="#94A3B8" /></View>
+                  <View className="mr-2"><MessageSquare size={16} color="#A3B3C4" /></View>
                   <Typography variant="label-lg" className="text-on-surface font-bold">
                     Discussion ({comments.length})
                   </Typography>
@@ -432,7 +433,7 @@ export default function QuestionDetailScreen() {
                   >
                     <Send
                       size={15}
-                      color={commentText.trim().length >= 1 && user?.id ? "#0F172A" : "#64748B"}
+                      color={commentText.trim().length >= 1 && user?.id ? "#181003" : "#76889B"}
                     />
                   </TouchableOpacity>
                 </View>
@@ -460,7 +461,7 @@ export default function QuestionDetailScreen() {
           ListEmptyComponent={
             !aLoading && !aIsError ? (
               <Card className="p-8 items-center my-4 bg-surface-container border border-outline-variant/60 shadow-md">
-                <MessageSquare size={32} color="#E5A93C" className="mb-2" />
+                <MessageSquare size={32} color="#D49B35" className="mb-2" />
                 <Typography variant="label-lg" className="text-on-surface text-center mb-1 font-headline font-bold">
                   No answers yet
                 </Typography>
@@ -489,7 +490,7 @@ export default function QuestionDetailScreen() {
               onPress={() => setAnswerText((prev) => prev + " **bold** ")}
               className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
             >
-              <Bold size={16} color="#94A3B8" />
+              <Bold size={16} color="#A3B3C4" />
             </TouchableOpacity>
             <TouchableOpacity
               accessibilityRole="button"
@@ -498,7 +499,7 @@ export default function QuestionDetailScreen() {
               onPress={() => setAnswerText((prev) => prev + " *italic* ")}
               className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
             >
-              <Italic size={16} color="#94A3B8" />
+              <Italic size={16} color="#A3B3C4" />
             </TouchableOpacity>
             <TouchableOpacity
               accessibilityRole="button"
@@ -507,7 +508,7 @@ export default function QuestionDetailScreen() {
               onPress={() => setAnswerText((prev) => prev + " `code` ")}
               className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
             >
-              <Code size={16} color="#94A3B8" />
+              <Code size={16} color="#A3B3C4" />
             </TouchableOpacity>
             <TouchableOpacity
               accessibilityRole="button"
@@ -516,7 +517,7 @@ export default function QuestionDetailScreen() {
               onPress={() => setAnswerText((prev) => prev + "\n- ")}
               className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
             >
-              <List size={16} color="#94A3B8" />
+              <List size={16} color="#A3B3C4" />
             </TouchableOpacity>
             <TouchableOpacity
               accessibilityRole="button"
@@ -525,7 +526,7 @@ export default function QuestionDetailScreen() {
               onPress={() => setAnswerText((prev) => prev + "\n> ")}
               className="w-10 h-10 min-w-[40px] min-h-[40px] items-center justify-center rounded-lg active:bg-surface-container web:cursor-pointer select-none active:scale-90 transition-transform"
             >
-              <Quote size={16} color="#94A3B8" />
+              <Quote size={16} color="#A3B3C4" />
             </TouchableOpacity>
 
             <View className="flex-1" />
@@ -585,8 +586,22 @@ function HeaderBar({
   isDeleting?: boolean;
 }) {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isNarrow = width < 380;
+  const headerBtnClass = isNarrow
+    ? "w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+    : "w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform";
+  const deleteBtnClass = isNarrow
+    ? "w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20 web:cursor-pointer select-none active:scale-95 transition-transform"
+    : "w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20 web:cursor-pointer select-none active:scale-95 transition-transform";
+  const backBtnClass = isNarrow
+    ? "w-9 h-9 min-w-[36px] min-h-[36px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-2"
+    : "w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3";
+  const headerIconSize = isNarrow ? 16 : 18;
+  const backIconSize = isNarrow ? 17 : 19;
+
   return (
-    <View className="flex-row items-center px-5 py-3 border-b border-outline-variant">
+    <View className="flex-row items-center px-6 py-4">
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel="Go back"
@@ -595,14 +610,20 @@ function HeaderBar({
           AppHaptics.light();
           onBack();
         }}
-        className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform mr-3"
+        className={backBtnClass}
       >
-        <ArrowLeft size={19} color="#D7E6FA" />
+        <ArrowLeft size={backIconSize} color="#D7E6FA" />
       </TouchableOpacity>
       <Typography variant="label-lg" className="text-on-surface font-headline font-bold text-[18px] tracking-tight flex-1 mr-2" numberOfLines={1}>
-        Inquiry
+        {questionTitle || "Question"}
       </Typography>
-      <View className="flex-row items-center gap-x-2">
+      <View
+        className={
+          isNarrow
+            ? "flex-row items-center justify-end flex-wrap max-w-[84px] gap-1.5"
+            : "flex-row items-center gap-x-2"
+        }
+      >
         {isAuthor && (
           <TouchableOpacity
             accessibilityRole="button"
@@ -613,9 +634,9 @@ function HeaderBar({
               AppHaptics.medium();
               onDelete?.();
             }}
-            className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-error/10 items-center justify-center border border-error/30 active:bg-error/20 web:cursor-pointer select-none active:scale-95 transition-transform"
+            className={deleteBtnClass}
           >
-            <Trash2 size={18} color="#FF5A65" />
+            <Trash2 size={headerIconSize} color="#FF5A65" />
           </TouchableOpacity>
         )}
 
@@ -629,9 +650,9 @@ function HeaderBar({
               ShareService.shareQuestion(questionTitle, id);
             }
           }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+          className={headerBtnClass}
         >
-          <Share2 size={18} color="#A3B3C4" />
+          <Share2 size={headerIconSize} color="#A3B3C4" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -643,10 +664,10 @@ function HeaderBar({
             AppHaptics.light();
             if (bookmarkMutation && !bookmarkMutation.isPending) bookmarkMutation.mutate();
           }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+          className={headerBtnClass}
         >
           <Bookmark
-            size={18}
+            size={headerIconSize}
             color={isBookmarked ? "#D49B35" : "#A3B3C4"}
             fill={isBookmarked ? "#D49B35" : "none"}
           />
@@ -663,9 +684,9 @@ function HeaderBar({
               params: { targetType: "question", targetId: id || "", targetUserId: "" },
             } as any);
           }}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl bg-surface-container items-center justify-center border border-outline-variant active:bg-surface-container-high web:cursor-pointer select-none active:scale-95 transition-transform"
+          className={headerBtnClass}
         >
-          <Flag size={18} color="#A3B3C4" />
+          <Flag size={headerIconSize} color="#A3B3C4" />
         </TouchableOpacity>
       </View>
     </View>

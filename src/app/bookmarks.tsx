@@ -182,7 +182,7 @@ export default function BookmarksScreen() {
             }}
             className="flex-row items-center gap-x-1.5 px-3.5 py-2 min-h-[44px] rounded-xl bg-primary-container/60 border border-primary/40 active:bg-primary-container/80 web:cursor-pointer select-none active:scale-95 transition-transform"
           >
-            <Sparkles size={14} color="#E5A93C" />
+            <Sparkles size={14} color="#D49B35" />
             <Typography variant="label-sm" className="text-primary font-bold">
               Study Deck
             </Typography>
@@ -199,7 +199,7 @@ export default function BookmarksScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#E5A93C"
+              tintColor="#D49B35"
             />
           }
           renderItem={({ item }) => {
@@ -379,7 +379,7 @@ export default function BookmarksScreen() {
               return (
                 <View className="flex-1 items-center justify-center py-12">
                   <EmptyState
-                    icon={<Bookmark size={32} color="#E5A93C" />}
+                    icon={<Bookmark size={32} color="#D49B35" />}
                     title="No bookmarks yet"
                     description="Your reading list is currently empty. Save insightful questions and key resources to build your personal knowledge base."
                     actionLabel="Explore Content"
@@ -408,7 +408,7 @@ export default function BookmarksScreen() {
           <View className="px-5 py-3 border-b border-white/[0.08] flex-row items-center justify-between">
             <View className="flex-row items-center gap-x-2">
               <View className="w-8 h-8 rounded-lg bg-primary-container/60 border border-primary/40 items-center justify-center">
-                <BookOpen size={16} color="#E5A93C" />
+                <BookOpen size={16} color="#D49B35" />
               </View>
               <Typography variant="label-lg" className="text-on-surface font-bold">
                 Scholar Review Deck

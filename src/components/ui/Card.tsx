@@ -32,17 +32,17 @@ function PressableCard({
       onPress={onPress}
       onPressIn={() => {
         // eslint-disable-next-line react-hooks/immutability
-        scale.value = withSpring(0.99, { damping: 24, stiffness: 450 });
+        scale.value = withSpring(0.96, { damping: 20, stiffness: 400 });
       }}
       onPressOut={() => {
         // eslint-disable-next-line react-hooks/immutability
-        scale.value = withSpring(1, { damping: 24, stiffness: 450 });
+        scale.value = withSpring(1, { damping: 20, stiffness: 400 });
       }}
       accessibilityRole="button"
       style={animatedStyle}
       className={cn(
         cardStyles,
-        "active:border-primary/40 active:bg-surface-container-high web:cursor-pointer web:transition-all duration-150",
+        "active:border-primary/50 active:bg-surface-container-high web:cursor-pointer web:transition-all duration-150",
         className
       )}
       {...props}
@@ -53,12 +53,12 @@ function PressableCard({
 }
 
 export function Card({ onPress, className, isSolved = false, children, ...props }: CardProps) {
-  // Oxford Editorial Dignified Card with Tactile Archival Depth
+  // CRED Neumorphic Deep Cards
   const cardStyles = cn(
-    "rounded-2xl p-5 mb-3.5",
+    "rounded-[20px] p-6 mb-4",
     isSolved
-      ? "bg-tertiary-container border border-tertiary/30 border-t-tertiary/50 shadow-sm shadow-black/30"
-      : "bg-surface-container border border-outline-variant border-t-outline/20 shadow-sm shadow-black/40 web:hover:border-outline"
+      ? "bg-tertiary-container/30 border-[1.5px] border-tertiary/40"
+      : "bg-surface-container border-[1.5px] border-outline-variant/80 web:hover:border-outline-variant"
   );
 
   if (onPress) {

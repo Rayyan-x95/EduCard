@@ -7,7 +7,7 @@
 
 export const CSP_DIRECTIVES = {
   "default-src": ["'self'"],
-  "script-src": ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'"],
+  "script-src": ["'self'", "'wasm-unsafe-eval'"],
   "style-src": ["'self'", "'unsafe-inline'"],
   "img-src": ["'self'", "data:", "blob:", "https:"],
   "font-src": ["'self'", "data:"],

@@ -120,7 +120,7 @@ export default function LoginScreen() {
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            leftIcon={<Mail size={18} color="#E5A93C" />}
+            leftIcon={<Mail size={18} color="#D49B35" />}
           />
 
           <TextInput
@@ -129,7 +129,7 @@ export default function LoginScreen() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            leftIcon={<Lock size={18} color="#E5A93C" />}
+            leftIcon={<Lock size={18} color="#D49B35" />}
           />
 
           <Button
@@ -139,7 +139,7 @@ export default function LoginScreen() {
             onPress={handleLogin}
             className="mt-2"
           >
-            Enter Network
+            Sign In
           </Button>
 
           {/* Divider + OAuth */}

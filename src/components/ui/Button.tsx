@@ -1,15 +1,18 @@
 import React from "react";
 import {
-  TouchableOpacity,
-  TouchableOpacityProps,
+  Pressable,
+  PressableProps,
   ActivityIndicator,
   View,
 } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 import clsx from "clsx";
 import { Typography } from "./Typography";
 import { AppHaptics } from "@/lib/haptics";
 
-interface ButtonProps extends TouchableOpacityProps {
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+interface ButtonProps extends PressableProps {
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "solved";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
@@ -33,31 +36,31 @@ export function Button({
   onPress,
   ...props
 }: ButtonProps) {
-  const baseStyles = "flex-row items-center justify-center font-semibold web:cursor-pointer select-none active:scale-[0.99] web:transition-all";
+  const baseStyles = "flex-row items-center justify-center web:cursor-pointer select-none web:transition-all";
 
   const sizeStyles = {
-    sm: "px-4 py-2.5 min-h-[44px] rounded-xl",
-    md: "px-5 py-3 min-h-[48px] rounded-xl",
-    lg: "px-6 py-3.5 min-h-[52px] rounded-2xl",
+    sm: "px-4 py-2 min-h-[40px] rounded-xl",
+    md: "px-6 py-3 min-h-[50px] rounded-[18px]",
+    lg: "px-8 py-4 min-h-[56px] rounded-[22px]",
   };
 
   const variantStyles = {
-    // Oxford Academic Guild Controls
-    primary: "bg-primary active:bg-primary-light/90 shadow-sm shadow-black/40 border border-primary-light/40 focus:ring-2 focus:ring-primary/50",
-    secondary: "bg-surface-container-high active:bg-surface-container-highest border border-outline-variant focus:ring-2 focus:ring-primary/30",
-    outline: "bg-transparent border border-primary/40 active:bg-primary-container/30 focus:ring-2 focus:ring-primary/40",
-    ghost: "bg-transparent active:bg-surface-container-high/60 focus:ring-2 focus:ring-primary/30",
-    danger: "bg-error-container active:bg-error-container/80 border border-error/40 shadow-sm shadow-black/30 focus:ring-2 focus:ring-error/40",
-    solved: "bg-tertiary-container active:bg-tertiary-container/80 border border-tertiary/40 shadow-sm shadow-black/30 focus:ring-2 focus:ring-tertiary/40",
+    // CRED Thick, High-Contrast Metallic Controls
+    primary: "bg-primary border border-primary-light/50",
+    secondary: "bg-surface-container-high border-[1.5px] border-outline-variant",
+    outline: "bg-transparent border-[1.5px] border-primary/50",
+    ghost: "bg-transparent",
+    danger: "bg-error-container/30 border border-error/50",
+    solved: "bg-tertiary-container/30 border border-tertiary/50",
   };
 
   const textVariantStyles = {
-    primary: "text-primary-on-primary font-bold text-center",
-    secondary: "text-on-surface font-semibold text-center",
-    outline: "text-primary font-semibold text-center",
-    ghost: "text-on-surface font-medium text-center",
+    primary: "text-[#000000] font-black text-center tracking-wide", // Absolute black on gold
+    secondary: "text-on-surface font-bold text-center",
+    outline: "text-primary font-bold text-center",
+    ghost: "text-on-surface font-bold text-center",
     danger: "text-error-light font-bold text-center",
-    solved: "text-tertiary font-bold text-center",
+    solved: "text-tertiary font-bold text-center tracking-widest",
   };
 
   const handlePress = (e: any) => {
@@ -71,8 +74,28 @@ export function Button({
     onPress?.(e);
   };
 
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const handlePressIn = (e: any) => {
+    // eslint-disable-next-line react-hooks/immutability
+    scale.value = withSpring(0.93, { damping: 18, stiffness: 400 });
+    props.onPressIn?.(e);
+  };
+
+  const handlePressOut = (e: any) => {
+    // eslint-disable-next-line react-hooks/immutability
+    scale.value = withSpring(1, { damping: 18, stiffness: 400 });
+    props.onPressOut?.(e);
+  };
+
   return (
-    <TouchableOpacity
+    <AnimatedPressable
       className={clsx(
         baseStyles,
         sizeStyles[size],
@@ -81,13 +104,15 @@ export function Button({
         className
       )}
       disabled={disabled || loading}
-      activeOpacity={0.82}
       accessibilityRole="button"
       accessibilityState={{ disabled: Boolean(disabled || loading), busy: loading }}
       accessibilityLabel={
         typeof children === "string" ? `${children}${loading ? " (loading)" : ""}` : undefined
       }
       onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={animatedStyle}
       {...props}
     >
       {loading ? (
@@ -104,6 +129,6 @@ export function Button({
           {rightIcon && <View className="ml-2">{rightIcon}</View>}
         </View>
       )}
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 }

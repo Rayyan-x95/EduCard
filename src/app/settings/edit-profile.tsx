@@ -163,7 +163,7 @@ export default function EditProfileScreen() {
         <Card className="p-5 mb-5 bg-surface-container border border-outline-variant/60 shadow-sm">
           <View className="flex-row items-center pb-3.5 mb-4 border-b border-outline-variant/30">
             <View className="p-1.5 rounded-lg bg-primary-container/40 border border-primary/30 mr-2.5">
-              <User size={16} color="#E5A93C" />
+              <User size={16} color="#D49B35" />
             </View>
             <Typography variant="headline-sm" className="text-on-surface font-headline font-bold">
               Profile Information
@@ -174,7 +174,7 @@ export default function EditProfileScreen() {
             label="Full Name / Display Name"
             value={displayName}
             onChangeText={setDisplayName}
-            leftIcon={<User size={18} color="#E5A93C" />}
+            leftIcon={<User size={18} color="#D49B35" />}
           />
 
           <TextInput
@@ -185,7 +185,7 @@ export default function EditProfileScreen() {
             multiline
             numberOfLines={4}
             maxLength={300}
-            leftIcon={<FileText size={18} color="#E5A93C" />}
+            leftIcon={<FileText size={18} color="#D49B35" />}
             helperText={`${bio.length}/300 characters`}
           />
 
@@ -225,7 +225,7 @@ export default function EditProfileScreen() {
             value={countryCode}
             onChangeText={(t) => setCountryCode(t.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase())}
             autoCapitalize="characters"
-            leftIcon={<Globe size={18} color="#E5A93C" />}
+            leftIcon={<Globe size={18} color="#D49B35" />}
             helperText={
               countryCode.length === 2
                 ? countryName(countryCode) !== countryCode

@@ -53,8 +53,7 @@ export interface QuestionListItem {
 /**
  * Resolves the caller's id from the local session (no network round-trip).
  */
-async function requireUserId(passedUserId?: string): Promise<string> {
-  if (passedUserId) return passedUserId;
+async function requireUserId(): Promise<string> {
   const { data } = await supabase.auth.getSession();
   const userId = data.session?.user?.id;
   if (!userId) {
@@ -63,6 +62,18 @@ async function requireUserId(passedUserId?: string): Promise<string> {
     });
   }
   return userId;
+}
+
+/** Generates a random UUID for idempotency keys */
+function generateUUID() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 
 function mapFallbackQuestion(q: any): FeedRow {
@@ -136,6 +147,10 @@ export const QuestionsService = {
         .order("created_at", { ascending: false })
         .limit(FEED_PAGE_SIZE);
 
+      if (cursorCreatedAt) {
+        query = query.lt("created_at", cursorCreatedAt);
+      }
+
       if (filter === "unsolved") {
         query = query.eq("status", "open");
       }
@@ -197,6 +212,7 @@ export const QuestionsService = {
       p_community_id: input.community_id || null,
       p_topic_ids: input.topic_ids || [],
       p_image_paths: input.media_paths || [],
+      p_client_mutation_id: generateUUID(),
     });
 
     if (qError) throw qError;
@@ -264,6 +280,7 @@ export const QuestionsService = {
         question_id: questionId,
         author_id: authorId,
         body,
+        client_mutation_id: generateUUID(),
       })
       .select("id")
       .single();

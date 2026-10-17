@@ -136,3 +136,14 @@ Before launch:
 - Test blocked-user interactions.
 - Test moderator privilege boundaries.
 - Run dependency auditing.
+
+
+## Recent hardening (audit fixes)
+
+- CSP script-src no longer allows 'unsafe-inline' (see src/lib/csp.ts).
+- Telemetry error-report cooldown cache is bounded to 1000 entries to prevent unbounded memory growth in long web sessions.
+- Attachment signed URLs are returned aligned with their input paths so gallery rendering cannot shift on partial failures.
+- Recent search history is now namespaced per user id to avoid cross-account leakage on shared devices.
+- Avatar uploads derive the file extension from the blob mime type instead of the (possibly content-scheme) URI.
+- eputation_events table and types added; types kept in sync with the reputation migration.
+

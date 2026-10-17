@@ -40,6 +40,7 @@ describe("PostsService", () => {
       answer_id: null,
       author_id: "u-9",
       body: "Great insight!",
+      client_mutation_id: expect.any(String),
     });
     expect(result.id).toBe("c-1");
   });
@@ -58,6 +59,7 @@ describe("PostsService", () => {
       answer_id: null,
       author_id: "u-9",
       body: "Clarification?",
+      client_mutation_id: expect.any(String),
     });
   });
 
@@ -76,6 +78,7 @@ describe("PostsService", () => {
       p_topic_ids: ["t-1"],
       p_image_paths: ["u/a.jpg"],
       p_visibility: "public",
+      p_client_mutation_id: expect.any(String),
     });
     expect(res.id).toBe("p-new");
   });

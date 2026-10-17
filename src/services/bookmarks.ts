@@ -70,7 +70,7 @@ export const BookmarksService = {
     
     const { data, error } = await filteredQuery.maybeSingle();
 
-    if (error) return false;
+    if (error) throw error;
     return Boolean(data);
   },
 

@@ -36,10 +36,10 @@ export default function CommunitiesScreen() {
         <View className="px-5 py-3 border-b border-outline-variant flex-row items-center justify-between">
           <View className="flex-1 mr-3">
             <Typography variant="headline-md" className="text-on-surface font-headline font-bold text-2xl tracking-tight">
-              Spaces & Guilds
+              Communities
             </Typography>
             <Typography variant="body-sm" className="text-on-surface-variant font-medium">
-              Academic study groups, faculties, and collegiate discussions
+              Study groups, faculties, and shared interests
             </Typography>
           </View>
           <Button

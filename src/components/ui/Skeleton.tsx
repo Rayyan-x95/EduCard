@@ -65,7 +65,7 @@ export function Skeleton({
 
 export function QuestionCardSkeleton() {
   return (
-    <Card className="mb-4 p-5 bg-surface-container border-outline-variant/40">
+    <Card className="mb-3.5 p-5 bg-surface-container border-outline-variant/50 rounded-[20px]">
       {/* Author Header Skeleton */}
       <View className="flex-row items-center gap-x-3 mb-4">
         <Skeleton width={40} height={40} borderRadius={20} />

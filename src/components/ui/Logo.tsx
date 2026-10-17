@@ -1,4 +1,5 @@
-import { Image, ImageStyle, StyleProp } from "react-native";
+import { ImageStyle, StyleProp } from "react-native";
+import { Image } from "expo-image";
 
 interface LogoProps {
   variant?: "full" | "simple";
@@ -35,7 +36,8 @@ export function Logo({
   return (
     <Image
       source={source}
-      style={[{ width: dimension, height: h, resizeMode: "contain" }, style]}
+      style={[{ width: dimension, height: h }, style]}
+      contentFit="contain"
       className={className}
     />
   );

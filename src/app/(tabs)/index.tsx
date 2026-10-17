@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 import { View, RefreshControl, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
 import {
   useInfiniteQuery,
   useMutation,
@@ -195,25 +196,17 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-surface">
-      <HeaderBar profile={profile} />
+    <View className="flex-1 bg-surface">
+      {/* Apple-Style Segmented Control Filter - Moved into list header or give space */}
 
-      {/* Apple-Style Segmented Control Filter */}
-      <View style={{ width: "100%", maxWidth: 720, alignSelf: "center" }} className="px-5 pt-3 pb-2">
-        <SegmentedControl
-          options={FILTERS}
-          value={activeFeedFilter}
-          onChange={(val) => setActiveFeedFilter(val as UIFeedFilter)}
-        />
-      </View>
 
-      {/* Feed List */}
       <View style={{ flex: 1, width: "100%", maxWidth: 720, alignSelf: "center" }}>
         <FlashList<FeedRow>
           data={questions}
           keyExtractor={(item) => `${item.item_type}:${item.id}`}
           extraData={activeFeedFilter}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 110 }}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 140, paddingBottom: 140 }}
+          keyboardDismissMode="on-drag"
           onEndReachedThreshold={0.4}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -225,7 +218,15 @@ export default function HomeScreen() {
               tintColor="#D49B35"
             />
           }
-          ListHeaderComponent={<View className="h-1" />}
+          ListHeaderComponent={
+            <View style={{ width: "100%", maxWidth: 720, alignSelf: "center" }} className="mb-4 mt-2">
+              <SegmentedControl
+                options={FILTERS}
+                value={activeFeedFilter}
+                onChange={(val) => setActiveFeedFilter(val as UIFeedFilter)}
+              />
+            </View>
+          }
           ListFooterComponent={() => {
             if (isFetchingNextPage) {
               return (
@@ -256,16 +257,16 @@ export default function HomeScreen() {
           ListEmptyComponent={
             isLoading ? (
               <View>
-                <View className="mb-4"><QuestionCardSkeleton /></View>
-                <View className="mb-4"><QuestionCardSkeleton /></View>
-                <View><QuestionCardSkeleton /></View>
+                <QuestionCardSkeleton />
+                <QuestionCardSkeleton />
+                <QuestionCardSkeleton />
               </View>
             ) : (
               <EmptyState
                 icon={<Inbox size={32} color="#D49B35" />}
-                title="No inquiries in this feed yet"
-                description="Be the first to pose an academic inquiry or join a scholarly guild."
-                actionLabel="Pose an Inquiry"
+                title="No questions in this feed yet"
+                description="Be the first to ask a question or join a community."
+                actionLabel="Ask a Question"
                 onAction={() => {
                   AppHaptics.medium();
                   router.push("/question/new");
@@ -276,28 +277,27 @@ export default function HomeScreen() {
           renderItem={renderItem}
         />
       </View>
-    </SafeAreaView>
+      
+      {/* Absolute Blur Header */}
+      <HeaderBar profile={profile} />
+    </View>
   );
 }
 
 function HeaderBar({ profile }: { profile: Profile | null }) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View className="w-full items-center border-b border-outline-variant bg-surface/95 backdrop-blur-md z-10">
-      <View className="w-full max-w-[720px] flex-row items-center justify-between px-5 py-3">
+    <BlurView intensity={80} tint="dark" className="absolute top-0 left-0 right-0 z-10 w-full items-center border-b border-white/5" style={{ paddingTop: Math.max(insets.top, 16) }}>
+      <View className="w-full max-w-[720px] flex-row items-center justify-between px-6 py-4">
         <View className="flex-row items-center">
           <View className="mr-3 w-10 h-10 rounded-xl bg-primary-container border border-primary/40 items-center justify-center shadow-sm shadow-black/30">
             <Logo variant="simple" size="sm" width={22} height={22} />
           </View>
-          <View>
-            <Typography variant="headline-md" className="text-on-surface leading-tight font-headline font-bold text-xl tracking-tight">
-              EduCard
-            </Typography>
-            <Typography variant="label-sm" className="text-on-surface-muted text-[10px] tracking-wider uppercase font-semibold">
-              Academic Knowledge Guild
-            </Typography>
-          </View>
+          <Typography variant="headline-md" className="text-on-surface leading-tight font-headline font-bold text-xl tracking-tight">
+            EduCard
+          </Typography>
         </View>
 
         <View className="flex-row items-center">
@@ -311,7 +311,7 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
             }}
             className="mr-2 px-3.5 h-10 rounded-full"
           >
-            Inquire
+            Ask
           </Button>
 
           <TouchableOpacity
@@ -348,6 +348,6 @@ function HeaderBar({ profile }: { profile: Profile | null }) {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </BlurView>
   );
 }
